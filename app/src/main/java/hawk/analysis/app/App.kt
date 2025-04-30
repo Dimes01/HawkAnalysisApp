@@ -16,7 +16,7 @@ import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.NavigationAction
 import hawk.analysis.app.nav.ObserveAsEvents
 import hawk.analysis.app.screens.Home
-import hawk.analysis.app.screens.Login
+import hawk.analysis.app.screens.LoginVM
 import hawk.analysis.app.screens.Settings
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.HomeViewModel
@@ -63,7 +63,7 @@ fun App() {
                     composable<Destination.LoginScreen> {
                         val extras = MutableCreationExtras().apply { set(LoginViewModel.NAVIGATOR_KEY, navigator) }
                         val viewModel = viewModel<LoginViewModel>(factory = LoginViewModel.Factory, extras = extras)
-                        Login(viewModel)
+                        LoginVM(viewModel)
                     }
                 }
                 navigation<Destination.HomeGraph>(

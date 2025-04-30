@@ -1,6 +1,5 @@
 package hawk.analysis.app.viewmodels
 
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,7 +9,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
-import hawk.analysis.app.utilities.Provider
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
@@ -25,14 +23,10 @@ class LoginViewModel(
             }
         }
     }
-
-
     var name = mutableStateOf("")
-    var age = mutableIntStateOf(18)
+    var password = mutableStateOf("")
 
     fun toMainScreen() {
-        Provider.name = name.value
-        Provider.age = age.intValue
         viewModelScope.launch {
             navigator.navigate(destination = Destination.HomeScreen)
         }

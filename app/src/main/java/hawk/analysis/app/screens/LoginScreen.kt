@@ -10,42 +10,54 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.viewmodels.LoginViewModel
 
 @Composable
-fun Login(viewModel: LoginViewModel) {
+fun LoginVM(viewModel: LoginViewModel) {
+    Login(
+        onNameChanged = { viewModel.name.value = it },
+        onPasswordChanged = { viewModel.password.value = it },
+        onHomeScreen = viewModel::toMainScreen
+    )
+}
+
+@Preview
+@Composable
+fun LoginPreview() {
+    Login({}, {}, {})
+}
+
+@Composable
+fun Login(
+    onNameChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onHomeScreen: () -> Unit
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         var name = ""
-        var age = 18
+        var password = ""
         Text("Имя")
         TextField(
             value = name,
             onValueChange = { name = it }
         )
-        Text("Возраст")
+        Text("Пароль")
         TextField(
-            value = age.toString(),
-            onValueChange = { age = it.toInt() }
+            value = password,
+            onValueChange = { password = it }
         )
         Button(
             onClick = {
-                viewModel.name.value = name
-                viewModel.age.intValue = age
-                viewModel.toMainScreen()
+                onNameChanged(name)
+                onPasswordChanged(password)
+                onHomeScreen()
             },
         ) {
             Text("На главную")
         }
     }
 }
-
-//@Preview
-//@Composable
-//fun LoginPreview() {
-//    Login()
-//}
