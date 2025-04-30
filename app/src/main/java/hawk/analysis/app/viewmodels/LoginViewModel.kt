@@ -11,24 +11,9 @@ import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val navigator: Navigator
-) : ViewModel() {
-    companion object {
-        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val navigator = this[NAVIGATOR_KEY] as Navigator
-                LoginViewModel(navigator)
-            }
-        }
-    }
+class LoginViewModel : ViewModel() {
     var name = mutableStateOf("")
+        private set
     var password = mutableStateOf("")
-
-    fun toMainScreen() {
-        viewModelScope.launch {
-            navigator.navigate(destination = Destination.HomeScreen)
-        }
-    }
+        private set
 }

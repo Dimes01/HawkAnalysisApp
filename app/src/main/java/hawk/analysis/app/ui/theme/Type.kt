@@ -2,32 +2,14 @@ package hawk.analysis.app.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.googlefonts.Font
-import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.compose.ui.unit.sp
 import hawk.analysis.app.R
 
-val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-val bodyFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Noto Sans"),
-        fontProvider = provider,
-    )
-)
-
-val displayFontFamily = FontFamily(
-    Font(
-        googleFont = GoogleFont("Tinos"),
-        fontProvider = provider,
-    )
-)
+val displayFontFamily = FontFamily(Font(R.font.tinos_regular))
+val bodyFontFamily = FontFamily(Font(R.font.noto_sans_regular, FontWeight.Normal))
 
 val AppTypography = Typography(
     displayLarge = TextStyle(fontFamily = displayFontFamily, fontSize = 34.sp, fontWeight = FontWeight.Bold, lineHeight = 40.sp, letterSpacing = 0.25.sp),
