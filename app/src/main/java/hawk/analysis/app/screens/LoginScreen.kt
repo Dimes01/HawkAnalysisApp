@@ -14,7 +14,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.viewmodels.LoginViewModel
 
 @Composable
-fun Login(viewModel: LoginViewModel = viewModel()) {
+fun Login() {
+    val viewModel: LoginViewModel = viewModel()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,

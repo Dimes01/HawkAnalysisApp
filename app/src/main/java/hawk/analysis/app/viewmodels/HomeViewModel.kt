@@ -4,12 +4,10 @@ import android.icu.math.BigDecimal
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import hawk.analysis.app.Destination
+import hawk.analysis.app.SettingsScreen
 import hawk.analysis.app.dto.Account
 import hawk.analysis.app.dto.User
-import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.utilities.Provider
 import kotlinx.coroutines.launch
@@ -22,7 +20,7 @@ class HomeViewModel(
 
     fun toSettings() {
         viewModelScope.launch {
-            navigator.navigate(destination = Destination.SettingsScreen(user, account))
+            navigator.navigate(destination = SettingsScreen(user.age, account.user.name))
         }
     }
 }
