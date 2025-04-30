@@ -29,8 +29,8 @@ fun Settings(viewModel: SettingsViewModel) {
     }
 }
 
-@Preview
-@Composable
-fun SettingsPreview() {
-    Settings(viewModel = viewModel())
-}
+//@Preview
+//@Composable
+//fun SettingsPreview() {
+//    Settings(viewModel = viewModel())
+//}

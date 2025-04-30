@@ -10,27 +10,26 @@ import hawk.analysis.app.dto.Account
 import hawk.analysis.app.dto.User
 import hawk.analysis.app.nav.Navigator
 import kotlinx.coroutines.launch
-import kotlin.reflect.KClass
 
 class SettingsViewModel(
     private val navigator: Navigator,
-    private val user: User,
-    private val account: Account
+    private val userId: Int,
+    private val accountId: String
 ) : ViewModel()  {
-    companion object {
-        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
-        val USER_KEY = object : CreationExtras.Key<User> {}
-        val ACCOUNT_KEY = object : CreationExtras.Key<Account> {}
-
-        val Factory: ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                val navigator = this[NAVIGATOR_KEY] as Navigator
-                val user = this[USER_KEY] as User
-                val account = this[ACCOUNT_KEY] as Account
-                SettingsViewModel(navigator, user, account)
-            }
-        }
-    }
+//    companion object {
+//        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
+//        val USER_KEY = object : CreationExtras.Key<User> {}
+//        val ACCOUNT_KEY = object : CreationExtras.Key<Account> {}
+//
+//        val Factory: ViewModelProvider.Factory = viewModelFactory {
+//            initializer {
+//                val navigator = this[NAVIGATOR_KEY] as Navigator
+//                val user = this[USER_KEY] as User
+//                val account = this[ACCOUNT_KEY] as Account
+//                SettingsViewModel(navigator, user, account)
+//            }
+//        }
+//    }
 
     fun toMain() {
         viewModelScope.launch {
@@ -41,8 +40,8 @@ class SettingsViewModel(
 
 class SettingsViewModelFactory(
     private val navigator: Navigator,
-    private val user: User,
-    private val account: Account
+    private val user: Int,
+    private val account: String
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return SettingsViewModel(navigator, user, account) as T

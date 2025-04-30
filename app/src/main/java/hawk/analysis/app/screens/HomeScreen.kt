@@ -13,8 +13,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 
 @Composable
-fun Home() {
-    val viewModel: HomeViewModel = viewModel()
+fun Home(viewModel: HomeViewModel) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -28,8 +27,8 @@ fun Home() {
     }
 }
 
-@Preview
-@Composable
-fun HomePreview() {
-    Home()
-}
+//@Preview
+//@Composable
+//fun HomePreview() {
+//    Home()
+//}
