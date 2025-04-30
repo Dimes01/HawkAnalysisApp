@@ -6,44 +6,25 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hawk.analysis.app.dto.Account
-import hawk.analysis.app.dto.User
 import hawk.analysis.app.nav.Navigator
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val navigator: Navigator,
-    private val userId: Int,
-    private val accountId: String
+    private val navigator: Navigator
 ) : ViewModel()  {
-//    companion object {
-//        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
-//        val USER_KEY = object : CreationExtras.Key<User> {}
-//        val ACCOUNT_KEY = object : CreationExtras.Key<Account> {}
-//
-//        val Factory: ViewModelProvider.Factory = viewModelFactory {
-//            initializer {
-//                val navigator = this[NAVIGATOR_KEY] as Navigator
-//                val user = this[USER_KEY] as User
-//                val account = this[ACCOUNT_KEY] as Account
-//                SettingsViewModel(navigator, user, account)
-//            }
-//        }
-//    }
+    companion object {
+        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val navigator = this[NAVIGATOR_KEY] as Navigator
+                SettingsViewModel(navigator)
+            }
+        }
+    }
 
     fun toMain() {
         viewModelScope.launch {
             navigator.navigateUp()
         }
-    }
-}
-
-class SettingsViewModelFactory(
-    private val navigator: Navigator,
-    private val user: Int,
-    private val account: String
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SettingsViewModel(navigator, user, account) as T
     }
 }
