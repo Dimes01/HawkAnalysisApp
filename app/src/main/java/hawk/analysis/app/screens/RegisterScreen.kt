@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hawk.analysis.app.R
@@ -42,21 +41,22 @@ import org.koin.core.qualifier.named
 @Preview(name = "Light", widthDp = 440, heightDp = 956)
 @Preview(name = "Dark", widthDp = 440, heightDp = 956, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun LoginPreview() {
+fun RegisterPreview() {
     KoinApplication(application = {
         modules(appModule)
     }) {
-        Login({}, {})
+        Register({}, {})
     }
 }
 
 @Composable
-fun Login(
+fun Register(
     onHomeScreen: () -> Unit,
-    onRegisterScreen: () -> Unit,
+    onLoginScreen: () -> Unit,
 ) {
     val authService = koinInject<AuthService>(named("dev_auth_service"))
     val coroutineScope = rememberCoroutineScope()
+    var name = ""
     var email = ""
     var password = ""
     val modifierForButtons = Modifier.fillMaxWidth().padding(0.dp, 2.dp)
@@ -88,7 +88,7 @@ fun Login(
                     contentDescription = "logo"
                 )
                 Text(
-                    text = "Вход",
+                    text = "Регистрация",
                     style = MaterialTheme.typography.displayLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -114,6 +114,13 @@ fun Login(
                     )
                 }
                 HawkOutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = "Никнейм",
+                    isError = isError,
+                    modifier = modifierForTextFields,
+                )
+                HawkOutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
                     label = "E-mail",
@@ -129,18 +136,18 @@ fun Login(
                     modifier = modifierForTextFields
                 )
                 HawkOutlinedButton(
-                    text = "Войти",
+                    text = "Зарегистрироваться",
                     modifier = modifierForButtons,
                     onClick = { coroutineScope.launch {
-                        val response = authService.login(email, password)
+                        val response = authService.register(name, email, password)
                         if (response != null) onHomeScreen.invoke()
                         else isError = true
                     } }
                 )
                 HawkTonalButton(
-                    text = "Зарегистрироваться",
+                    text = "Войти",
                     modifier = modifierForButtons,
-                    onClick = onRegisterScreen
+                    onClick = onLoginScreen
                 )
             }
         }

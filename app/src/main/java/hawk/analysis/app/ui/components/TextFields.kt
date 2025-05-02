@@ -1,11 +1,13 @@
 package hawk.analysis.app.ui.components
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.outlined.Cancel
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -17,17 +19,22 @@ fun HawkOutlinedTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    modifier: Modifier = Modifier,
     isPassword: Boolean = false,
-    modifier: Modifier = Modifier
+    isError: Boolean = false,
+    isEnabled: Boolean = true
 ) {
     OutlinedTextField (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         value = value,
         onValueChange = onValueChange,
         label = { Text(
             text = label,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodySmall
+        ) },
+        trailingIcon = { Icon(
+            imageVector = if (isError) Icons.Filled.Error else Icons.Outlined.Cancel,
+            contentDescription = "Cancel"
         ) },
         textStyle = MaterialTheme.typography.bodyLarge,
         visualTransformation =
@@ -36,13 +43,29 @@ fun HawkOutlinedTextField(
             else
                 VisualTransformation.None,
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = MaterialTheme.colorScheme.onSurface,
             unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-            focusedContainerColor = MaterialTheme.colorScheme.onPrimary,
-            cursorColor = MaterialTheme.colorScheme.primary,
-            focusedBorderColor = MaterialTheme.colorScheme.outline,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-        )
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedBorderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+
+            errorTextColor = MaterialTheme.colorScheme.onSurface,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorBorderColor = MaterialTheme.colorScheme.error,
+            errorContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            errorTrailingIconColor = MaterialTheme.colorScheme.error,
+
+            cursorColor = MaterialTheme.colorScheme.primary,
+            errorCursorColor = MaterialTheme.colorScheme.error
+        ),
+        isError = isError,
+        enabled = isEnabled
     )
 }
 

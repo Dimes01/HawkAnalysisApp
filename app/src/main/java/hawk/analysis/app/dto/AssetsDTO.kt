@@ -1,5 +1,10 @@
 package hawk.analysis.app.dto
 
+import android.icu.math.BigDecimal
+import hawk.analysis.app.utilities.BigDecimalSerializer
+import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
+
 @Serializable
 data class InstrumentShort(
     val isin: String,
