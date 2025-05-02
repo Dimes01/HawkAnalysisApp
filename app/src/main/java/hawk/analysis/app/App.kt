@@ -1,23 +1,34 @@
 package hawk.analysis.app
 
 import android.app.Application
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import hawk.analysis.app.di.appModule
+import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.DefaultNavigator
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.NavigationAction
 import hawk.analysis.app.nav.ObserveAsEvents
-import hawk.analysis.app.screens.Home
+import hawk.analysis.app.screens.HomeVM
 import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.Settings
@@ -69,41 +80,53 @@ fun App() {
                 }
             }
 
-            NavHost(
-                navController = navController,
-                startDestination = Destination.AuthGraph,
-                modifier = Modifier.padding(innerPadding)
+            Box(
+                modifier = Modifier.fillMaxSize()
             ) {
-                navigation<Destination.AuthGraph>(
-                    startDestination = Destination.LoginScreen
+                var navBarVisible by remember { mutableStateOf(true) }
+                NavHost(
+                    navController = navController,
+                    startDestination = Destination.HomeGraph,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(innerPadding)
                 ) {
-                    composable<Destination.LoginScreen> {
-                        Login(
-                            onHomeScreen = { suspend { navigator.navigate(Destination.HomeScreen) {} } },
-                            onRegisterScreen = { suspend { navigator.navigate(Destination.RegisterScreen) {} } },
-                        )
+                    navigation<Destination.AuthGraph>(
+                        startDestination = Destination.LoginScreen
+                    ) {
+                        composable<Destination.LoginScreen> {
+                            navBarVisible = false
+                            Login(
+                                onHomeScreen = { navController.navigate(Destination.HomeScreen) },
+                                onRegisterScreen = { navController.navigate(Destination.RegisterScreen) },
+                            )
+                        }
+                        composable<Destination.RegisterScreen> {
+                            navBarVisible = false
+                            Register (
+                                onHomeScreen = { navController.navigate(Destination.HomeScreen) },
+                                onLoginScreen = { navController.navigate(Destination.LoginScreen) },
+                            )
+                        }
                     }
-                    composable<Destination.RegisterScreen> {
-                        Register (
-                            onHomeScreen = { suspend { navigator.navigate(Destination.HomeScreen) {} } },
-                            onLoginScreen = { suspend { navigator.navigate(Destination.LoginScreen) {} } },
-                        )
+                    navigation<Destination.HomeGraph>(
+                        startDestination = Destination.HomeScreen
+                    ) {
+                        composable<Destination.HomeScreen> {
+                            navBarVisible = true
+                            val extras = MutableCreationExtras().apply { set(HomeViewModel.NAVIGATOR_KEY, navigator) }
+                            val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
+                            HomeVM(viewModel)
+                        }
+                        composable<Destination.SettingsScreen> {
+                            navBarVisible = false
+                            val extras = MutableCreationExtras().apply { set(SettingsViewModel.NAVIGATOR_KEY, navigator) }
+                            val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
+                            Settings(viewModel)
+                        }
                     }
                 }
-                navigation<Destination.HomeGraph>(
-                    startDestination = Destination.HomeScreen
-                ) {
-                    composable<Destination.HomeScreen> {
-                        val extras = MutableCreationExtras().apply { set(HomeViewModel.NAVIGATOR_KEY, navigator) }
-                        val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
-                        Home(viewModel)
-                    }
-                    composable<Destination.SettingsScreen> {
-                        val extras = MutableCreationExtras().apply { set(SettingsViewModel.NAVIGATOR_KEY, navigator) }
-                        val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
-                        Settings(viewModel)
-                    }
-                }
+                BottomNavigationBar(navController, navBarVisible, Modifier.align(Alignment.BottomCenter))
             }
         }
     }

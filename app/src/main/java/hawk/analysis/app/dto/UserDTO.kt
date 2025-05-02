@@ -56,13 +56,6 @@ data class UpdatePasswordRequest(
 )
 
 @Serializable
-data class UpdateTokenRequest(
-    val lastUpdatedAt: Instant,
-    val password: String,
-    val newToken: String,
-)
-
-@Serializable
 data class RecoverRequest(
     val lastUpdatedAt: Instant,
 )

@@ -131,11 +131,12 @@ fun Login(
                 HawkOutlinedButton(
                     text = "Войти",
                     modifier = modifierForButtons,
-                    onClick = { coroutineScope.launch {
-                        val response = authService.login(email, password)
-                        if (response != null) onHomeScreen.invoke()
-                        else isError = true
-                    } }
+                    onClick = onHomeScreen
+//                    onClick = { coroutineScope.launch {
+//                        val response = authService.login(email, password)
+//                        if (response != null) onHomeScreen.invoke()
+//                        else isError = true
+//                    } }
                 )
                 HawkTonalButton(
                     text = "Зарегистрироваться",

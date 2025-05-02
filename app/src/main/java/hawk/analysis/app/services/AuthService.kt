@@ -13,15 +13,15 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 
 class AuthService(
-    private val BASE_URL: String,
-    private val CLIENT: HttpClient
+    private val baseUrl: String,
+    private val client: HttpClient
 ) {
     var jwt: String = ""
         private set
 
     suspend fun login(email: String, password: String): LoginResponse? {
         val requestBody = LoginRequest(email = email, password = password)
-        val response = CLIENT.post("/api/users/sign-in") {
+        val response = client.post("$baseUrl/api/users/sign-in") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }
@@ -35,7 +35,7 @@ class AuthService(
 
     suspend fun register(name: String, email: String, password: String): RegisterResponse? {
         val requestBody = RegisterRequest(name = name, email = email, password = password)
-        val response = CLIENT.post("/api/users/sign-up") {
+        val response = client.post("$baseUrl/api/users/sign-up") {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }

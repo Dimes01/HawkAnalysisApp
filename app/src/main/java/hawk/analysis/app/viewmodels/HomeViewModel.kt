@@ -23,6 +23,20 @@ class HomeViewModel(
         }
     }
 
+    fun previousAccount() {
+
+    }
+
+    fun nextAccount() {
+
+    }
+
+    fun toAnalyseAccount() {
+        viewModelScope.launch {
+            navigator.navigateUp()
+        }
+    }
+
     fun toSettings() {
         viewModelScope.launch {
             navigator.navigate(destination = Destination.SettingsScreen)
