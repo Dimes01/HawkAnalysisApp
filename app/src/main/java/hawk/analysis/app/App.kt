@@ -67,7 +67,7 @@ fun App() {
     HawkAnalysisAppTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
-            val navigator = DefaultNavigator(Destination.AuthGraph)
+            val navigator = DefaultNavigator(Destination.HomeGraph)
 
             ObserveAsEvents(flow = navigator.navigationActions) { action ->
                 when(action) {
@@ -86,7 +86,7 @@ fun App() {
                 var navBarVisible by remember { mutableStateOf(true) }
                 NavHost(
                     navController = navController,
-                    startDestination = Destination.HomeGraph,
+                    startDestination = navigator.startDestination,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(innerPadding)
@@ -119,7 +119,7 @@ fun App() {
                             HomeVM(viewModel)
                         }
                         composable<Destination.SettingsScreen> {
-                            navBarVisible = false
+                            navBarVisible = true
                             val extras = MutableCreationExtras().apply { set(SettingsViewModel.NAVIGATOR_KEY, navigator) }
                             val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
                             Settings(viewModel)

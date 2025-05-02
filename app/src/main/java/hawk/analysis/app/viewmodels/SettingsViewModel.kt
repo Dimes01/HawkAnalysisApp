@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import kotlinx.coroutines.launch
 
@@ -24,7 +25,11 @@ class SettingsViewModel(
 
     fun toMain() {
         viewModelScope.launch {
-            navigator.navigateUp()
+            navigator.navigate(Destination.HomeScreen) {
+                popUpTo(navigator.startDestination) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
 }
