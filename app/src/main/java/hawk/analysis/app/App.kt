@@ -22,17 +22,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import hawk.analysis.app.di.appModule
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.DefaultNavigator
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.NavigationAction
 import hawk.analysis.app.nav.ObserveAsEvents
+import hawk.analysis.app.screens.Account
+import hawk.analysis.app.screens.AccountVM
 import hawk.analysis.app.screens.HomeVM
 import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.Settings
+import hawk.analysis.app.screens.SettingsVM
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
@@ -122,7 +127,17 @@ fun App() {
                             navBarVisible = true
                             val extras = MutableCreationExtras().apply { set(SettingsViewModel.NAVIGATOR_KEY, navigator) }
                             val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
-                            Settings(viewModel)
+                            SettingsVM(viewModel)
+                        }
+                        composable<Destination.AccountScreen> {
+                            navBarVisible = true
+                            val args = it.toRoute<Destination.AccountScreen>()
+                            val extras = MutableCreationExtras().apply {
+                                set(AccountViewModel.NAVIGATOR_KEY, navigator)
+                                set(AccountViewModel.ACCOUNT_ID_KEY, args.accountId)
+                            }
+                            val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
+                            AccountVM(viewModel)
                         }
                     }
                 }
