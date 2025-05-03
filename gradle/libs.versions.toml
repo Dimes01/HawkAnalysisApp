@@ -1,5 +1,8 @@
 [versions]
 agp = "8.9.2"
+conscryptAndroid = "2.5.2"
+grpcOkhttp = "1.62.2"
+javaSdkCore = "1.31"
 kotlin = "2.1.20"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -17,6 +20,10 @@ koin = "4.0.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+
+conscrypt-android = { module = "org.conscrypt:conscrypt-android", version.ref = "conscryptAndroid" }
+grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpcOkhttp" }
+java-sdk-core = { module = "ru.tinkoff.piapi:java-sdk-core", version.ref = "javaSdkCore" }
 
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }

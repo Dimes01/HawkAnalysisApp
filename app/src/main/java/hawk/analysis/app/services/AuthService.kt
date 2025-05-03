@@ -16,8 +16,10 @@ class AuthService(
     private val baseUrl: String,
     private val client: HttpClient
 ) {
-    var jwt: String = ""
-        private set
+    companion object {
+        var jwt: String = ""
+            private set
+    }
 
     suspend fun login(email: String, password: String): LoginResponse? {
         val requestBody = LoginRequest(email = email, password = password)

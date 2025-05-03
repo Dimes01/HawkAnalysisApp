@@ -23,7 +23,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import hawk.analysis.app.di.appModule
+import hawk.analysis.app.di.commonModule
+import hawk.analysis.app.di.devModule
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.DefaultNavigator
 import hawk.analysis.app.nav.Destination
@@ -36,13 +37,17 @@ import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.Settings
 import hawk.analysis.app.screens.SettingsVM
+import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
+import io.grpc.internal.ConscryptLoader
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
+import java.security.Security
 
 /**
  * Навигация написана на основе следующего примера с GitHub и YouTube:
@@ -58,10 +63,11 @@ import org.koin.core.context.startKoin
 class HawkApp : Application() {
     override fun onCreate() {
         super.onCreate()
+        Security.insertProviderAt(ConscryptLoader.newProvider(), 1)
         startKoin {
             androidLogger()
             androidContext(this@HawkApp)
-            modules(appModule)
+            modules(commonModule, devModule)
         }
     }
 }
@@ -72,7 +78,7 @@ fun App() {
     HawkAnalysisAppTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val navController = rememberNavController()
-            val navigator = DefaultNavigator(Destination.HomeGraph)
+            val navigator = DefaultNavigator(Destination.AuthGraph)
 
             ObserveAsEvents(flow = navigator.navigationActions) { action ->
                 when(action) {
@@ -119,7 +125,11 @@ fun App() {
                     ) {
                         composable<Destination.HomeScreen> {
                             navBarVisible = true
-                            val extras = MutableCreationExtras().apply { set(HomeViewModel.NAVIGATOR_KEY, navigator) }
+                            val tokenService = koinInject<TokenService>()
+                            val extras = MutableCreationExtras().apply {
+                                set(HomeViewModel.NAVIGATOR_KEY, navigator)
+                                set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
+                            }
                             val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
                             HomeVM(viewModel)
                         }
@@ -131,11 +141,7 @@ fun App() {
                         }
                         composable<Destination.AccountScreen> {
                             navBarVisible = true
-                            val args = it.toRoute<Destination.AccountScreen>()
-                            val extras = MutableCreationExtras().apply {
-                                set(AccountViewModel.NAVIGATOR_KEY, navigator)
-                                set(AccountViewModel.ACCOUNT_ID_KEY, args.accountId)
-                            }
+                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAVIGATOR_KEY, navigator) }
                             val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
                             AccountVM(viewModel)
                         }

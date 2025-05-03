@@ -6,6 +6,24 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class AccountInfo(
+    val id: String,
+    val userId: Int,
+    val openedDate: Instant,
+    val closedDate: Instant,
+    val type: Int,
+    val name: String,
+    val status: Int,
+    val accessLevel: Int,
+
+    @Serializable(with = BigDecimalSerializer::class)
+    val riskFree: BigDecimal?,
+
+    val figiBenchmark: String?,
+    val updatedAt: Instant,
+)
+
+@Serializable
 data class UpdateRiskFreeRequest(
     val accountId: String,
     @Serializable(with = BigDecimalSerializer::class)

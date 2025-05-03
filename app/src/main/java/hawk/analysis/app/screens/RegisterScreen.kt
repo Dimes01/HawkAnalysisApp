@@ -26,7 +26,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hawk.analysis.app.R
-import hawk.analysis.app.di.appModule
+import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.ui.components.ErrorMessage
 import hawk.analysis.app.ui.components.HawkOutlinedButton
@@ -43,7 +43,7 @@ import org.koin.core.qualifier.named
 @Composable
 fun RegisterPreview() {
     KoinApplication(application = {
-        modules(appModule)
+        modules(commonModule)
     }) {
         Register({}, {})
     }
@@ -54,7 +54,7 @@ fun Register(
     onHomeScreen: () -> Unit,
     onLoginScreen: () -> Unit,
 ) {
-    val authService = koinInject<AuthService>(named("dev_auth_service"))
+    val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
     var name = ""
     var email = ""
@@ -138,12 +138,11 @@ fun Register(
                 HawkOutlinedButton(
                     text = "Зарегистрироваться",
                     modifier = modifierForButtons,
-                    onClick = onHomeScreen
-//                    onClick = { coroutineScope.launch {
-//                        val response = authService.register(name, email, password)
-//                        if (response != null) onHomeScreen.invoke()
-//                        else isError = true
-//                    } }
+                    onClick = { coroutineScope.launch {
+                        val response = authService.register(name, email, password)
+                        if (response != null) onHomeScreen()
+                        else isError = true
+                    } }
                 )
                 HawkTonalButton(
                     text = "Войти",

@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hawk.analysis.app.R
-import hawk.analysis.app.di.appModule
+import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.ui.components.ErrorMessage
 import hawk.analysis.app.ui.components.HawkOutlinedButton
@@ -44,7 +44,7 @@ import org.koin.core.qualifier.named
 @Composable
 fun LoginPreview() {
     KoinApplication(application = {
-        modules(appModule)
+        modules(commonModule)
     }) {
         Login({}, {})
     }
@@ -55,11 +55,13 @@ fun Login(
     onHomeScreen: () -> Unit,
     onRegisterScreen: () -> Unit,
 ) {
-    val authService = koinInject<AuthService>(named("dev_auth_service"))
+    val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
-    var email = ""
-    var password = ""
-    val modifierForButtons = Modifier.fillMaxWidth().padding(0.dp, 2.dp)
+    var email = "user@mail.com"
+    var password = "1234"
+    val modifierForButtons = Modifier
+        .fillMaxWidth()
+        .padding(0.dp, 2.dp)
     val modifierForTextFields = Modifier.fillMaxWidth()
     var isError by remember { mutableStateOf(false) }
     HawkAnalysisAppTheme {
@@ -131,12 +133,13 @@ fun Login(
                 HawkOutlinedButton(
                     text = "Войти",
                     modifier = modifierForButtons,
-                    onClick = onHomeScreen
-//                    onClick = { coroutineScope.launch {
-//                        val response = authService.login(email, password)
-//                        if (response != null) onHomeScreen.invoke()
-//                        else isError = true
-//                    } }
+                    onClick = {
+                        coroutineScope.launch {
+                            val response = authService.login(email, password)
+                            if (response != null) onHomeScreen()
+                            else isError = true
+                        }
+                    }
                 )
                 HawkTonalButton(
                     text = "Зарегистрироваться",
