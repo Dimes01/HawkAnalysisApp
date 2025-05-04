@@ -2,11 +2,8 @@ package hawk.analysis.app
 
 import android.app.Application
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,12 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
 import hawk.analysis.app.nav.BottomNavigationBar
@@ -30,19 +25,17 @@ import hawk.analysis.app.nav.DefaultNavigator
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.NavigationAction
 import hawk.analysis.app.nav.ObserveAsEvents
-import hawk.analysis.app.screens.Account
 import hawk.analysis.app.screens.AccountVM
 import hawk.analysis.app.screens.HomeVM
 import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
-import hawk.analysis.app.screens.Settings
 import hawk.analysis.app.screens.SettingsVM
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
-import io.grpc.internal.ConscryptLoader
+import org.conscrypt.Conscrypt
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.compose.koinInject
@@ -63,7 +56,7 @@ import java.security.Security
 class HawkApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        Security.insertProviderAt(ConscryptLoader.newProvider(), 1)
+        Security.insertProviderAt(Conscrypt.newProvider(), 1)
         startKoin {
             androidLogger()
             androidContext(this@HawkApp)
