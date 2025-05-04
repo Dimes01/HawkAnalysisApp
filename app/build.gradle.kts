@@ -41,9 +41,8 @@ android {
 }
 
 dependencies {
-    implementation(libs.java.sdk.core) {
-        exclude(group = "com.google.api.grpc", module = "proto-google-common-protos")
-    }
+    implementation(project(":restlib"))
+
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)

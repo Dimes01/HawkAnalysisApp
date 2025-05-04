@@ -31,6 +31,7 @@ import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.SettingsVM
 import hawk.analysis.app.services.TokenService
+import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
@@ -118,9 +119,11 @@ fun App() {
                     ) {
                         composable<Destination.HomeScreen> {
                             navBarVisible = true
+                            val userServiceTI = koinInject<UserServiceTI>()
                             val tokenService = koinInject<TokenService>()
                             val extras = MutableCreationExtras().apply {
                                 set(HomeViewModel.NAVIGATOR_KEY, navigator)
+                                set(HomeViewModel.USER_SERVICE_TI_KEY, userServiceTI)
                                 set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
                             }
                             val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
