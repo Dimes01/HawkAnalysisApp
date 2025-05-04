@@ -1,13 +1,14 @@
 package hawk.analysis.app.viewmodels
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
@@ -16,66 +17,62 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock.System
+import kotlinx.datetime.Instant
+import ru.tinkoff.piapi.contract.v1.Account
 
 
 class HomeViewModel(
     private val navigator: Navigator,
     private val tokenService: TokenService
 ) : ViewModel() {
-    private var _accounts = mutableStateListOf<Any>()
+    private var _accounts = mutableStateListOf<Account>()
+    private var index = 0
 
-    private var _selectedAccount = MutableStateFlow<Any?>(null)
-    val selectedAccount: StateFlow<Any?> = _selectedAccount.asStateFlow()
+    private var _selectedAccount = MutableStateFlow<Account?>(null)
+    val selectedAccount: StateFlow<Account?> = _selectedAccount.asStateFlow()
+
+    private var _lastUpdatedAt = mutableStateOf<Instant>(System.now())
+    val lastUpdatedAt: State<Instant> = _lastUpdatedAt
 
     init {
         println("Initiate HomeViewModel")
         updateAccounts()
-        changeSelectedAccount(0)
     }
 
-    private fun updateAccounts() = viewModelScope.launch {
+    fun updateAccounts() = viewModelScope.launch {
         println("Updating accounts")
         val tokens = tokenService.getAllByUserId(AuthService.jwt)
-        val allAccounts = mutableSetOf<Any>()
+        val allAccounts = mutableSetOf<Account>()
         for (token in tokens) {
             val service = UserService(token.authToken)
-            service.getAccounts()?.apply { allAccounts.addAll(this) }
+            service.getAccounts()?.apply { allAccounts.addAll(this.accountsList) }
         }
         _accounts.clear()
         _accounts.addAll(allAccounts)
+        _lastUpdatedAt.value = System.now()
+        changeSelectedAccount()
     }
 
-    private fun changeSelectedAccount(index: Int) = viewModelScope.launch {
-        println("Updating selected account with index: $index")
-        if (index >= 0 && index < _accounts.count())
+    private fun changeSelectedAccount() = viewModelScope.launch {
+        println("Updating selected account")
+        if (index >= 0 && index < _accounts.count()) {
+            println("Index of selected account: $index")
             _selectedAccount.value = _accounts[index]
-    }
-
-    fun previousAccount() {
-
-    }
-
-    fun nextAccount() {
-
-    }
-
-    fun toAnalyseAccount() {
-        viewModelScope.launch {
-            navigator.navigate(Destination.LoginScreen) {
-                popUpTo(navigator.startDestination) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
         }
     }
 
-    fun toSettings() {
-        viewModelScope.launch {
-            navigator.navigate(Destination.SettingsScreen) {
-                popUpTo(navigator.startDestination) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
+    fun previousAccount() {
+        if (index > 0) {
+            --index
+            changeSelectedAccount()
+        }
+    }
+
+    fun nextAccount() {
+        if (index < _accounts.size - 1) {
+            ++index
+            changeSelectedAccount()
         }
     }
 

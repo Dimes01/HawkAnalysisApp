@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.Packaging
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -28,6 +30,9 @@ android {
             )
         }
     }
+//    fun Packaging.() {
+//        pickFirst("META-INF/DEPENDENCIES")
+//    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -41,6 +46,17 @@ android {
 }
 
 dependencies {
+//    implementation("com.google.api.grpc:proto-google-common-protos:2.51.0")
+//    implementation(libs.kotlin.sdk.grpc.core) {
+//        exclude(group = "com.google.api.grpc", module = "proto-google-common-protos")
+//    }
+//    implementation(libs.kotlin.sdk.grpc.contract) {
+//        exclude(group = "com.google.api.grpc", module = "proto-google-common-protos")
+//    }
+
+    implementation(libs.kotlin.sdk.grpc.core)
+    implementation(libs.kotlin.sdk.grpc.contract)
+
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
@@ -55,6 +71,9 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.nav)
 
+    implementation(libs.grpc.okhttp)
+    implementation(libs.grpc.stub)
+    implementation(libs.grpc.protobuf)
     implementation(libs.conscrypt.android)
 
     implementation(libs.androidx.core.ktx)
