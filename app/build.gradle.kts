@@ -43,6 +43,7 @@ android {
 dependencies {
     implementation(project(":restlib"))
 
+
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
@@ -56,9 +57,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.nav)
-
-    implementation(libs.grpc.okhttp)
-    implementation(libs.conscrypt.android)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

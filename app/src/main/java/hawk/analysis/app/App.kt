@@ -36,7 +36,6 @@ import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
-import org.conscrypt.Conscrypt
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.compose.koinInject
@@ -57,7 +56,6 @@ import java.security.Security
 class HawkApp : Application() {
     override fun onCreate() {
         super.onCreate()
-        Security.insertProviderAt(Conscrypt.newProvider(), 1)
         startKoin {
             androidLogger()
             androidContext(this@HawkApp)

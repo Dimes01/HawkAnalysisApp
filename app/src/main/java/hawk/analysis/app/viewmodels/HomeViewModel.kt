@@ -9,19 +9,20 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.restlib.models.Account
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Clock.System
 import kotlinx.datetime.Instant
+import kotlin.math.max
+import kotlin.system.measureTimeMillis
 
 class HomeViewModel(
     private val navigator: Navigator,
@@ -37,13 +38,27 @@ class HomeViewModel(
     private var _lastUpdatedAt = mutableStateOf<Instant>(System.now())
     val lastUpdatedAt: State<Instant> = _lastUpdatedAt
 
+    init {
+        startSchedulingUpdate()
+    }
+
+    private fun startSchedulingUpdate() {
+        viewModelScope.launch {
+            while (true) {
+                val executionTime = measureTimeMillis { updateAccounts() }
+                val lastDelay = max(0, 5000 - executionTime)
+                delay(lastDelay)
+            }
+        }
+    }
+
     fun updateAccounts() = viewModelScope.launch {
         println("Updating accounts")
         val tokens = tokenService.getAllByUserId(AuthService.jwt)
         println("Getting ${tokens.size} tokens")
         val allAccounts = mutableSetOf<Account>()
         for (token in tokens) {
-            userServiceTI.getAccounts(token.authToken)?.apply { allAccounts.addAll(this.accounts) }
+            userServiceTI.getAccounts(token.authToken).apply { allAccounts.addAll(this.accounts) }
         }
         _accounts.clear()
         _accounts.addAll(allAccounts)
@@ -71,26 +86,6 @@ class HomeViewModel(
         if (index < _accounts.size - 1) {
             ++index
             changeSelectedAccount()
-        }
-    }
-
-    fun toAnalyseAccount() {
-        viewModelScope.launch {
-            navigator.navigate(Destination.LoginScreen) {
-                popUpTo(navigator.startDestination) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
-        }
-    }
-
-    fun toSettings() {
-        viewModelScope.launch {
-            navigator.navigate(Destination.SettingsScreen) {
-                popUpTo(navigator.startDestination) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
-            }
         }
     }
 
