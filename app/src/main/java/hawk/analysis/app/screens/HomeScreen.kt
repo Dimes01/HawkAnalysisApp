@@ -12,14 +12,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
-import ru.tinkoff.piapi.contract.v1.Account
 
 @Preview
 @Composable
@@ -29,10 +27,10 @@ fun HomePreview() {
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel = viewModel()) {
-    val selectedAccount = viewModel.selectedAccount.collectAsState()
+//    val selectedAccount = viewModel.selectedAccount.collectAsState()
 
     Home(
-        selectedAccount = selectedAccount.value,
+        selectedAccount = viewModel.selectedAccount,
         onPrevAccount = viewModel::previousAccount,
         onNextAccount = viewModel::nextAccount
     )
@@ -40,7 +38,7 @@ fun HomeVM(viewModel: HomeViewModel = viewModel()) {
 
 @Composable
 fun Home(
-    selectedAccount: Account?,
+    selectedAccount: Any?,
     onPrevAccount: () -> Unit,
     onNextAccount: () -> Unit,
 ) {
@@ -62,7 +60,7 @@ fun Home(
 
 @Composable
 fun Header(
-    account: Account,
+    account: Any,
     modifier: Modifier = Modifier,
     onPrevClick: () -> Unit,
     onNextClick: () -> Unit
@@ -75,11 +73,11 @@ fun Header(
         IconButton(onClick = onPrevClick) { Icons.AutoMirrored.Outlined.ArrowLeft }
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = account.name,
+                text = "account.name",
                 style = MaterialTheme.typography.displaySmall
             )
             Text(
-                text = account.id,
+                text = "account.id",
                 style = MaterialTheme.typography.headlineSmall
             )
         }

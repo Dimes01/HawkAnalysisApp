@@ -1,8 +1,6 @@
 package hawk.analysis.app.viewmodels
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -18,20 +16,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import ru.tinkoff.piapi.contract.v1.Account
-import ru.tinkoff.piapi.core.stream.MarketDataStreamService
+
 
 class HomeViewModel(
     private val navigator: Navigator,
     private val tokenService: TokenService
 ) : ViewModel() {
-    private lateinit var marketDataStreamService: MarketDataStreamService
-    private var _accounts = mutableStateListOf<Account>()
+    private var _accounts = mutableStateListOf<Any>()
 
-    private var _selectedAccount = MutableStateFlow<Account?>(null)
-    val selectedAccount: StateFlow<Account?> = _selectedAccount.asStateFlow()
+    private var _selectedAccount = MutableStateFlow<Any?>(null)
+    val selectedAccount: StateFlow<Any?> = _selectedAccount.asStateFlow()
 
     init {
         println("Initiate HomeViewModel")
@@ -42,7 +36,7 @@ class HomeViewModel(
     private fun updateAccounts() = viewModelScope.launch {
         println("Updating accounts")
         val tokens = tokenService.getAllByUserId(AuthService.jwt)
-        val allAccounts = mutableSetOf<Account>()
+        val allAccounts = mutableSetOf<Any>()
         for (token in tokens) {
             val service = UserService(token.authToken)
             service.getAccounts()?.apply { allAccounts.addAll(this) }

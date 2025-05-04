@@ -41,9 +41,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.java.sdk.core) {
-        exclude(group = "com.google.api.grpc", module = "proto-google-common-protos")
-    }
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlinx.datetime)
@@ -58,7 +55,6 @@ dependencies {
     implementation(libs.koin.compose.viewmodel)
     implementation(libs.koin.compose.viewmodel.nav)
 
-    implementation(libs.grpc.okhttp)
     implementation(libs.conscrypt.android)
 
     implementation(libs.androidx.core.ktx)
