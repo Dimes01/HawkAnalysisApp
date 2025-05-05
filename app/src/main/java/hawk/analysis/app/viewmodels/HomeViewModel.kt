@@ -1,5 +1,6 @@
 package hawk.analysis.app.viewmodels
 
+import android.icu.math.BigDecimal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +38,15 @@ class HomeViewModel(
 
     private var _lastUpdatedAt = mutableStateOf<Instant>(System.now())
     val lastUpdatedAt: State<Instant> = _lastUpdatedAt
+
+    private var _sum = mutableStateOf<BigDecimal>(BigDecimal.ZERO)
+    val sum: State<BigDecimal> = _sum
+
+    private var _profit = mutableStateOf<BigDecimal>(BigDecimal.ZERO)
+    val profit: State<BigDecimal> = _sum
+
+    private var _profitPercent = mutableStateOf<BigDecimal>(BigDecimal.ZERO)
+    val profitPercent: State<BigDecimal> = _sum
 
     init {
         startSchedulingUpdate()

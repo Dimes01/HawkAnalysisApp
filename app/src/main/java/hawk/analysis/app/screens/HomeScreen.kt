@@ -1,10 +1,13 @@
 package hawk.analysis.app.screens
 
+import android.icu.math.BigDecimal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,7 +16,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.Header
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.utilities.timeFormat
@@ -32,6 +37,9 @@ fun HomeVM(viewModel: HomeViewModel = viewModel()) {
     Home(
         selectedAccount = selectedAccount.value,
         lastUpdatedAt = viewModel.lastUpdatedAt.value,
+        sum = viewModel.sum.value,
+        profit = viewModel.profit.value,
+        profitPercent = viewModel.profitPercent.value,
         modifier = Modifier.fillMaxSize(),
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::previousAccount,
@@ -43,6 +51,10 @@ fun HomeVM(viewModel: HomeViewModel = viewModel()) {
 fun Home(
     selectedAccount: Account?,
     lastUpdatedAt: Instant,
+    sum: BigDecimal,
+    profit: BigDecimal,
+    profitPercent: BigDecimal,
+    money: List<>,
     modifier: Modifier = Modifier,
     onUpdateAccount: () -> Unit,
     onPrevAccount: () -> Unit,
@@ -62,7 +74,7 @@ fun Home(
                 onPrevClick = onPrevAccount,
                 onNextClick = onNextAccount,
             )
-            modifierMainPart = Modifier.fillMaxSize()
+            modifierMainPart = Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 10.dp)
         } ?: Column {
             Text(
                 text = "No account selected",
@@ -77,9 +89,27 @@ fun Home(
             }
         }
         Column(
-            modifier = modifierMainPart
+            modifier = modifierMainPart,
+            verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.Top),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val modifierCommonInfo = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+            CommonInformation(sum = sum, profit = profit, profitPercent = profitPercent, modifier = modifierCommonInfo)
+            Column(
+                modifier = Modifier.padding(vertical = 5.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(
+                    text = "Деньги",
+                    style = MaterialTheme.typography.displaySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
 
+                }
+            }
         }
     }
 }
@@ -100,6 +130,9 @@ fun HomePreview() {
         Home(
             selectedAccount = account,
             lastUpdatedAt = Instant.parse("2022-03-02T09:12:34Z"),
+            sum = BigDecimal.valueOf(333000),
+            profit = BigDecimal.valueOf(1000),
+            profitPercent = BigDecimal.valueOf(10),
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
             onUpdateAccount = {},
             onPrevAccount = {},

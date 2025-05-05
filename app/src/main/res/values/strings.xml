@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Hawk Analysis</string>
+    <string name="currency_rub">RUB</string>
+    <string name="currency_usd">USD</string>
 </resources>
