@@ -1,9 +1,0 @@
-package hawk.analysis.restlib.enums
-
-enum class AccountType {
-    ACCOUNT_TYPE_UNSPECIFIED,
-    ACCOUNT_TYPE_TINKOFF,
-    ACCOUNT_TYPE_TINKOFF_IIS,
-    ACCOUNT_TYPE_INVEST_BOX,
-    ACCOUNT_TYPE_INVEST_FUND
-}

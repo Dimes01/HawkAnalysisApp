@@ -1,8 +1,0 @@
-package hawk.analysis.restlib.enums
-
-enum class AccessLevel {
-    ACCOUNT_ACCESS_LEVEL_UNSPECIFIED,
-    ACCOUNT_ACCESS_LEVEL_FULL_ACCESS,
-    ACCOUNT_ACCESS_LEVEL_READ_ONLY,
-    ACCOUNT_ACCESS_LEVEL_NO_ACCESS
-}

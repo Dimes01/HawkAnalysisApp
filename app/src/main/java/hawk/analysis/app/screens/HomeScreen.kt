@@ -54,7 +54,7 @@ fun Home(
     sum: BigDecimal,
     profit: BigDecimal,
     profitPercent: BigDecimal,
-    money: List<>,
+//    money: List<>,
     modifier: Modifier = Modifier,
     onUpdateAccount: () -> Unit,
     onPrevAccount: () -> Unit,

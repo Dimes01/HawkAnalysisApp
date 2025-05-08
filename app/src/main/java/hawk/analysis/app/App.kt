@@ -94,9 +94,7 @@ fun App() {
                         .align(Alignment.TopCenter)
                         .padding(innerPadding)
                 ) {
-                    navigation<Destination.AuthGraph>(
-                        startDestination = Destination.LoginScreen
-                    ) {
+                    navigation<Destination.AuthGraph>(startDestination = Destination.LoginScreen) {
                         composable<Destination.LoginScreen> {
                             navBarVisible = false
                             Login(
@@ -112,9 +110,7 @@ fun App() {
                             )
                         }
                     }
-                    navigation<Destination.HomeGraph>(
-                        startDestination = Destination.HomeScreen
-                    ) {
+                    navigation<Destination.HomeGraph>(startDestination = Destination.HomeScreen) {
                         composable<Destination.HomeScreen> {
                             navBarVisible = true
                             val userServiceTI = koinInject<UserServiceTI>()
@@ -127,17 +123,34 @@ fun App() {
                             val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
                             HomeVM(viewModel)
                         }
+                        composable<Destination.AccountScreen> {
+                            navBarVisible = true
+                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAVIGATOR_KEY, navigator) }
+                            val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
+                            AccountVM(viewModel)
+                        }
+                        composable<Destination.AssetScreen> {
+                            navBarVisible = false
+                        }
+                    }
+                    navigation<Destination.SettingsGraph>(startDestination = Destination.SettingsScreen) {
                         composable<Destination.SettingsScreen> {
                             navBarVisible = true
                             val extras = MutableCreationExtras().apply { set(SettingsViewModel.NAVIGATOR_KEY, navigator) }
                             val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
                             SettingsVM(viewModel)
                         }
-                        composable<Destination.AccountScreen> {
-                            navBarVisible = true
-                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAVIGATOR_KEY, navigator) }
-                            val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
-                            AccountVM(viewModel)
+                        composable<Destination.ChangeUserSettings> {
+                            navBarVisible = false
+                        }
+                        composable<Destination.ChangeAccountScreen> {
+                            navBarVisible = false
+                        }
+                        composable<Destination.AddAuthTokenScreen> {
+                            navBarVisible = false
+                        }
+                        composable<Destination.EditAuthTokenScreen> {
+                            navBarVisible = false
                         }
                     }
                 }
