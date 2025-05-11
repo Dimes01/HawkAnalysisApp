@@ -23,23 +23,20 @@ import hawk.analysis.app.ui.components.Header
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.utilities.timeFormat
 import hawk.analysis.app.viewmodels.HomeViewModel
-import hawk.analysis.restlib.models.Account
-import hawk.analysis.restlib.enums.AccessLevel
-import hawk.analysis.restlib.enums.AccountStatus
-import hawk.analysis.restlib.enums.AccountType
+import hawk.analysis.restlib.contracts.AccessLevel
+import hawk.analysis.restlib.contracts.Account
+import hawk.analysis.restlib.contracts.AccountStatus
+import hawk.analysis.restlib.contracts.AccountType
 import kotlinx.datetime.Instant
 import kotlinx.datetime.format
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel = viewModel()) {
     val selectedAccount = viewModel.selectedAccount.collectAsState()
-
+    val state = viewModel.state.collectAsState()
     Home(
         selectedAccount = selectedAccount.value,
-        lastUpdatedAt = viewModel.lastUpdatedAt.value,
-        sum = viewModel.sum.value,
-        profit = viewModel.profit.value,
-        profitPercent = viewModel.profitPercent.value,
+        state = state.value,
         modifier = Modifier.fillMaxSize(),
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::previousAccount,
@@ -50,11 +47,7 @@ fun HomeVM(viewModel: HomeViewModel = viewModel()) {
 @Composable
 fun Home(
     selectedAccount: Account?,
-    lastUpdatedAt: Instant,
-    sum: BigDecimal,
-    profit: BigDecimal,
-    profitPercent: BigDecimal,
-//    money: List<>,
+    state: HomeScreenState,
     modifier: Modifier = Modifier,
     onUpdateAccount: () -> Unit,
     onPrevAccount: () -> Unit,
@@ -69,7 +62,7 @@ fun Home(
         selectedAccount?.let { account ->
             Header(
                 account = account,
-                lastUpdatedAt = lastUpdatedAt,
+                lastUpdatedAt = state.lastUpdatedAt,
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
                 onPrevClick = onPrevAccount,
                 onNextClick = onNextAccount,
@@ -81,7 +74,7 @@ fun Home(
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "Последнее обновление: ${lastUpdatedAt.format(timeFormat)}",
+                text = "Последнее обновление: ${state.lastUpdatedAt.format(timeFormat)}",
                 style = MaterialTheme.typography.bodyLarge
             )
             Button(onClick = onUpdateAccount) {
@@ -94,7 +87,7 @@ fun Home(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val modifierCommonInfo = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
-            CommonInformation(sum = sum, profit = profit, profitPercent = profitPercent, modifier = modifierCommonInfo)
+            CommonInformation(sum = state.sum, profit = state.profit, profitPercent = state.profitRelative, modifier = modifierCommonInfo)
             Column(
                 modifier = Modifier.padding(vertical = 5.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -127,12 +120,15 @@ fun HomePreview() {
             closedDate = Instant.parse("1970-01-01T00:00:00Z"),
             accessLevel = AccessLevel.ACCOUNT_ACCESS_LEVEL_READ_ONLY
         )
-        Home(
-            selectedAccount = account,
+        val state = HomeScreenState(
             lastUpdatedAt = Instant.parse("2022-03-02T09:12:34Z"),
             sum = BigDecimal.valueOf(333000),
             profit = BigDecimal.valueOf(1000),
-            profitPercent = BigDecimal.valueOf(10),
+            profitRelative = BigDecimal.valueOf(10)
+        )
+        Home(
+            selectedAccount = account,
+            state = state,
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
             onUpdateAccount = {},
             onPrevAccount = {},

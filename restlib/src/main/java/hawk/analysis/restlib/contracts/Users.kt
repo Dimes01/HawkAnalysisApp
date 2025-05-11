@@ -1,8 +1,8 @@
 package hawk.analysis.restlib.contracts
 
-import hawk.analysis.restlib.serializers.AccessLevelSerializer
-import hawk.analysis.restlib.serializers.AccountStatusSerializer
-import hawk.analysis.restlib.serializers.AccountTypeSerializer
+import hawk.analysis.restlib.utilities.AccessLevelSerializer
+import hawk.analysis.restlib.utilities.AccountStatusSerializer
+import hawk.analysis.restlib.utilities.AccountTypeSerializer
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -36,7 +36,7 @@ enum class AccountType(val value: Int) {
     ACCOUNT_TYPE_TINKOFF(1),
     ACCOUNT_TYPE_TINKOFF_IIS(2),
     ACCOUNT_TYPE_INVEST_BOX(3),
-    ACCOUNT_TYPE_INVEST_FUND(4)
+    ACCOUNT_TYPE_INVEST_FUND(4),
 }
 
 enum class AccountStatus(val value: Int) {

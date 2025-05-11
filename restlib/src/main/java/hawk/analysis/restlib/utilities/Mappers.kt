@@ -1,8 +1,23 @@
 package hawk.analysis.restlib.utilities
 
-import hawk.analysis.restlib.enums.AccessLevel
-import hawk.analysis.restlib.enums.AccountStatus
-import hawk.analysis.restlib.enums.AccountType
+import android.icu.math.BigDecimal
+import hawk.analysis.restlib.contracts.AccessLevel
+import hawk.analysis.restlib.contracts.AccountStatus
+import hawk.analysis.restlib.contracts.AccountType
+import hawk.analysis.restlib.contracts.MoneyValue
+import hawk.analysis.restlib.contracts.Quotation
+
+fun MoneyValue.toBigDecimal(): BigDecimal {
+    val unitsPart = BigDecimal.valueOf(units)
+    val nanoPart = BigDecimal.valueOf(nano.toLong(), 9)
+    return unitsPart.add(nanoPart)
+}
+
+fun Quotation.toBigDecimal(): BigDecimal {
+    val unitsPart = BigDecimal.valueOf(units)
+    val nanoPart = BigDecimal.valueOf(nano.toLong(), 9)
+    return unitsPart.add(nanoPart)
+}
 
 val stringToAccessLevel: Map<String, AccessLevel> = mapOf(
     Pair("ACCOUNT_ACCESS_LEVEL_UNSPECIFIED", AccessLevel.ACCOUNT_ACCESS_LEVEL_UNSPECIFIED),

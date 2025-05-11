@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import hawk.analysis.app.utilities.timeFormat
-import hawk.analysis.restlib.models.Account
+import hawk.analysis.restlib.contracts.Account
 import kotlinx.datetime.Instant
 import kotlinx.datetime.format
 

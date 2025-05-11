@@ -1,10 +1,9 @@
 package hawk.analysis.app.tiapi
 
 import hawk.analysis.app.utilities.authHeader
-import hawk.analysis.restlib.dto.GetAccountsRequest
-import hawk.analysis.restlib.dto.GetAccountsResponse
-import hawk.analysis.restlib.enums.AccountStatus
-import hawk.analysis.restlib.models.Account
+import hawk.analysis.restlib.contracts.AccountStatus
+import hawk.analysis.restlib.contracts.GetAccountsRequest
+import hawk.analysis.restlib.contracts.GetAccountsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory
 
 class UserServiceTI(
     private val client: HttpClient,
-    private val baseUrl: String = "https://invest-public-api.tinkoff.ru/rest",
+    private val baseUrl: String,
 ) {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(UserServiceTI::class.java)

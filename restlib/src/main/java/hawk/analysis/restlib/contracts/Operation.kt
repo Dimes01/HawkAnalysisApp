@@ -1,12 +1,14 @@
 package hawk.analysis.restlib.contracts
 
-import android.icu.math.BigDecimal
+import hawk.analysis.restlib.utilities.CurrencyRequestSerializer
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PortfolioRequest(
     val accountId: String,
+    @Serializable(with = CurrencyRequestSerializer::class)
+    val currency: CurrencyRequest
 )
 
 @Serializable
@@ -91,7 +93,9 @@ data class PositionsSecurities(
 )
 
 enum class CurrencyRequest(val value: Int) {
-    RUB(0),
-    USD(1),
-    EUR(2),
+    RUB(0), USD(1), EUR(2);
+
+    companion object {
+        fun byName(name: String): CurrencyRequest? = entries.firstOrNull { it.name == name }
+    }
 }
