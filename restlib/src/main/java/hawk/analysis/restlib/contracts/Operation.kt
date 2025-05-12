@@ -50,7 +50,7 @@ data class PortfolioPosition (
     val quantity: Quotation,
     val averagePositionPrice: MoneyValue,
     val expectedYield: Quotation,
-    val currentNkd: MoneyValue,
+    val currentNkd: MoneyValue? = null,
     val currentPrice: MoneyValue,
     val averagePositionPriceFifo: Quotation,
     val blocked: Boolean,

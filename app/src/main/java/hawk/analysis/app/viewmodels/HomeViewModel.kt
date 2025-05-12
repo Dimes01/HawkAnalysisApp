@@ -1,13 +1,11 @@
 package hawk.analysis.app.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.screens.HomeScreenState
 import hawk.analysis.app.services.AuthService
@@ -16,6 +14,7 @@ import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.restlib.contracts.Account
 import hawk.analysis.restlib.utilities.toBigDecimal
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,97 +31,114 @@ class HomeViewModel(
     private val userServiceTI: UserServiceTI,
     private val operationServiceTI: OperationServiceTI,
 ) : ViewModel() {
-    // Охренительная логика:
-    // Создать множество троек <аккаунт, токен, состояние>.
-    // Когда нужно обновить информацию, проходим по множеству и получаем информацию.
-    // Когда происходит смена аккаунта, то находим в множестве новый аккаунт и изменяем состояние на то, что есть в тройке
 
-    private val _state = MutableStateFlow(HomeScreenState())
-    val state: StateFlow<HomeScreenState> = _state
+    private val _accounts = mutableSetOf<Account>()
+    private val _currentState = MutableStateFlow(HomeScreenState())
+    val currentState: StateFlow<HomeScreenState> = _currentState
 
-    private val _accounts = mutableStateListOf<Account>()
-    private val _tokens = mutableStateListOf<TokenInfo>()
-    private var index = 0
+    private val _currentAccount = MutableStateFlow<Account?>(null)
+    val currentAccount: StateFlow<Account?> = _currentAccount.asStateFlow()
 
-    private var _selectedAccount = MutableStateFlow<Account?>(null)
-    val selectedAccount: StateFlow<Account?> = _selectedAccount.asStateFlow()
+    private var updateJob: Job? = null
 
     init {
-        startSchedulingUpdate()
+        startPeriodicUpdates()
     }
 
-    private fun startSchedulingUpdate() {
-        viewModelScope.launch {
+    private fun startPeriodicUpdates() {
+        updateJob = viewModelScope.launch {
             while (true) {
                 val executionTime = measureTimeMillis { updateAccounts() }
-                val lastDelay = max(0, 5000 - executionTime)
-                delay(lastDelay)
+                val lastTime = UPDATE_INTERVAL - executionTime
+                val delayTime = max(0, lastTime)
+                delay(delayTime)
             }
         }
     }
 
     fun updateAccounts() = viewModelScope.launch {
-        println("Updating accounts")
-        val tokens = tokenService.getAllByUserId(AuthService.jwt).also {
-            println("Getting ${it.size} tokens")
-        }
+        val tokens = tokenService.getAllByUserId(AuthService.jwt)
         val allAccounts = tokens.flatMap { token ->
             userServiceTI.getAccounts(token.authToken).accounts
         }.toSet()
-        _accounts.run {
-            clear()
-            addAll(allAccounts)
+
+        _accounts.clear()
+        _accounts.addAll(allAccounts)
+
+        if (_currentAccount.value !in _accounts || _accounts.isEmpty()) {
+            _currentAccount.value = _accounts.firstOrNull()
         }
-        _state.update { it.copy(lastUpdatedAt = System.now()) }
 
-        changeSelectedAccount()
+        _currentAccount.value?.let { currentAccount ->
+            updatePortfolioInfo(currentAccount)
+        }
 
-        selectedAccount.value?.let { acc ->
-            _tokens.forEach { token ->
-                operationServiceTI.getPortfolio(token.authToken, acc.id)?.let { portfolio ->
-                    _state.update { it.copy(sum = portfolio.totalAmountPortfolio.toBigDecimal()) }
-                    _state.update { it.copy(profit = portfolio.dailyYield.toBigDecimal()) }
-                    _state.update { it.copy(profitRelative = portfolio.dailyYieldRelative.toBigDecimal()) }
+        _currentState.update {
+            it.copy(
+                lastUpdatedAt = System.now(),
+            )
+        }
+    }
+
+    private suspend fun updatePortfolioInfo(account: Account) {
+        var wasUpdated = false
+        tokenService.getAllByUserId(AuthService.jwt).forEach { token ->
+            println(token)
+            operationServiceTI.getPortfolio(token.authToken, account.id)?.let { portfolio ->
+                println(portfolio)
+                if (!wasUpdated) _currentState.update {
+                    wasUpdated = true
+                    it.copy(
+                        sum = portfolio.totalAmountPortfolio.toBigDecimal(),
+                        profit = portfolio.dailyYield.toBigDecimal(),
+                        profitRelative = portfolio.dailyYieldRelative.toBigDecimal()
+                    )
                 }
             }
         }
-        println("Getting ${_accounts.size} tokens")
     }
 
-    private fun changeSelectedAccount() = viewModelScope.launch {
-        println("Updating selected account")
-        if (index >= 0 && index < _accounts.count()) {
-            println("Index of selected account: $index")
-            _selectedAccount.value = _accounts[index]
-        }
+    fun selectPreviousAccount() {
+        val accounts = _accounts.toList()
+        if (accounts.isEmpty()) return
+
+        val current = _currentAccount.value
+        val currentIndex = accounts.indexOf(current)
+        val newIndex = if (currentIndex <= 0) accounts.lastIndex else currentIndex - 1
+        _currentAccount.value = accounts[newIndex]
     }
 
-    fun previousAccount() {
-        if (index > 0) {
-            --index
-            changeSelectedAccount()
-        }
+    fun selectNextAccount() {
+        val accounts = _accounts.toList()
+        if (accounts.isEmpty()) return
+
+        val current = _currentAccount.value
+        val currentIndex = accounts.indexOf(current)
+        val newIndex = if (currentIndex >= accounts.lastIndex) 0 else currentIndex + 1
+        _currentAccount.value = accounts[newIndex]
     }
 
-    fun nextAccount() {
-        if (index < _accounts.size - 1) {
-            ++index
-            changeSelectedAccount()
-        }
+    override fun onCleared() {
+        super.onCleared()
+        updateJob?.cancel()
     }
 
     companion object {
+        private const val UPDATE_INTERVAL = 5000L
+
         val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
         val USER_SERVICE_TI_KEY = object : CreationExtras.Key<UserServiceTI> {}
         val TOKEN_SERVICE_KEY = object : CreationExtras.Key<TokenService> {}
         val OPERATION_SERVICE_TI_KEY = object : CreationExtras.Key<OperationServiceTI> {}
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val navigator = this[NAVIGATOR_KEY] as Navigator
-                val tokenService = this[TOKEN_SERVICE_KEY] as TokenService
-                val userServiceTI = this[USER_SERVICE_TI_KEY] as UserServiceTI
-                val operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI
-                HomeViewModel(navigator, tokenService, userServiceTI, operationServiceTI)
+                HomeViewModel(
+                    navigator = this[NAVIGATOR_KEY] as Navigator,
+                    tokenService = this[TOKEN_SERVICE_KEY] as TokenService,
+                    userServiceTI = this[USER_SERVICE_TI_KEY] as UserServiceTI,
+                    operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI
+                )
             }
         }
     }

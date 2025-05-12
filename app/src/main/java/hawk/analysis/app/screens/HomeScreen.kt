@@ -32,15 +32,15 @@ import kotlinx.datetime.format
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel = viewModel()) {
-    val selectedAccount = viewModel.selectedAccount.collectAsState()
-    val state = viewModel.state.collectAsState()
+    val selectedAccount = viewModel.currentAccount.collectAsState()
+    val state = viewModel.currentState.collectAsState()
     Home(
         selectedAccount = selectedAccount.value,
         state = state.value,
         modifier = Modifier.fillMaxSize(),
         onUpdateAccount = viewModel::updateAccounts,
-        onPrevAccount = viewModel::previousAccount,
-        onNextAccount = viewModel::nextAccount
+        onPrevAccount = viewModel::selectPreviousAccount,
+        onNextAccount = viewModel::selectNextAccount
     )
 }
 

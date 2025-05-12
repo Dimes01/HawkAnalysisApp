@@ -2,6 +2,7 @@ package hawk.analysis.app.di
 
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
+import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -28,6 +29,7 @@ val commonModule = module {
     single<AuthService> { AuthService(baseUrl = get(named(urlApi)), client = get()) }
     single<TokenService> { TokenService(baseUrl = get(named(urlApi)), client = get()) }
     single<UserServiceTI> { UserServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
+    single<OperationServiceTI> { OperationServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<HttpClient> { HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })

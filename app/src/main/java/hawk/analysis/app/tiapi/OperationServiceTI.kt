@@ -27,11 +27,12 @@ class OperationServiceTI(
     ): PortfolioResponse? {
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
-        val response = client.post("$baseUrl/rest/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
+        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
             authHeader(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
+        println(response.status)
         return if (response.status.isSuccess()) response.body() else null
     }
 }
