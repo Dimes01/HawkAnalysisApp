@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -92,19 +94,27 @@ fun Home(
                 modifier = Modifier.padding(vertical = 5.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = "Деньги",
-                    style = MaterialTheme.typography.displaySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
+                Section("Деньги") {
+                    items(state.money) {
 
+                    }
                 }
             }
         }
     }
+}
+
+@Composable
+fun Section(name: String, content: LazyListScope.() -> Unit) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.displaySmall,
+        color = MaterialTheme.colorScheme.onSurface
+    )
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        content = content
+    )
 }
 
 @Preview(widthDp = 440, heightDp = 956)
