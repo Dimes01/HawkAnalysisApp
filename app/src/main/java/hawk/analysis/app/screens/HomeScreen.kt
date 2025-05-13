@@ -1,5 +1,6 @@
 package hawk.analysis.app.screens
 
+import android.icu.math.MathContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +33,7 @@ import hawk.analysis.app.utilities.state
 import hawk.analysis.app.utilities.timeFormat
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.restlib.contracts.Account
+import hawk.analysis.restlib.utilities.toBigDecimal
 import kotlinx.datetime.format
 
 @Composable
@@ -97,7 +99,6 @@ fun Home(
                 modifier = Modifier.padding(vertical = 5.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                // TODO: использовать что-то наподобие MoneyState, включающего Currency и информацию из Portfolio
                 Section("Деньги") {
                     items(state.money) { money ->
                         Row(
@@ -111,25 +112,25 @@ fun Home(
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     Text(
-                                        text = money.name,
+                                        text = money.general.name,
                                         style = MaterialTheme.typography.headlineMedium,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )
                                     Text(
-                                        text = money.name,
+                                        text = money.general.countryOfRiskName,
                                         style = MaterialTheme.typography.headlineSmall,
                                         color = MaterialTheme.colorScheme.secondary
                                     )
                                 }
                                 Text(
-                                    text = "",
+                                    text = "${money.value.toBigDecimal().setScale(2, MathContext.ROUND_HALF_UP)}",
                                     style = MaterialTheme.typography.headlineMedium,
                                     color = MaterialTheme.colorScheme.tertiary
                                 )
                             }
                             VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Text(
-                                text = stringResource(cuurencies.getOrDefault(money.currency, defaultCurrency)),
+                                text = stringResource(cuurencies.getOrDefault(money.value.currency, defaultCurrency)),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )

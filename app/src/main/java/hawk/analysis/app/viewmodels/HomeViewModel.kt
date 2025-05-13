@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.screens.HomeScreenState
 import hawk.analysis.app.services.AuthService
@@ -31,8 +32,8 @@ class HomeViewModel(
     private val userServiceTI: UserServiceTI,
     private val operationServiceTI: OperationServiceTI,
 ) : ViewModel() {
+    private val accountsToToken: MutableList<Pair<Account, TokenInfo>> = mutableListOf()
 
-    private val _accounts = mutableSetOf<Account>()
     private val _currentState = MutableStateFlow(HomeScreenState())
     val currentState: StateFlow<HomeScreenState> = _currentState
 
@@ -42,6 +43,7 @@ class HomeViewModel(
     private var updateJob: Job? = null
 
     init {
+        updateAccounts()
         startPeriodicUpdates()
     }
 
@@ -58,16 +60,16 @@ class HomeViewModel(
 
     fun updateAccounts() = viewModelScope.launch {
         val tokens = tokenService.getAllByUserId(AuthService.jwt)
-        val allAccounts = tokens.flatMap { token ->
-            userServiceTI.getAccounts(token.authToken).accounts
-        }.toSet()
-
-        _accounts.clear()
-        _accounts.addAll(allAccounts)
-
-        if (_currentAccount.value !in _accounts || _accounts.isEmpty()) {
-            _currentAccount.value = _accounts.firstOrNull()
+        val set = HashSet<Pair<Account, TokenInfo>>()
+        for (token in tokens) {
+            userServiceTI.getAccounts(token.authToken).accounts.forEach { acc ->
+                set.add(acc to token)
+            }
         }
+        accountsToToken.clear()
+        accountsToToken.addAll(set)
+        if (accountsToToken.isEmpty()) _currentAccount.value = null
+        else _currentAccount.value = accountsToToken.first().first
 
         _currentAccount.value?.let { currentAccount ->
             updatePortfolioInfo(currentAccount)
@@ -83,9 +85,7 @@ class HomeViewModel(
     private suspend fun updatePortfolioInfo(account: Account) {
         var wasUpdated = false
         tokenService.getAllByUserId(AuthService.jwt).forEach { token ->
-            println(token)
             operationServiceTI.getPortfolio(token.authToken, account.id)?.let { portfolio ->
-                println(portfolio)
                 if (!wasUpdated) _currentState.update {
                     wasUpdated = true
                     it.copy(
@@ -99,7 +99,7 @@ class HomeViewModel(
     }
 
     fun selectPreviousAccount() {
-        val accounts = _accounts.toList()
+        val accounts = accountsToToken.map { it.first }
         if (accounts.isEmpty()) return
 
         val current = _currentAccount.value
@@ -109,7 +109,7 @@ class HomeViewModel(
     }
 
     fun selectNextAccount() {
-        val accounts = _accounts.toList()
+        val accounts = accountsToToken.map { it.first }
         if (accounts.isEmpty()) return
 
         val current = _currentAccount.value
