@@ -10,5 +10,5 @@ data class HomeScreenState(
     val sum: BigDecimal = BigDecimal.ZERO,
     val profit: BigDecimal = BigDecimal.ZERO,
     val profitRelative: BigDecimal = BigDecimal.ZERO,
-    val money: List<Currency>
+    val money: List<Currency> = emptyList<Currency>()
 )

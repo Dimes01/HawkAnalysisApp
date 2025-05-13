@@ -1,5 +1,6 @@
 package hawk.analysis.restlib.utilities
 
+import android.icu.math.BigDecimal
 import hawk.analysis.restlib.contracts.AccessLevel
 import hawk.analysis.restlib.contracts.AccountStatus
 import hawk.analysis.restlib.contracts.AccountType
@@ -12,6 +13,12 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+
+object BigDecimalSerializer : KSerializer<BigDecimal> {
+    override val descriptor = PrimitiveSerialDescriptor(BigDecimal::class.qualifiedName!!, PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): BigDecimal = BigDecimal(decoder.decodeString())
+    override fun serialize(encoder: Encoder, value: BigDecimal) = encoder.encodeString(value.toString())
+}
 
 object AccessLevelSerializer : KSerializer<AccessLevel> {
     override val descriptor = PrimitiveSerialDescriptor(AccessLevel::class.qualifiedName!!, PrimitiveKind.STRING)

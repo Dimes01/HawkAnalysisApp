@@ -1,7 +1,7 @@
 package hawk.analysis.app.dto
 
 import android.icu.math.BigDecimal
-import hawk.analysis.app.utilities.BigDecimalSerializer
+import hawk.analysis.restlib.utilities.BigDecimalSerializer
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -19,7 +19,7 @@ data class AccountInfo(
     @Serializable(with = BigDecimalSerializer::class)
     val riskFree: BigDecimal?,
 
-    val figiBenchmark: String?,
+    val tickerBenchmark: String?,
     val updatedAt: Instant,
 )
 

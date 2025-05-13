@@ -1,6 +1,5 @@
 package hawk.analysis.app.screens
 
-import android.icu.math.BigDecimal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -23,13 +22,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.Header
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.accountTI
+import hawk.analysis.app.utilities.state
 import hawk.analysis.app.utilities.timeFormat
 import hawk.analysis.app.viewmodels.HomeViewModel
-import hawk.analysis.restlib.contracts.AccessLevel
 import hawk.analysis.restlib.contracts.Account
-import hawk.analysis.restlib.contracts.AccountStatus
-import hawk.analysis.restlib.contracts.AccountType
-import kotlinx.datetime.Instant
 import kotlinx.datetime.format
 
 @Composable
@@ -121,23 +118,8 @@ fun Section(name: String, content: LazyListScope.() -> Unit) {
 @Composable
 fun HomePreview() {
     HawkAnalysisAppTheme {
-        val account = Account(
-            id = "2156732337",
-            type = AccountType.ACCOUNT_TYPE_INVEST_BOX,
-            name = "Брокерский счет",
-            status = AccountStatus.ACCOUNT_STATUS_OPEN,
-            openedDate = Instant.parse("2022-03-02T00:00:00Z"),
-            closedDate = Instant.parse("1970-01-01T00:00:00Z"),
-            accessLevel = AccessLevel.ACCOUNT_ACCESS_LEVEL_READ_ONLY
-        )
-        val state = HomeScreenState(
-            lastUpdatedAt = Instant.parse("2022-03-02T09:12:34Z"),
-            sum = BigDecimal.valueOf(333000),
-            profit = BigDecimal.valueOf(1000),
-            profitRelative = BigDecimal.valueOf(10)
-        )
         Home(
-            selectedAccount = account,
+            selectedAccount = accountTI,
             state = state,
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
             onUpdateAccount = {},

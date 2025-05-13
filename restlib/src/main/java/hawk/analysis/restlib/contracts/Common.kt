@@ -15,6 +15,11 @@ data class Quotation(
     val nano: Int,
 )
 
+/**
+ * @param logoName путь к лого
+ * @param logoBaseColor цвет чего-то...
+ * @param textColor цвет текста
+ */
 @Serializable
 data class BrandData(
     val logoName: String,
