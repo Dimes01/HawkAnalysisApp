@@ -5,13 +5,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -37,13 +39,12 @@ import hawk.analysis.restlib.utilities.toBigDecimal
 import kotlinx.datetime.format
 
 @Composable
-fun HomeVM(viewModel: HomeViewModel = viewModel()) {
+fun HomeVM(viewModel: HomeViewModel) {
     val selectedAccount = viewModel.currentAccount.collectAsState()
     val state = viewModel.currentState.collectAsState()
     Home(
         selectedAccount = selectedAccount.value,
         state = state.value,
-        modifier = Modifier.fillMaxSize(),
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::selectPreviousAccount,
         onNextAccount = viewModel::selectNextAccount
@@ -74,7 +75,7 @@ fun Home(
                 onPrevClick = onPrevAccount,
                 onNextClick = onNextAccount,
             )
-            modifierMainPart = Modifier.fillMaxSize().padding(horizontal = 15.dp, vertical = 10.dp)
+            modifierMainPart = Modifier.padding(horizontal = 15.dp, vertical = 10.dp)
         } ?: Column {
             Text(
                 text = "No account selected",
@@ -99,7 +100,7 @@ fun Home(
                 modifier = Modifier.padding(vertical = 5.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Section("Деньги") {
+                HawkSection("Деньги") {
                     items(state.money) { money ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(10.dp),
@@ -122,11 +123,7 @@ fun Home(
                                         color = MaterialTheme.colorScheme.secondary
                                     )
                                 }
-                                Text(
-                                    text = "${money.value.toBigDecimal().setScale(2, MathContext.ROUND_HALF_UP)}",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.tertiary
-                                )
+                                HawkPrice("${money.value.toBigDecimal().setScale(2, MathContext.ROUND_HALF_UP)}")
                             }
                             VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Text(
@@ -137,13 +134,91 @@ fun Home(
                         }
                     }
                 }
+                HawkSection("Акции") {
+                    items(state.shares) { share ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    Text(
+                                        text = share.name,
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                    HawkCount("Кол-во", share.count.toString())
+                                    HawkCount("Лотов", share.countOfLots.toString())
+                                }
+                                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    HawkPrice(share.sum.setScale(2).toString())
+                                    HawkSmallPrice("${share.profitPercent} %")
+                                    HawkSmallPrice("${share.profit}")
+                                }
+                            }
+                            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            Column {
+                                Text(
+                                    text = stringResource(cuurencies.getOrDefault(share.currencyCode, defaultCurrency)),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Icon(
+                                    imageVector = Icons.Outlined.QueryStats,
+                                    contentDescription = "Stats"
+                                )
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun Section(name: String, content: LazyListScope.() -> Unit) {
+fun HawkCount(label: String, count: String) {
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        Text(
+            text = "$label:",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = "$count:",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
+fun HawkPrice(price: String) {
+    Text(
+        text = price,
+        style = MaterialTheme.typography.headlineMedium,
+        color = MaterialTheme.colorScheme.tertiary
+    )
+}
+
+@Composable
+fun HawkSmallPrice(price: String) {
+    Text(
+        text = price,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.outline
+    )
+}
+
+@Composable
+fun HawkSection(name: String, content: LazyListScope.() -> Unit) {
     Text(
         text = name,
         style = MaterialTheme.typography.displaySmall,
@@ -155,7 +230,7 @@ fun Section(name: String, content: LazyListScope.() -> Unit) {
     )
 }
 
-@Preview(widthDp = 440, heightDp = 956)
+@Preview()
 @Composable
 fun HomePreview() {
     HawkAnalysisAppTheme {

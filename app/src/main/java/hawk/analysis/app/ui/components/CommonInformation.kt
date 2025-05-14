@@ -64,7 +64,7 @@ fun CommonInformation(
                 color = color,
                 textAlign = TextAlign.Right
             )
-            VerticalDivider(color = MaterialTheme.colorScheme.outline)
+//            VerticalDivider(color = MaterialTheme.colorScheme.outline)
             Text(
                 text = "${profitPercent.setScale(2)} %",
                 style = MaterialTheme.typography.bodyLarge,
