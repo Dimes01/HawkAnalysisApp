@@ -1,7 +1,9 @@
 package hawk.analysis.app.screens
 
+import android.icu.math.BigDecimal
 import android.icu.math.MathContext
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material3.Button
@@ -21,6 +24,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,6 +34,8 @@ import hawk.analysis.app.R
 import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.Header
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.ui.theme.negativeColor
+import hawk.analysis.app.ui.theme.positiveColor
 import hawk.analysis.app.utilities.accountTI
 import hawk.analysis.app.utilities.cuurencies
 import hawk.analysis.app.utilities.state
@@ -64,7 +71,7 @@ fun Home(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
     ) {
         var modifierMainPart: Modifier = Modifier
         selectedAccount?.let { account ->
@@ -95,6 +102,7 @@ fun Home(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val modifierCommonInfo = Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+            val shapeBorder = RoundedCornerShape(10.dp)
             CommonInformation(sum = state.sum, profit = state.profit, profitPercent = state.profitRelative, modifier = modifierCommonInfo)
             Column(
                 modifier = Modifier.padding(vertical = 5.dp),
@@ -103,65 +111,80 @@ fun Home(
                 HawkSection("Деньги") {
                     items(state.money) { money ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(3.dp, MaterialTheme.colorScheme.outline, shapeBorder)
+                                .padding(10.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Row {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        text = money.general.name,
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                    Text(
-                                        text = money.general.countryOfRiskName,
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                                HawkPrice("${money.value.toBigDecimal().setScale(2, MathContext.ROUND_HALF_UP)}")
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically)
+                            ) {
+                                Text(
+                                    text = money.general.name,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    softWrap = false
+                                )
+                                val countryName = money.general.countryOfRiskName
+                                Text(
+                                    text = if (countryName.isNotEmpty()) countryName else "Страна не определена",
+                                    style = MaterialTheme.typography.headlineSmall,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                    softWrap = false
+                                )
                             }
-                            VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            HawkPrice("${money.value.toBigDecimal().setScale(2, MathContext.ROUND_HALF_UP)}")
+                            VerticalDivider(
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                                thickness = 1.dp,
+                            )
                             Text(
                                 text = stringResource(cuurencies.getOrDefault(money.value.currency, defaultCurrency)),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
+                                softWrap = false
                             )
                         }
                     }
                 }
                 HawkSection("Акции") {
                     items(state.shares) { share ->
+                        val colorBorder = when (share.sum.compareTo(BigDecimal.ZERO)) {
+                            1 -> positiveColor
+                            -1 -> negativeColor
+                            else -> MaterialTheme.colorScheme.outline
+                        }
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(3.dp, colorBorder, shapeBorder)
+                                .padding(10.dp),
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    Text(
-                                        text = share.name,
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                    )
-                                    HawkCount("Кол-во", share.count.toString())
-                                    HawkCount("Лотов", share.countOfLots.toString())
-                                }
-                                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    HawkPrice(share.sum.setScale(2).toString())
-                                    HawkSmallPrice("${share.profitPercent} %")
-                                    HawkSmallPrice("${share.profit}")
-                                }
+                                Text(
+                                    text = share.name,
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    softWrap = false
+                                )
+                                HawkCount("Кол-во", share.count.toString())
+                                HawkCount("Лотов", share.countOfLots.toString())
+                            }
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
+                                horizontalAlignment = Alignment.End
+                            ) {
+                                HawkPrice(share.sum.setScale(2).toString())
+                                HawkSmallPrice("${share.profitPercent.setScale(2, MathContext.ROUND_HALF_UP)} %", colorBorder)
+                                HawkSmallPrice("${share.profit.setScale(2, MathContext.ROUND_HALF_UP)}", colorBorder)
                             }
                             VerticalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             Column {
@@ -190,11 +213,13 @@ fun HawkCount(label: String, count: String) {
             text = "$label:",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
+            softWrap = false
         )
         Text(
             text = "$count:",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
+            softWrap = false
         )
     }
 }
@@ -204,16 +229,17 @@ fun HawkPrice(price: String) {
     Text(
         text = price,
         style = MaterialTheme.typography.headlineMedium,
-        color = MaterialTheme.colorScheme.tertiary
+        color = MaterialTheme.colorScheme.tertiary,
+        softWrap = false
     )
 }
 
 @Composable
-fun HawkSmallPrice(price: String) {
+fun HawkSmallPrice(price: String, color: Color) {
     Text(
         text = price,
         style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.outline
+        color = color
     )
 }
 

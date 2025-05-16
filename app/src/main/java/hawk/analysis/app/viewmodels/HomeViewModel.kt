@@ -59,7 +59,17 @@ class HomeViewModel(
     private fun startPeriodicUpdates() {
         updateJob = viewModelScope.launch {
             while (true) {
-                val executionTime = measureTimeMillis {  }
+                val executionTime = measureTimeMillis {
+                    _currentAccount.value?.let { currentAccount ->
+                        updatePortfolioInfo(accountsToToken.first { it.first == currentAccount })
+                    }
+
+                    _currentState.update {
+                        it.copy(
+                            lastUpdatedAt = System.now(),
+                        )
+                    }
+                }
                 val lastTime = UPDATE_INTERVAL - executionTime
                 val delayTime = max(0, lastTime)
                 delay(delayTime)
@@ -79,16 +89,6 @@ class HomeViewModel(
         accountsToToken.addAll(set)
         if (accountsToToken.isEmpty()) _currentAccount.value = null
         else _currentAccount.value = accountsToToken.first().first
-
-        _currentAccount.value?.let { currentAccount ->
-            updatePortfolioInfo(accountsToToken.first { it.first == currentAccount })
-        }
-
-        _currentState.update {
-            it.copy(
-                lastUpdatedAt = System.now(),
-            )
-        }
     }
 
     private suspend fun updatePortfolioInfo(pair: Pair<Account, TokenInfo>) {
@@ -96,30 +96,32 @@ class HomeViewModel(
         val token = pair.second
         operationServiceTI.getPortfolio(token.authToken, acc.id)?.let { portfolio ->
             val moneyStates = portfolio.positions.filter { it.instrumentType == "currency" }.mapNotNull { portCur ->
-                val cur = instrumentsServiceTI.currencyByFigi(portCur.figi)
+                val cur = instrumentsServiceTI.currencyByFigi(token.authToken, portCur.figi)?.instrument
                 if (cur != null) {
                     val money = MoneyValue(portCur.averagePositionPrice.currency, portCur.quantity.units, portCur.quantity.nano)
                     MoneyState(cur, money)
                 } else null
             }
+            println(moneyStates)
             val shareStates = portfolio.positions.filter { it.instrumentType == "share" }.mapNotNull { portShare ->
-                val share = instrumentsServiceTI.shareByFigi(portShare.figi)
+                val share = instrumentsServiceTI.shareByFigi(token.authToken, portShare.figi)?.instrument
                 if (share != null) {
                     val currentPrice = portShare.currentPrice.toBigDecimal()
                     val quantity = BigDecimal(portShare.quantity.units)
                     val profit = portShare.expectedYieldFifo.toBigDecimal()
+                    val profitPercent = profit.divide(portShare.averagePositionPriceFifo.toBigDecimal(), 2, MathContext.ROUND_HALF_UP).multiply(BigDecimal(100))
                     ShareState(
                         name = share.name,
                         sum = currentPrice.multiply(quantity).setScale(2, MathContext.ROUND_HALF_UP),
                         profit = profit,
-                        profitPercent = profit.divide(portShare.averagePositionPriceFifo.toBigDecimal(), 2, MathContext.ROUND_HALF_UP),
+                        profitPercent = profitPercent,
                         count = quantity.toInt(),
                         countOfLots = quantity.divide(BigDecimal(share.lot), 2, MathContext.ROUND_HALF_UP).toInt(),
                         currencyCode = portShare.currentPrice.currency
                     )
                 } else null
             }
-
+            println(shareStates)
             _currentState.update { it.copy(
                 lastUpdatedAt = System.now(),
                 sum = portfolio.totalAmountPortfolio.toBigDecimal(),
@@ -163,6 +165,7 @@ class HomeViewModel(
         val USER_SERVICE_TI_KEY = object : CreationExtras.Key<UserServiceTI> {}
         val TOKEN_SERVICE_KEY = object : CreationExtras.Key<TokenService> {}
         val OPERATION_SERVICE_TI_KEY = object : CreationExtras.Key<OperationServiceTI> {}
+        val INSTRUMENT_SERVICE_TI_KEY = object : CreationExtras.Key<InstrumentServiceTI> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -170,7 +173,8 @@ class HomeViewModel(
                     navigator = this[NAVIGATOR_KEY] as Navigator,
                     tokenService = this[TOKEN_SERVICE_KEY] as TokenService,
                     userServiceTI = this[USER_SERVICE_TI_KEY] as UserServiceTI,
-                    operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI
+                    operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI,
+                    instrumentsServiceTI = this[INSTRUMENT_SERVICE_TI_KEY] as InstrumentServiceTI
                 )
             }
         }

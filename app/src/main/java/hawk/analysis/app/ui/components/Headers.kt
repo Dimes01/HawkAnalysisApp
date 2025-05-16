@@ -10,6 +10,8 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,7 +41,8 @@ fun Header(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onPrevClick) { Icons.AutoMirrored.Outlined.ArrowLeft }
+            val iconColors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+            IconButton(onClick = onPrevClick, colors = iconColors) { Icons.AutoMirrored.Outlined.ArrowLeft }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(5.dp)
@@ -55,7 +58,7 @@ fun Header(
                     color = MaterialTheme.colorScheme.tertiary
                 )
             }
-            IconButton(onClick = onNextClick) { Icons.AutoMirrored.Outlined.ArrowRight }
+            IconButton(onClick = onNextClick, colors = iconColors) { Icons.AutoMirrored.Outlined.ArrowRight }
         }
         HorizontalDivider(
             modifier = Modifier.padding(horizontal = 10.dp),
