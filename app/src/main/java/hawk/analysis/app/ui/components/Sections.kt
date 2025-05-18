@@ -8,9 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -79,18 +83,44 @@ fun MoneySection(
 
 @Composable
 fun HawkInfoSection(
-    name: String,
-    styleText: TextStyle = MaterialTheme.typography.displaySmall,
-    colorText: Color = MaterialTheme.colorScheme.primary,
     verticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(5.dp),
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(10.dp))
         .padding(horizontal = 20.dp, vertical = 10.dp),
+    header: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
     Column(modifier = modifier, verticalArrangement = verticalArrangement) {
-        Text(text = name, style = styleText, color = colorText)
+        header()
         content()
+    }
+}
+
+@Composable
+fun HawkInfoSectionHeader(
+    name: String,
+    styleText: TextStyle = MaterialTheme.typography.displaySmall,
+    colorText: Color = MaterialTheme.colorScheme.primary,
+) {
+    Text(text = name, style = styleText, color = colorText)
+}
+
+@Composable
+fun HawkInfoSectionHeaderEdit(
+    name: String,
+    styleText: TextStyle = MaterialTheme.typography.displaySmall,
+    colorText: Color = MaterialTheme.colorScheme.primary,
+    onClickEdit: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = name, style = styleText, color = colorText)
+        IconButton(onClick = onClickEdit, modifier = Modifier.size(30.dp)) {
+            Icon(Icons.Outlined.Edit, contentDescription = "Edit icon")
+        }
     }
 }

@@ -2,6 +2,7 @@ package hawk.analysis.app.utilities
 
 import android.icu.math.BigDecimal
 import hawk.analysis.app.dto.AccountInfo
+import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.restlib.contracts.AccessLevel
 import hawk.analysis.restlib.contracts.Account
@@ -46,6 +47,8 @@ val accountAPI = AccountInfo(
     tickerBenchmark = "AFLT",
     updatedAt = Instant.parse("2025-01-01T12:34:56Z"),
 )
+
+val token = TokenInfo(1, 1, "", "Самый важный", Instant.parse("2022-03-02T00:00:00Z"), Instant.parse("1970-01-01T00:00:00Z"))
 
 val currencyRub = Currency(
     figi = "RUB000UTSTOM",

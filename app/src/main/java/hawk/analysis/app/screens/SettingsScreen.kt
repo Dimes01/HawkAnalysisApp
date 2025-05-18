@@ -1,5 +1,6 @@
 package hawk.analysis.app.screens
 
+import android.icu.math.MathContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,19 +16,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.app.ui.components.HawkInfoSection
+import hawk.analysis.app.ui.components.HawkInfoSectionHeader
+import hawk.analysis.app.ui.components.HawkInfoSectionHeaderEdit
 import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
+import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.accountAPI
 import hawk.analysis.app.utilities.dateTimeFormat
+import hawk.analysis.app.utilities.token
 import hawk.analysis.app.viewmodels.SettingsViewModel
+import kotlinx.datetime.Instant
 import kotlinx.datetime.format
 
-@Preview(widthDp = 440, heightDp = 956)
+@Preview(widthDp = 440, heightDp = 1500)
 @Composable
 fun SettingsPreview() {
-    val state = SettingsScreenState()
-    Settings(state)
+    val createdAt = Instant.parse("2025-01-01T12:00:00Z")
+    val updatedAt = Instant.parse("2025-01-01T12:00:00Z")
+    val state = SettingsScreenState(
+        profile = UserInfo(1, "Петров П.П.", "test@test.com", createdAt, updatedAt),
+        accounts = listOf(accountAPI),
+        tokens = listOf(token)
+    )
+    HawkAnalysisAppTheme {
+        Settings(state)
+    }
 }
 
 @Composable
@@ -51,13 +67,18 @@ fun Settings(
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             // Profile
-            HawkInfoSection("Профиль") {
+            HawkInfoSection(
+                header = { HawkInfoSectionHeader(name = "Профиль") }
+            ) {
                 HawkParameter("Имя", state.profile.name)
                 HawkParameter("E-mail", state.profile.email)
                 HawkParameter("Изменён", state.profile.updatedAt.format(dateTimeFormat))
                 HawkParameter("Создан", state.profile.createdAt.format(dateTimeFormat))
-                Row {
-                    val modifierButtons = Modifier.fillMaxWidth()
+                Row(
+                    modifier = Modifier.padding(vertical = 5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    val modifierButtons = Modifier.weight(0.5f)
                     HawkOutlinedButton(text = "Изменить e-mail", modifier = modifierButtons) {
                         /*TODO: реализовать изменение почты*/
                     }
@@ -65,19 +86,61 @@ fun Settings(
                         /*TODO: реализовать изменение пароля*/
                     }
                 }
+                Row(
+                    modifier = Modifier.padding(vertical = 5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    HawkOutlinedButton(
+                        text = "Удалить аккаунт",
+                        borderColor = MaterialTheme.colorScheme.onErrorContainer,
+                        contentColor = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        /*TODO: реализовать изменение почты*/
+                    }
+                }
             }
             // Accounts
-            HawkInfoSection("Счета") {
+            HawkInfoSection(
+                header = { HawkInfoSectionHeader("Счета") }
+            ) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-
+                    state.accounts.forEach { acc ->
+                        HawkInfoSection(
+                            header = { HawkInfoSectionHeaderEdit(acc.id) { /*TODO: реализовать логику редактирования*/ } }
+                        ) {
+                            HawkParameter("Тип", acc.name)
+                            HawkParameter("Открыт", acc.openedDate.format(dateTimeFormat))
+                            HawkParameter("Закрыт", acc.closedDate.format(dateTimeFormat))
+                            HawkParameter("Безрисковая ставка", "${acc.riskFree?.setScale(2, MathContext.ROUND_HALF_UP)}")
+                            HawkParameter("Бенчмарк", acc.tickerBenchmark.toString())
+                        }
+                    }
                 }
             }
             // Tokens
-            HawkInfoSection("Токены") {
-
+            HawkInfoSection(
+                header = { HawkInfoSectionHeader("Токены") }
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    state.tokens.forEach { token ->
+                        HawkInfoSection(
+                            header = { HawkInfoSectionHeaderEdit(token.name) { /*TODO: реализовать логику редактирования*/ } }
+                        ) {
+                            HawkParameter("Открыт", token.createdAt.format(dateTimeFormat))
+                            HawkParameter("Обновлён", token.updatedAt .format(dateTimeFormat))
+                        }
+                    }
+                    HawkOutlinedButton(text = "Добавить токен", modifier = Modifier.fillMaxWidth()) {
+                        /*TODO: реализовать добавление токена*/
+                    }
+                }
             }
         }
     }
