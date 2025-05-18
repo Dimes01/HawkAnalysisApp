@@ -10,7 +10,6 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.ArrowRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,7 +23,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.format
 
 @Composable
-fun Header(
+fun HawkHeader(
     account: Account,
     lastUpdatedAt: Instant,
     modifier: Modifier = Modifier,
@@ -81,4 +80,14 @@ fun Header(
             )
         }
     }
+}
+
+@Composable
+fun HawkSimpleHeader(name: String) {
+    Text(
+        text = name,
+        style = MaterialTheme.typography.displayLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(vertical = 20.dp)
+    )
 }

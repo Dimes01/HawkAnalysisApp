@@ -1,6 +1,7 @@
 package hawk.analysis.app.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,4 +21,22 @@ fun ErrorMessage(text: String, modifier: Modifier = Modifier, textAlign: TextAli
         textAlign = textAlign,
         modifier = modifier
     )
+}
+
+@Composable
+fun HawkParameter(name: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.secondary,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.secondary,
+        )
+    }
 }

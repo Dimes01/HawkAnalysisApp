@@ -8,27 +8,26 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
+import hawk.analysis.app.screens.SettingsScreenState
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val navigator: Navigator
+    private val navigator: Navigator,
+
 ) : ViewModel()  {
+    private val _state = MutableStateFlow(SettingsScreenState())
+    val state: StateFlow<SettingsScreenState> = _state
+
+
+
     companion object {
         val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val navigator = this[NAVIGATOR_KEY] as Navigator
                 SettingsViewModel(navigator)
-            }
-        }
-    }
-
-    fun toMain() {
-        viewModelScope.launch {
-            navigator.navigate(Destination.HomeScreen) {
-                popUpTo(navigator.startDestination) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
             }
         }
     }

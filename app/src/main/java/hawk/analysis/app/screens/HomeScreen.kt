@@ -25,14 +25,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import hawk.analysis.app.R
 import hawk.analysis.app.ui.components.CommonInformation
-import hawk.analysis.app.ui.components.Header
+import hawk.analysis.app.ui.components.HawkHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.ui.theme.negativeColor
 import hawk.analysis.app.ui.theme.positiveColor
@@ -75,7 +73,7 @@ fun Home(
     ) {
         var modifierMainPart: Modifier = Modifier
         selectedAccount?.let { account ->
-            Header(
+            HawkHeader(
                 account = account,
                 lastUpdatedAt = state.lastUpdatedAt,
                 modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest),
