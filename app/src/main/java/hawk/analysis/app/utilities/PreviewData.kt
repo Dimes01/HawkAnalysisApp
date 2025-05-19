@@ -44,7 +44,7 @@ val accountAPI = AccountInfo(
     closedDate = accountTI.closedDate,
     accessLevel = accountTI.accessLevel.value,
     riskFree = BigDecimal("0.1"),
-    tickerBenchmark = "AFLT",
+    benchmarkUid = "AFLT",
     updatedAt = Instant.parse("2025-01-01T12:34:56Z"),
 )
 

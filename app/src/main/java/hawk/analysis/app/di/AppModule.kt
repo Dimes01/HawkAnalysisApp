@@ -1,7 +1,9 @@
 package hawk.analysis.app.di
 
+import hawk.analysis.app.services.AccountService
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
+import hawk.analysis.app.services.UserService
 import hawk.analysis.app.tiapi.InstrumentServiceTI
 import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
@@ -28,7 +30,9 @@ val prodModule = module {
 val commonModule = module {
     single<String>(named(urlTInvestApi)) { "https://invest-public-api.tinkoff.ru/rest" }
     single<AuthService> { AuthService(baseUrl = get(named(urlApi)), client = get()) }
+    single<UserService> { UserService(baseUrl = get(named(urlApi)), client = get()) }
     single<TokenService> { TokenService(baseUrl = get(named(urlApi)), client = get()) }
+    single<AccountService> { AccountService(baseUrl = get(named(urlApi)), client = get()) }
     single<UserServiceTI> { UserServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<OperationServiceTI> { OperationServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<InstrumentServiceTI> { InstrumentServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }

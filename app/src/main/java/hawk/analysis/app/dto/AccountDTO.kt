@@ -19,7 +19,7 @@ data class AccountInfo(
     @Serializable(with = BigDecimalSerializer::class)
     val riskFree: BigDecimal?,
 
-    val tickerBenchmark: String?,
+    val benchmarkUid: String?,
     val updatedAt: Instant,
 )
 

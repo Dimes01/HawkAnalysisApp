@@ -2,11 +2,14 @@ package hawk.analysis.app.screens
 
 import android.icu.math.MathContext
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -42,26 +45,43 @@ fun SettingsPreview() {
         tokens = listOf(token)
     )
     HawkAnalysisAppTheme {
-        Settings(state)
+        Settings(state, {}, {}, {}, {}, {})
     }
 }
 
 @Composable
 fun SettingsVM(viewModel: SettingsViewModel) {
     val state = viewModel.state.collectAsState()
-    Settings(state.value)
+    Settings(
+        state = state.value,
+        navToEditEmail = viewModel::navToEditEmail,
+        navToEditPassword = viewModel::navToEditPassword,
+        navToEditAccount = viewModel::navToEditAccount,
+        navToEditToken = viewModel::navToEditToken,
+        navToAddToken = viewModel::navToAddToken
+    )
 }
 
 @Composable
 fun Settings(
-    state: SettingsScreenState
+    state: SettingsScreenState,
+    navToEditEmail: () -> Unit,
+    navToEditPassword: () -> Unit,
+    navToEditAccount: (String) -> Unit,
+    navToEditToken: (Int) -> Unit,
+    navToAddToken: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+//            .verticalScroll(rememberScrollState())
+        ,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         HawkSimpleHeader("Настройки")
+        HawkOutlinedButton(text = "Изменить e-mail", onClick = navToEditEmail)
         Column(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -75,29 +95,12 @@ fun Settings(
                 HawkParameter("Изменён", state.profile.updatedAt.format(dateTimeFormat))
                 HawkParameter("Создан", state.profile.createdAt.format(dateTimeFormat))
                 Row(
-                    modifier = Modifier.padding(vertical = 5.dp),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     val modifierButtons = Modifier.weight(0.5f)
-                    HawkOutlinedButton(text = "Изменить e-mail", modifier = modifierButtons) {
-                        /*TODO: реализовать изменение почты*/
-                    }
-                    HawkOutlinedButton(text = "Изменить пароль", modifier = modifierButtons) {
-                        /*TODO: реализовать изменение пароля*/
-                    }
-                }
-                Row(
-                    modifier = Modifier.padding(vertical = 5.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    HawkOutlinedButton(
-                        text = "Удалить аккаунт",
-                        borderColor = MaterialTheme.colorScheme.onErrorContainer,
-                        contentColor = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        /*TODO: реализовать изменение почты*/
-                    }
+                    HawkOutlinedButton(text = "Изменить e-mail", modifier = modifierButtons, onClick = navToEditEmail)
+                    HawkOutlinedButton(text = "Изменить пароль", modifier = modifierButtons, onClick = navToEditPassword)
                 }
             }
             // Accounts
@@ -110,13 +113,13 @@ fun Settings(
                 ) {
                     state.accounts.forEach { acc ->
                         HawkInfoSection(
-                            header = { HawkInfoSectionHeaderEdit(acc.id) { /*TODO: реализовать логику редактирования*/ } }
+                            header = { HawkInfoSectionHeaderEdit(acc.id, onClickEdit = { navToEditAccount(acc.id) }) }
                         ) {
                             HawkParameter("Тип", acc.name)
                             HawkParameter("Открыт", acc.openedDate.format(dateTimeFormat))
                             HawkParameter("Закрыт", acc.closedDate.format(dateTimeFormat))
                             HawkParameter("Безрисковая ставка", "${acc.riskFree?.setScale(2, MathContext.ROUND_HALF_UP)}")
-                            HawkParameter("Бенчмарк", acc.tickerBenchmark.toString())
+                            HawkParameter("Бенчмарк", acc.benchmarkUid.toString())
                         }
                     }
                 }
@@ -131,15 +134,13 @@ fun Settings(
                 ) {
                     state.tokens.forEach { token ->
                         HawkInfoSection(
-                            header = { HawkInfoSectionHeaderEdit(token.name) { /*TODO: реализовать логику редактирования*/ } }
+                            header = { HawkInfoSectionHeaderEdit(token.name, onClickEdit = { navToEditToken(token.id) }) }
                         ) {
                             HawkParameter("Открыт", token.createdAt.format(dateTimeFormat))
                             HawkParameter("Обновлён", token.updatedAt .format(dateTimeFormat))
                         }
                     }
-                    HawkOutlinedButton(text = "Добавить токен", modifier = Modifier.fillMaxWidth()) {
-                        /*TODO: реализовать добавление токена*/
-                    }
+                    HawkOutlinedButton(text = "Добавить токен", modifier = Modifier.fillMaxWidth(), onClick = navToAddToken)
                 }
             }
         }

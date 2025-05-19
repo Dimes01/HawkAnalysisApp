@@ -11,21 +11,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hawk.analysis.app.dto.AccountInfo
+import hawk.analysis.app.ui.components.ErrorMessage
 import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
 @Composable
 fun AddAuthTokenPreview() {
     HawkAnalysisAppTheme {
-        AddAuthToken()
+        AddAuthToken({ _, _, _ -> true }, {})
     }
 }
 
@@ -33,16 +37,21 @@ fun AddAuthTokenPreview() {
 @Composable
 fun EditAuthTokenPreview() {
     HawkAnalysisAppTheme {
-        EditAuthToken()
+        EditAuthToken(1, { _, _, _ -> true }, {})
     }
 }
 
 
 @Composable
-fun AddAuthToken() {
+fun AddAuthToken(
+    actSave: suspend (name: String, password: String, authToken: String) -> Boolean,
+    navToBack: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
     var authToken: String by remember { mutableStateOf("") }
     var name: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
+    var error: String? by remember { mutableStateOf(null) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -82,13 +91,20 @@ fun AddAuthToken() {
                     text = "Отменить",
                     borderColor = MaterialTheme.colorScheme.onErrorContainer,
                     contentColor = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.weight(0.5f)
-                ) { /*TODO: реализовать возврат на предыдущую страницу*/ }
+                    modifier = Modifier.weight(0.5f),
+                    onClick = navToBack
+                )
                 HawkOutlinedButton(
                     text = "Сохранить",
-                    modifier = Modifier.weight(0.5f)
-                ) { /*TODO: реализовать возврат на предыдущую страницу*/ }
+                    modifier = Modifier.weight(0.5f),
+                    onClick = { coroutineScope.launch {
+                        val res = actSave(name, password, authToken)
+                        if (res) navToBack()
+                        else error = "Не удалось создать токен"
+                    } }
+                )
             }
+            error?.also { ErrorMessage(error!!) }
         }
     }
 }
@@ -96,9 +112,15 @@ fun AddAuthToken() {
 
 
 @Composable
-fun EditAuthToken() {
+fun EditAuthToken(
+    tokenId: Int,
+    actSave: suspend (id: Int, name: String, password: String) -> Boolean,
+    navToBack: () -> Unit,
+) {
+    val coroutineScope = rememberCoroutineScope()
     var name: String by remember { mutableStateOf("") }
     var password: String by remember { mutableStateOf("") }
+    var error: String? by remember { mutableStateOf(null) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,13 +154,20 @@ fun EditAuthToken() {
                     text = "Отменить",
                     borderColor = MaterialTheme.colorScheme.onErrorContainer,
                     contentColor = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.weight(0.5f)
-                ) { /*TODO: реализовать возврат на предыдущую страницу*/ }
+                    modifier = Modifier.weight(0.5f),
+                    onClick = navToBack
+                )
                 HawkOutlinedButton(
                     text = "Сохранить",
-                    modifier = Modifier.weight(0.5f)
-                ) { /*TODO: реализовать возврат на предыдущую страницу*/ }
+                    modifier = Modifier.weight(0.5f),
+                    onClick = { coroutineScope.launch {
+                        val res = actSave(tokenId, name, password)
+                        if (res) navToBack()
+                        else error = "Не удалось изменить информацию"
+                    } }
+                )
             }
+            error?.also { ErrorMessage(error!!) }
         }
     }
 }

@@ -27,6 +27,7 @@ class DefaultNavigator(
         destination: Destination,
         navOptions: NavOptionsBuilder.() -> Unit
     ) {
+        println("Navigating to $destination")
         _navigationActions.send(NavigationAction.Navigate(
             destination = destination,
             navOptions = navOptions
@@ -34,6 +35,7 @@ class DefaultNavigator(
     }
 
     override suspend fun navigateUp() {
+        println("Navigating up")
         _navigationActions.send(NavigationAction.NavigateUp)
     }
 }

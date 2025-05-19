@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import hawk.analysis.app.R
 import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.HawkHeader
+import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.ui.theme.negativeColor
 import hawk.analysis.app.ui.theme.positiveColor
@@ -52,7 +53,7 @@ fun HomeVM(viewModel: HomeViewModel) {
         state = state.value,
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::selectPreviousAccount,
-        onNextAccount = viewModel::selectNextAccount
+        onNextAccount = viewModel::selectNextAccount,
     )
 }
 
@@ -264,7 +265,7 @@ fun HomePreview() {
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
             onUpdateAccount = {},
             onPrevAccount = {},
-            onNextAccount = {}
+            onNextAccount = {},
         )
     }
 }

@@ -9,37 +9,60 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class UserService(
     private val baseUrl: String,
     private val client: HttpClient
 ) {
-    suspend fun getById(jwt: String): UserInfo? {
-        val response = client.get("$baseUrl/api/users") { bearerAuth(jwt) }
+    var lastUpdatedAt: Instant = Clock.System.now()
+        private set
+    // TODO: сделать нормальный класс для ошибки
+    var lastError: String = ""
+        private set
+
+    suspend fun getById(): UserInfo? {
+        val response = client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) }
         return if (response.status.isSuccess()) return response.body()
         else null
     }
 
-    suspend fun updateEmail(jwt: String, request: UpdateEmailRequest): UserInfo? {
+    suspend fun updateEmail(newEmail: String, password: String): UserInfo? {
+        val request = UpdateEmailRequest(lastUpdatedAt = lastUpdatedAt, password = password, newEmail = newEmail)
         val response = client.patch("$baseUrl/api/users/update/email") {
-            bearerAuth(jwt)
+            bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        return if (response.status.isSuccess()) return response.body()
-        else null
+        return if (response.status.isSuccess()) {
+            val body = response.body<UserInfo>()
+            lastUpdatedAt = body.updatedAt
+            body
+        } else {
+            lastError = response.bodyAsText()
+            null
+        }
     }
 
-    suspend fun updatePassword(jwt: String, request: UpdatePasswordRequest): UserInfo? {
+    suspend fun updatePassword(oldPassword: String, newPassword: String): UserInfo? {
+        val request = UpdatePasswordRequest(lastUpdatedAt, oldPassword, newPassword)
         val response = client.patch("$baseUrl/api/users/update/password") {
-            bearerAuth(jwt)
+            bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        return if (response.status.isSuccess()) return response.body()
-        else null
+        return if (response.status.isSuccess()) {
+            val body = response.body<UserInfo>()
+            lastUpdatedAt = body.updatedAt
+            body
+        } else {
+            lastError = response.bodyAsText()
+            null
+        }
     }
 }

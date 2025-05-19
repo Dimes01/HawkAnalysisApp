@@ -21,37 +21,47 @@ class TokenService(
     private val baseUrl: String,
     private val client: HttpClient
 ) {
-    suspend fun getAllByUserId(jwt: String): List<TokenInfo> {
+    var lastUpdatedAt = HashMap<Int, Instant>()
+        private set
+
+    suspend fun getAllByUserId(): List<TokenInfo>? {
         val response = client.get("$baseUrl/api/tokens") {
-            authHeader(jwt)
+            authHeader(AuthService.jwt)
         }
-        return if (response.status.isSuccess()) response.body() else emptyList()
+        return if (response.status.isSuccess()) {
+            val body = response.body<List<TokenInfo>>()
+            body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
+            body
+        } else null
     }
 
-    suspend fun create(jwt: String, name: String, password: String, authToken: String): Boolean {
+    suspend fun create(name: String, password: String, authToken: String): Boolean {
         val bodyRequest = CreateTokenRequest(name, password, authToken)
         val response = client.post("$baseUrl/api/tokens") {
-            authHeader(jwt)
+            authHeader(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }
         return response.status.isSuccess()
     }
 
-    suspend fun update(jwt: String, id: Int, name: String, password: String, lastUpdatedAt: Instant): Boolean {
-        val bodyRequest = UpdateTokenRequest(id, name, password, lastUpdatedAt)
-        val response = client.patch("$baseUrl/api/tokens") {
-            authHeader(jwt)
-            contentType(ContentType.Application.Json)
-            setBody(bodyRequest)
+    suspend fun update(id: Int, name: String, password: String): Boolean {
+        lastUpdatedAt[id]?.also {
+            val bodyRequest = UpdateTokenRequest(id, name, password, it)
+            val response = client.patch("$baseUrl/api/tokens") {
+                authHeader(AuthService.jwt)
+                contentType(ContentType.Application.Json)
+                setBody(bodyRequest)
+            }
+            return response.status.isSuccess()
         }
-        return response.status.isSuccess()
+        return false
     }
 
-    suspend fun remove(jwt: String, id: Int, password: String): Boolean {
+    suspend fun remove(id: Int, password: String): Boolean {
         val bodyRequest = RemoveTokenRequest(id, password)
         val response = client.delete("$baseUrl/api/tokens") {
-            authHeader(jwt)
+            authHeader(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }

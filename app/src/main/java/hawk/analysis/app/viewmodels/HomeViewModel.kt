@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import hawk.analysis.app.dto.TokenInfo
+import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.screens.HomeScreenState
 import hawk.analysis.app.screens.MoneyState
@@ -56,6 +57,18 @@ class HomeViewModel(
         startPeriodicUpdates()
     }
 
+    fun navToEditEmail() {
+        println("Trying to navigate to EditEmailScreen")  // Логируем вызов
+        viewModelScope.launch {
+            try {
+                navigator.navigate(Destination.EditEmailScreen)
+                println("Navigation successful")
+            } catch (e: Exception) {
+                println("Navigation failed: ${e.message}")
+            }
+        }
+    }
+
     private fun startPeriodicUpdates() {
         updateJob = viewModelScope.launch {
             while (true) {
@@ -78,7 +91,7 @@ class HomeViewModel(
     }
 
     fun updateAccounts() = viewModelScope.launch {
-        val tokens = tokenService.getAllByUserId(AuthService.jwt)
+        val tokens = tokenService.getAllByUserId() ?: emptyList()
         val set = HashSet<Pair<Account, TokenInfo>>()
         for (token in tokens) {
             userServiceTI.getAccounts(token.authToken).accounts.forEach { acc ->
