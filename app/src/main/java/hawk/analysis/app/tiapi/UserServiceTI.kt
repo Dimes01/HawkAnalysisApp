@@ -1,11 +1,11 @@
 package hawk.analysis.app.tiapi
 
-import hawk.analysis.app.utilities.authHeader
 import hawk.analysis.restlib.contracts.AccountStatus
 import hawk.analysis.restlib.contracts.GetAccountsRequest
 import hawk.analysis.restlib.contracts.GetAccountsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -25,7 +25,7 @@ class UserServiceTI(
         log.info("Getting accounts from T-Invest API")
         val requestBody = GetAccountsRequest(AccountStatus.ACCOUNT_STATUS_OPEN)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.UsersService/GetAccounts") {
-            authHeader(authToken)
+            bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }

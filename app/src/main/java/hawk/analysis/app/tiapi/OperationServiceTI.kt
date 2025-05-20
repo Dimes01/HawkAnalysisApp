@@ -1,11 +1,11 @@
 package hawk.analysis.app.tiapi
 
-import hawk.analysis.app.utilities.authHeader
 import hawk.analysis.restlib.contracts.CurrencyRequest
 import hawk.analysis.restlib.contracts.PortfolioRequest
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -28,7 +28,7 @@ class OperationServiceTI(
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
-            authHeader(authToken)
+            bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }

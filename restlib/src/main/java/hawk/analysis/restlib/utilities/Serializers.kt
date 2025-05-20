@@ -7,6 +7,7 @@ import hawk.analysis.restlib.contracts.AccountType
 import hawk.analysis.restlib.contracts.CurrencyRequest
 import hawk.analysis.restlib.contracts.InstrumentExchangeType
 import hawk.analysis.restlib.contracts.InstrumentIdType
+import hawk.analysis.restlib.contracts.InstrumentType
 import hawk.analysis.restlib.contracts.RealExchange
 import hawk.analysis.restlib.contracts.SecurityTradingStatus
 import hawk.analysis.restlib.contracts.ShareType
@@ -56,6 +57,12 @@ object InstrumentIdTypeSerializer : KSerializer<InstrumentIdType> {
     override val descriptor = PrimitiveSerialDescriptor(InstrumentIdType::class.qualifiedName!!, PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): InstrumentIdType = InstrumentIdType.byName(decoder.decodeString()) ?: InstrumentIdType.INSTRUMENT_ID_UNSPECIFIED
     override fun serialize(encoder: Encoder, value: InstrumentIdType) = encoder.encodeString(value.name)
+}
+
+object InstrumentTypeSerializer : KSerializer<InstrumentType> {
+    override val descriptor = PrimitiveSerialDescriptor(InstrumentType::class.qualifiedName!!, PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): InstrumentType = InstrumentType.byName(decoder.decodeString()) ?: InstrumentType.INSTRUMENT_TYPE_UNSPECIFIED
+    override fun serialize(encoder: Encoder, value: InstrumentType) = encoder.encodeString(value.name)
 }
 
 object RealExchangeSerializer : KSerializer<RealExchange> {

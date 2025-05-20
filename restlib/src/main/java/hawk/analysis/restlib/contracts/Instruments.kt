@@ -1,9 +1,8 @@
 package hawk.analysis.restlib.contracts
 
-import android.icu.math.BigDecimal
-import hawk.analysis.restlib.utilities.BigDecimalSerializer
 import hawk.analysis.restlib.utilities.InstrumentExchangeTypeSerializer
 import hawk.analysis.restlib.utilities.InstrumentIdTypeSerializer
+import hawk.analysis.restlib.utilities.InstrumentTypeSerializer
 import hawk.analysis.restlib.utilities.RealExchangeSerializer
 import hawk.analysis.restlib.utilities.SecurityTradingStatusSerializer
 import hawk.analysis.restlib.utilities.ShareTypeSerializer
@@ -125,7 +124,8 @@ data class InstrumentShort(
     val figi: String,
     val ticker: String,
     val classCode: String,
-    val instrumentType: String,
+    @Serializable(with = InstrumentTypeSerializer::class)
+    val instrumentType: InstrumentType,
     val name: String,
     val uid: String,
     val positionUid: String,
@@ -135,6 +135,19 @@ data class InstrumentShort(
     val forQualInvestorFlag: Boolean,
     val weekendFlag: Boolean,
     val lot: Int,
+)
+
+@Serializable
+data class FindInstrumentRequest(
+    val query: String,
+    @Serializable(with = InstrumentTypeSerializer::class)
+    val instrumentKind: InstrumentType,
+    val apiTradeAvailableFlag: Boolean,
+)
+
+@Serializable
+data class FindInstrumentResponse(
+    val instruments: List<InstrumentShort>
 )
 
 enum class InstrumentExchangeType(val value: Int) {
@@ -155,6 +168,24 @@ enum class InstrumentIdType(val value: Int) {
 
     companion object {
         fun byName(name: String): InstrumentIdType? = entries.firstOrNull { it.name == name }
+    }
+}
+
+enum class InstrumentType(val value: Int) {
+    INSTRUMENT_TYPE_UNSPECIFIED(0), //Тип инструмента не определен
+    INSTRUMENT_TYPE_BOND(1), //Облигация
+    INSTRUMENT_TYPE_SHARE(2), //Акция
+    INSTRUMENT_TYPE_CURRENCY(3), //Валюта
+    INSTRUMENT_TYPE_ETF(4), //Exchange-traded fund
+    INSTRUMENT_TYPE_FUTURES(5), //Фьючерс
+    INSTRUMENT_TYPE_SP(6), //Структурная нота
+    INSTRUMENT_TYPE_OPTION(7), //Опцион
+    INSTRUMENT_TYPE_CLEARING_CERTIFICATE(8), //Clearing certificate
+    INSTRUMENT_TYPE_INDEX(9), //Индекс
+    INSTRUMENT_TYPE_COMMODITY(10); //Товар
+
+    companion object {
+        fun byName(name: String): InstrumentType? = entries.firstOrNull { it.name == name }
     }
 }
 

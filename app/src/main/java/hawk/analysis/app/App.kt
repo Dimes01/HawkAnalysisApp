@@ -26,7 +26,7 @@ import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.Destination
-import hawk.analysis.app.screens.AccountVM
+import hawk.analysis.app.screens.Account
 import hawk.analysis.app.screens.AddAuthToken
 import hawk.analysis.app.screens.Asset
 import hawk.analysis.app.screens.EditAccount
@@ -45,7 +45,6 @@ import hawk.analysis.app.tiapi.InstrumentServiceTI
 import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
-import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
 import hawk.analysis.restlib.contracts.PortfolioResponse
@@ -129,9 +128,13 @@ fun App() {
                         }
                         composable<Destination.AccountScreen> {
                             navBarVisible = true
-                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAV_CONTROLLER, navController) }
-                            val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
-                            AccountVM(viewModel)
+                            val operationServiceTI = koinInject<OperationServiceTI>()
+                            val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                            val args = it.toRoute<Destination.AccountScreen>()
+                            val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
+                                instrumentServiceTI.shareByFigi(a, f)?.instrument
+                            }
+                            Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare)
                         }
                         composable<Destination.AssetScreen> {
                             navBarVisible = false

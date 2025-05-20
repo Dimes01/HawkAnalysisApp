@@ -4,7 +4,6 @@ import android.icu.math.BigDecimal
 import hawk.analysis.app.dto.AccountInfo
 import hawk.analysis.app.dto.UpdateBenchmarkRequest
 import hawk.analysis.app.dto.UpdateRiskFreeRequest
-import hawk.analysis.app.utilities.authHeader
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -25,7 +24,7 @@ class AccountService(
 
     suspend fun getAllByUserId(): List<AccountInfo>? {
         val response = client.get("$baseUrl/api/accounts") {
-            authHeader(AuthService.jwt)
+            bearerAuth(AuthService.jwt)
         }
         if (response.status.isSuccess()) {
             return response.body<List<AccountInfo>>().also { acc ->

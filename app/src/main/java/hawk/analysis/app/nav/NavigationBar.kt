@@ -59,11 +59,11 @@ fun BottomNavigationBar(navController: NavController, navBarVisible: Boolean, mo
 
 object NavBarItems {
     val BarItems = listOf(
-        BarItem(
-            title = "Анализ",
-            image = Icons.Outlined.BarChart,
-            route = Destination.HomeScreen
-        ),
+//        BarItem(
+//            title = "Анализ",
+//            image = Icons.Outlined.BarChart,
+//            route = Destination.HomeScreen
+//        ),
         BarItem(
             title = "Главная",
             image = Icons.Outlined.Home,

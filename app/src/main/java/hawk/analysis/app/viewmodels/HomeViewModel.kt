@@ -53,6 +53,14 @@ class HomeViewModel(
         updateAccounts()
     }
 
+    fun navToAnalyseAccount() {
+        accountsToToken.firstOrNull { it.first.id == currentAccount.value?.id }?.let { token ->
+            currentAccount.value?.id?.let { accId ->
+                navController.navigate(Destination.AccountScreen(accId, token.second.authToken))
+            }
+        }
+    }
+
     fun startPeriodicUpdates() {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {

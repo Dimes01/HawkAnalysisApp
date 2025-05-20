@@ -56,6 +56,7 @@ fun HomeVM(viewModel: HomeViewModel) {
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::selectPreviousAccount,
         onNextAccount = viewModel::selectNextAccount,
+        navToAnalyseAccount = viewModel::navToAnalyseAccount,
     )
 }
 
@@ -67,6 +68,7 @@ fun Home(
     onUpdateAccount: () -> Unit,
     onPrevAccount: () -> Unit,
     onNextAccount: () -> Unit,
+    navToAnalyseAccount: () -> Unit,
 ) {
     val defaultCurrency = R.string.currency_rub
     Column(
@@ -109,6 +111,11 @@ fun Home(
                 modifier = Modifier.padding(vertical = 5.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
+                HawkOutlinedButton(
+                    text = "Анализ портфеля",
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = navToAnalyseAccount
+                )
                 HawkSection("Деньги") {
                     items(state.money) { money ->
                         Row(
@@ -270,6 +277,7 @@ fun HomePreview() {
             onUpdateAccount = {},
             onPrevAccount = {},
             onNextAccount = {},
+            navToAnalyseAccount = {}
         )
     }
 }

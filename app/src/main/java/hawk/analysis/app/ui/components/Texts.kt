@@ -2,6 +2,7 @@ package hawk.analysis.app.ui.components
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,5 +49,39 @@ fun HawkParameter(
             style = MaterialTheme.typography.titleMedium,
             color = color,
         )
+    }
+}
+
+@Composable
+fun HawkParameterRelative(
+    name: String,
+    value: String,
+    valueRelative: String,
+    modifier: Modifier,
+    color: Color = MaterialTheme.colorScheme.secondary,
+    colorRelative: Color = MaterialTheme.colorScheme.outline
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.headlineMedium,
+            color = color,
+        )
+        Column(horizontalAlignment = Alignment.End) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                color = color,
+            )
+            Text(
+                text = "$valueRelative%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorRelative,
+            )
+        }
     }
 }
