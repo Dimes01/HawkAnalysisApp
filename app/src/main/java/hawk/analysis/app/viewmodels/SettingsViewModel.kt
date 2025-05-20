@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavController
 import hawk.analysis.app.nav.Destination
-import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.screens.SettingsScreenState
 import hawk.analysis.app.services.AccountService
 import hawk.analysis.app.services.TokenService
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
-    private val navigator: Navigator,
+    private val navController: NavController,
     private val userService: UserService,
     private val accountService: AccountService,
     private val tokenService: TokenService,
@@ -39,40 +39,37 @@ class SettingsViewModel(
     }
 
     fun navToEditEmail() {
-        println("Trying to navigate to EditEmailScreen")  // Логируем вызов
-        viewModelScope.launch {
-            navigator.navigate(Destination.EditEmailScreen)
-        }
+        navController.navigate(Destination.EditEmailScreen)
     }
 
     fun navToEditPassword() {
-        viewModelScope.launch { navigator.navigate(Destination.EditPasswordScreen) }
+        navController.navigate(Destination.EditPasswordScreen)
     }
 
     fun navToEditAccount(accountId: String) {
-        viewModelScope.launch { navigator.navigate(Destination.EditAccountScreen(accountId)) }
+        navController.navigate(Destination.EditAccountScreen(accountId))
     }
 
     fun navToEditToken(tokenId: Int) {
-        viewModelScope.launch { navigator.navigate(Destination.EditAuthTokenScreen(tokenId)) }
+        navController.navigate(Destination.EditAuthTokenScreen(tokenId))
     }
 
     fun navToAddToken() {
-        viewModelScope.launch { navigator.navigate(Destination.AddAuthTokenScreen) }
+        navController.navigate(Destination.AddAuthTokenScreen)
     }
 
     companion object {
-        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
+        val NAV_CONTROLLER = object : CreationExtras.Key<NavController> {}
         val USER_SERVICE_KEY = object : CreationExtras.Key<UserService> {}
         val ACCOUNT_SERVICE_KEY = object : CreationExtras.Key<AccountService> {}
         val TOKEN_SERVICE_KEY = object : CreationExtras.Key<TokenService> {}
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val navigator = this[NAVIGATOR_KEY] as Navigator
+                val navController = this[NAV_CONTROLLER] as NavController
                 val userService = this[USER_SERVICE_KEY] as UserService
                 val accountService = this[ACCOUNT_SERVICE_KEY] as AccountService
                 val tokenService = this[TOKEN_SERVICE_KEY] as TokenService
-                SettingsViewModel(navigator, userService, accountService, tokenService)
+                SettingsViewModel(navController, userService, accountService, tokenService)
             }
         }
     }

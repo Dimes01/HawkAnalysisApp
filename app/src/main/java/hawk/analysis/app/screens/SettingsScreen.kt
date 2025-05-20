@@ -75,13 +75,11 @@ fun Settings(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceContainer)
-//            .verticalScroll(rememberScrollState())
-        ,
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         HawkSimpleHeader("Настройки")
-        HawkOutlinedButton(text = "Изменить e-mail", onClick = navToEditEmail)
         Column(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)

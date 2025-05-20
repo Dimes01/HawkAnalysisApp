@@ -5,17 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
-import hawk.analysis.app.nav.Navigator
+import androidx.navigation.NavController
 
 class AccountViewModel(
-    private val navigator: Navigator,
+    private val navController: NavController,
 ) : ViewModel() {
     companion object {
-        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
+        val NAV_CONTROLLER = object : CreationExtras.Key<NavController> {}
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val navigator = this[NAVIGATOR_KEY] as Navigator
-                AccountViewModel(navigator)
+                val navController = this[NAV_CONTROLLER] as NavController
+                AccountViewModel(navController)
             }
         }
     }

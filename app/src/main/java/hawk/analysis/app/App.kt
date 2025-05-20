@@ -1,9 +1,11 @@
 package hawk.analysis.app
 
 import android.app.Application
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -22,10 +25,7 @@ import androidx.navigation.toRoute
 import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
 import hawk.analysis.app.nav.BottomNavigationBar
-import hawk.analysis.app.nav.DefaultNavigator
 import hawk.analysis.app.nav.Destination
-import hawk.analysis.app.nav.NavigationAction
-import hawk.analysis.app.nav.ObserveAsEvents
 import hawk.analysis.app.screens.AccountVM
 import hawk.analysis.app.screens.AddAuthToken
 import hawk.analysis.app.screens.Asset
@@ -49,6 +49,7 @@ import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
 
@@ -74,31 +75,22 @@ class HawkApp : Application() {
     }
 }
 
-
 @Composable
 fun App() {
     HawkAnalysisAppTheme {
-        Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+        ) { innerPadding ->
             val navController = rememberNavController()
-            val navigator = DefaultNavigator(Destination.AuthGraph)
 
-            ObserveAsEvents(flow = navigator.navigationActions) { action ->
-                when(action) {
-                    is NavigationAction.Navigate -> navController.navigate(action.destination) {
-                        action.navOptions(this)
-                    }
-                    NavigationAction.NavigateUp -> navController.navigateUp()
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
                 var navBarVisible by remember { mutableStateOf(true) }
                 NavHost(
                     navController = navController,
-                    startDestination = navigator.startDestination,
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(innerPadding)
+                    startDestination = Destination.AuthGraph,
+                    modifier = Modifier.align(Alignment.TopCenter)
+
                 ) {
                     navigation<Destination.AuthGraph>(startDestination = Destination.LoginScreen) {
                         composable<Destination.LoginScreen> {
@@ -124,7 +116,7 @@ fun App() {
                             val operationServiceTI = koinInject<OperationServiceTI>()
                             val instrumentServiceTI = koinInject<InstrumentServiceTI>()
                             val extras = MutableCreationExtras().apply {
-                                set(HomeViewModel.NAVIGATOR_KEY, navigator)
+                                set(HomeViewModel.NAV_CONTROLLER, navController)
                                 set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
                                 set(HomeViewModel.USER_SERVICE_TI_KEY, userServiceTI)
                                 set(HomeViewModel.OPERATION_SERVICE_TI_KEY, operationServiceTI)
@@ -135,7 +127,7 @@ fun App() {
                         }
                         composable<Destination.AccountScreen> {
                             navBarVisible = true
-                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAVIGATOR_KEY, navigator) }
+                            val extras = MutableCreationExtras().apply { set(AccountViewModel.NAV_CONTROLLER, navController) }
                             val viewModel = viewModel<AccountViewModel>(factory = AccountViewModel.Factory, extras = extras)
                             AccountVM(viewModel)
                         }
@@ -152,7 +144,7 @@ fun App() {
                             val accountService = koinInject<AccountService>()
                             val tokenService = koinInject<TokenService>()
                             val extras = MutableCreationExtras().apply {
-                                set(SettingsViewModel.NAVIGATOR_KEY, navigator)
+                                set(SettingsViewModel.NAV_CONTROLLER, navController)
                                 set(SettingsViewModel.USER_SERVICE_KEY, userService)
                                 set(SettingsViewModel.ACCOUNT_SERVICE_KEY, accountService)
                                 set(SettingsViewModel.TOKEN_SERVICE_KEY, tokenService)

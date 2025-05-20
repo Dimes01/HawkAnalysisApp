@@ -2,20 +2,17 @@ package hawk.analysis.app.viewmodels
 
 import android.icu.math.BigDecimal
 import android.icu.math.MathContext
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavController
 import hawk.analysis.app.dto.TokenInfo
-import hawk.analysis.app.nav.Destination
-import hawk.analysis.app.nav.Navigator
 import hawk.analysis.app.screens.HomeScreenState
 import hawk.analysis.app.screens.MoneyState
 import hawk.analysis.app.screens.ShareState
-import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.tiapi.InstrumentServiceTI
 import hawk.analysis.app.tiapi.OperationServiceTI
@@ -30,13 +27,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Clock.System
 import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 class HomeViewModel(
-    private val navigator: Navigator,
+    private val navController: NavController,
     private val tokenService: TokenService,
     private val userServiceTI: UserServiceTI,
     private val operationServiceTI: OperationServiceTI,
@@ -55,18 +51,6 @@ class HomeViewModel(
     init {
         updateAccounts()
         startPeriodicUpdates()
-    }
-
-    fun navToEditEmail() {
-        println("Trying to navigate to EditEmailScreen")  // Логируем вызов
-        viewModelScope.launch {
-            try {
-                navigator.navigate(Destination.EditEmailScreen)
-                println("Navigation successful")
-            } catch (e: Exception) {
-                println("Navigation failed: ${e.message}")
-            }
-        }
     }
 
     private fun startPeriodicUpdates() {
@@ -174,7 +158,7 @@ class HomeViewModel(
     companion object {
         private const val UPDATE_INTERVAL = 5000L
 
-        val NAVIGATOR_KEY = object : CreationExtras.Key<Navigator> {}
+        val NAV_CONTROLLER = object : CreationExtras.Key<NavController> {}
         val USER_SERVICE_TI_KEY = object : CreationExtras.Key<UserServiceTI> {}
         val TOKEN_SERVICE_KEY = object : CreationExtras.Key<TokenService> {}
         val OPERATION_SERVICE_TI_KEY = object : CreationExtras.Key<OperationServiceTI> {}
@@ -183,7 +167,7 @@ class HomeViewModel(
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 HomeViewModel(
-                    navigator = this[NAVIGATOR_KEY] as Navigator,
+                    navController = this[NAV_CONTROLLER] as NavController,
                     tokenService = this[TOKEN_SERVICE_KEY] as TokenService,
                     userServiceTI = this[USER_SERVICE_TI_KEY] as UserServiceTI,
                     operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI,
