@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
@@ -26,21 +27,26 @@ fun ErrorMessage(text: String, modifier: Modifier = Modifier, textAlign: TextAli
 }
 
 @Composable
-fun HawkParameter(name: String, value: String) {
+fun HawkParameter(
+    name: String,
+    value: String,
+    modifier: Modifier,
+    color: Color = MaterialTheme.colorScheme.secondary,
+) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = modifier,
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = name,
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.secondary,
+            color = color,
         )
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.secondary,
+            color = color,
         )
     }
 }

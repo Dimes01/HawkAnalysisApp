@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -46,6 +47,7 @@ import kotlinx.datetime.format
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel) {
+    viewModel.startPeriodicUpdates()
     val selectedAccount = viewModel.currentAccount.collectAsState()
     val state = viewModel.currentState.collectAsState()
     Home(
@@ -192,10 +194,12 @@ fun Home(
                                     style = MaterialTheme.typography.titleMedium,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
-                                Icon(
-                                    imageVector = Icons.Outlined.QueryStats,
-                                    contentDescription = "Stats"
-                                )
+                                IconButton(onClick = share.navToAnalyse) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.QueryStats,
+                                        contentDescription = "Stats"
+                                    )
+                                }
                             }
                         }
                     }

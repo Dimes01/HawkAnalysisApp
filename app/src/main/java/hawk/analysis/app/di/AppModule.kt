@@ -1,6 +1,7 @@
 package hawk.analysis.app.di
 
 import hawk.analysis.app.services.AccountService
+import hawk.analysis.app.services.AnalyseService
 import hawk.analysis.app.services.AuthService
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.services.UserService
@@ -33,6 +34,7 @@ val commonModule = module {
     single<UserService> { UserService(baseUrl = get(named(urlApi)), client = get()) }
     single<TokenService> { TokenService(baseUrl = get(named(urlApi)), client = get()) }
     single<AccountService> { AccountService(baseUrl = get(named(urlApi)), client = get()) }
+    single<AnalyseService> { AnalyseService(baseUrl = get(named(urlApi)), client = get()) }
     single<UserServiceTI> { UserServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<OperationServiceTI> { OperationServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<InstrumentServiceTI> { InstrumentServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }

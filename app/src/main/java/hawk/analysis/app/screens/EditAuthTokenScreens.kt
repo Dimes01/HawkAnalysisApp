@@ -59,7 +59,7 @@ fun AddAuthToken(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HawkSimpleHeader("Добавление auth-токена")
+        HawkSimpleHeader("Добавление auth-токена", Modifier.padding(vertical = 20.dp))
         Column(
             modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -128,7 +128,7 @@ fun EditAuthToken(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HawkSimpleHeader("Изменение auth-токена")
+        HawkSimpleHeader("Изменение auth-токена", Modifier.padding(vertical = 20.dp))
         Column(
             modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),

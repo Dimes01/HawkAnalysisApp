@@ -62,7 +62,7 @@ object NavBarItems {
         BarItem(
             title = "Анализ",
             image = Icons.Outlined.BarChart,
-            route = Destination.LoginScreen
+            route = Destination.HomeScreen
         ),
         BarItem(
             title = "Главная",

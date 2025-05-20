@@ -11,7 +11,7 @@ sealed interface Destination {
     @Serializable data object HomeGraph : Destination
     @Serializable data object HomeScreen : Destination
     @Serializable data class AccountScreen(val accountId: String) : Destination
-    @Serializable data class AssetScreen(val ticker: String) : Destination
+    @Serializable data class AssetScreen(val accountId: String, val uid: String, val authToken: String) : Destination
 
     @Serializable data object SettingsGraph : Destination
     @Serializable data object SettingsScreen : Destination

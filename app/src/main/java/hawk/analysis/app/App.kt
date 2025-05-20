@@ -1,10 +1,11 @@
 package hawk.analysis.app
 
 import android.app.Application
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -14,7 +15,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -38,6 +38,7 @@ import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.SettingsVM
 import hawk.analysis.app.services.AccountService
+import hawk.analysis.app.services.AnalyseService
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.services.UserService
 import hawk.analysis.app.tiapi.InstrumentServiceTI
@@ -47,14 +48,15 @@ import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.AccountViewModel
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
+import hawk.analysis.restlib.contracts.PortfolioResponse
+import hawk.analysis.restlib.contracts.Share
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
-import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.context.startKoin
 
 /**
- * Навигация написана на основе следующего примера с GitHub и YouTube:
+ * Навигация, написанная на основе следующего примера с GitHub и YouTube, работала плохо, но использовать можно:
  * - [philipplackner/NavigationFromViewModel](https://github.com/philipplackner/NavigationFromViewModel/tree/master)
  * - [(156) How to Navigate From ViewModels With a Custom Navigator - Android Studio Tutorial - YouTube](https://www.youtube.com/watch?v=BFhVvAzC52w&t=579s)
  *
@@ -133,8 +135,25 @@ fun App() {
                         }
                         composable<Destination.AssetScreen> {
                             navBarVisible = false
+                            val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                            val operationServiceTI = koinInject<OperationServiceTI>()
+                            val analyseService = koinInject<AnalyseService>()
                             val args = it.toRoute<Destination.AssetScreen>()
-                            Asset(args.ticker)
+                            val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
+                                instrumentServiceTI.shareByFigi(a, f)?.instrument
+                            }
+                            val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
+                                operationServiceTI.getPortfolio(at, aid)
+                            }
+                            Asset(
+                                args.uid,
+                                args.authToken,
+                                args.accountId,
+                                getInfo,
+                                getPortfolio,
+                                analyseService::getLast,
+                                modifier = Modifier.verticalScroll(rememberScrollState())
+                            )
                         }
                     }
                     navigation<Destination.SettingsGraph>(startDestination = Destination.SettingsScreen) {

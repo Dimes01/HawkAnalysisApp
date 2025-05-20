@@ -83,11 +83,23 @@ fun HawkHeader(
 }
 
 @Composable
-fun HawkSimpleHeader(name: String) {
-    Text(
-        text = name,
-        style = MaterialTheme.typography.displayLarge,
-        color = MaterialTheme.colorScheme.onSurface,
-        modifier = Modifier.padding(vertical = 20.dp)
-    )
+fun HawkSimpleHeader(
+    name: String,
+    modifier: Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    label: @Composable () -> Unit = {}
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.displayLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        label()
+    }
 }

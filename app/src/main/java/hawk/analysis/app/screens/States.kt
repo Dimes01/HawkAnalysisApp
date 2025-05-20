@@ -38,4 +38,5 @@ data class ShareState(
     val count: Int,
     val countOfLots: Int,
     val currencyCode: String,
+    val navToAnalyse: () -> Unit = {}
 )

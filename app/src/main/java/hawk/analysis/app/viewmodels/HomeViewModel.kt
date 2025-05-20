@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import hawk.analysis.app.dto.TokenInfo
+import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.HomeScreenState
 import hawk.analysis.app.screens.MoneyState
 import hawk.analysis.app.screens.ShareState
@@ -50,10 +51,10 @@ class HomeViewModel(
 
     init {
         updateAccounts()
-        startPeriodicUpdates()
     }
 
-    private fun startPeriodicUpdates() {
+    fun startPeriodicUpdates() {
+        updateJob?.cancel()
         updateJob = viewModelScope.launch {
             while (true) {
                 val executionTime = measureTimeMillis {
@@ -114,7 +115,10 @@ class HomeViewModel(
                         profitPercent = profitPercent,
                         count = quantity.toInt(),
                         countOfLots = quantity.divide(BigDecimal(share.lot), 2, MathContext.ROUND_HALF_UP).toInt(),
-                        currencyCode = portShare.currentPrice.currency
+                        currencyCode = portShare.currentPrice.currency,
+                        navToAnalyse = { navController.navigate(
+                            Destination.AssetScreen(acc.id, share.figi, token.authToken)
+                        ) }
                     )
                 } else null
             }

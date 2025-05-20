@@ -55,13 +55,13 @@ fun EditAccount(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        HawkSimpleHeader("Изменение счета")
+        HawkSimpleHeader("Изменение счета", Modifier.padding(vertical = 20.dp))
         Column(
             modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            HawkParameter("ID", accountId)
+            HawkParameter("ID", accountId, Modifier.fillMaxWidth().padding(vertical = 10.dp))
             HawkInfoSection(
                 header = { HawkInfoSectionHeader("Безрисковая ставка") }
             ) {

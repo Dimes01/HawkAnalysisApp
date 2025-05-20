@@ -71,6 +71,7 @@ fun Settings(
     navToEditToken: (Int) -> Unit,
     navToAddToken: () -> Unit,
 ) {
+    val modifierForParameters = Modifier.fillMaxWidth().padding(vertical = 10.dp)
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,7 +80,7 @@ fun Settings(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        HawkSimpleHeader("Настройки")
+        HawkSimpleHeader("Настройки", Modifier.padding(vertical = 20.dp))
         Column(
             modifier = Modifier.fillMaxWidth().padding(10.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
@@ -88,10 +89,10 @@ fun Settings(
             HawkInfoSection(
                 header = { HawkInfoSectionHeader(name = "Профиль") }
             ) {
-                HawkParameter("Имя", state.profile.name)
-                HawkParameter("E-mail", state.profile.email)
-                HawkParameter("Изменён", state.profile.updatedAt.format(dateTimeFormat))
-                HawkParameter("Создан", state.profile.createdAt.format(dateTimeFormat))
+                HawkParameter("Имя", state.profile.name, modifierForParameters)
+                HawkParameter("E-mail", state.profile.email, modifierForParameters)
+                HawkParameter("Изменён", state.profile.updatedAt.format(dateTimeFormat), modifierForParameters)
+                HawkParameter("Создан", state.profile.createdAt.format(dateTimeFormat), modifierForParameters)
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -113,11 +114,11 @@ fun Settings(
                         HawkInfoSection(
                             header = { HawkInfoSectionHeaderEdit(acc.id, onClickEdit = { navToEditAccount(acc.id) }) }
                         ) {
-                            HawkParameter("Тип", acc.name)
-                            HawkParameter("Открыт", acc.openedDate.format(dateTimeFormat))
-                            HawkParameter("Закрыт", acc.closedDate.format(dateTimeFormat))
-                            HawkParameter("Безрисковая ставка", "${acc.riskFree?.setScale(2, MathContext.ROUND_HALF_UP)}")
-                            HawkParameter("Бенчмарк", acc.benchmarkUid.toString())
+                            HawkParameter("Тип", acc.name, modifierForParameters)
+                            HawkParameter("Открыт", acc.openedDate.format(dateTimeFormat), modifierForParameters)
+                            HawkParameter("Закрыт", acc.closedDate.format(dateTimeFormat), modifierForParameters)
+                            HawkParameter("Безрисковая ставка", "${acc.riskFree?.setScale(2, MathContext.ROUND_HALF_UP)}", modifierForParameters)
+                            HawkParameter("Бенчмарк", acc.benchmarkUid.toString(), modifierForParameters)
                         }
                     }
                 }
@@ -134,8 +135,8 @@ fun Settings(
                         HawkInfoSection(
                             header = { HawkInfoSectionHeaderEdit(token.name, onClickEdit = { navToEditToken(token.id) }) }
                         ) {
-                            HawkParameter("Открыт", token.createdAt.format(dateTimeFormat))
-                            HawkParameter("Обновлён", token.updatedAt .format(dateTimeFormat))
+                            HawkParameter("Открыт", token.createdAt.format(dateTimeFormat), modifierForParameters)
+                            HawkParameter("Обновлён", token.updatedAt .format(dateTimeFormat), modifierForParameters)
                         }
                     }
                     HawkOutlinedButton(text = "Добавить токен", modifier = Modifier.fillMaxWidth(), onClick = navToAddToken)
