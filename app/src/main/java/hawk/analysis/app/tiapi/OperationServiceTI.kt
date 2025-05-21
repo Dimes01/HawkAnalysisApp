@@ -8,6 +8,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -32,7 +33,8 @@ class OperationServiceTI(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        println(response.status)
-        return if (response.status.isSuccess()) response.body() else null
+        if (response.status.isSuccess()) return response.body()
+        println(response.bodyAsText())
+        return null
     }
 }

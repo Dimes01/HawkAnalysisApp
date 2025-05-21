@@ -36,7 +36,6 @@ import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
 
 @Preview(name = "Light", widthDp = 440, heightDp = 956)
 @Preview(name = "Dark", widthDp = 440, heightDp = 956, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -56,9 +55,9 @@ fun Register(
 ) {
     val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
-    var name = ""
-    var email = ""
-    var password = ""
+    var name = remember { mutableStateOf("") }
+    var email = remember { mutableStateOf("") }
+    var password = remember { mutableStateOf("") }
     val modifierForButtons = Modifier.fillMaxWidth().padding(0.dp, 2.dp)
     val modifierForTextFields = Modifier.fillMaxWidth()
     var isError by remember { mutableStateOf(false) }
@@ -114,22 +113,22 @@ fun Register(
                     )
                 }
                 HawkOutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = name.value,
+                    onValueChange = { name.value = it },
                     label = "Никнейм",
                     isError = isError,
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = email.value,
+                    onValueChange = { email.value = it },
                     label = "E-mail",
                     isError = isError,
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = password.value,
+                    onValueChange = { password.value = it },
                     label = "Пароль",
                     isPassword = true,
                     isError = isError,
@@ -139,7 +138,7 @@ fun Register(
                     text = "Зарегистрироваться",
                     modifier = modifierForButtons,
                     onClick = { coroutineScope.launch {
-                        val response = authService.register(name, email, password)
+                        val response = authService.register(name.value, email.value, password.value)
                         if (response != null) onHomeScreen()
                         else isError = true
                     } }

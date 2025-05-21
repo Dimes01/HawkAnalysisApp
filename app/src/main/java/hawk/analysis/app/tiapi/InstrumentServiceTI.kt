@@ -10,6 +10,7 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -25,9 +26,9 @@ class InstrumentServiceTI(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        println("currencyByFigi: response code = ${response.status.value}")
-        return if (response.status.isSuccess()) response.body()
-            else null
+        if (response.status.isSuccess()) return response.body()
+        println(response.bodyAsText())
+        return null
     }
 
     suspend fun shareByFigi(authToken: String, figi: String): InstrumentResponse<Share>? {
@@ -37,8 +38,8 @@ class InstrumentServiceTI(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        println("shareByFigi: response code = ${response.status.value}")
-        return if (response.status.isSuccess()) response.body()
-        else null
+        if (response.status.isSuccess()) return response.body()
+        println(response.bodyAsText())
+        return null
     }
 }

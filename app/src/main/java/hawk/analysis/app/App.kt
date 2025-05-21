@@ -1,8 +1,8 @@
 package hawk.analysis.app
 
 import android.app.Application
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -79,149 +78,145 @@ class HawkApp : Application() {
 @Composable
 fun App() {
     HawkAnalysisAppTheme {
+        val navController = rememberNavController()
+        var navBarVisible by remember { mutableStateOf(true) }
         Scaffold(
             modifier = Modifier.fillMaxSize(),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            bottomBar = { if (navBarVisible) { BottomNavigationBar(navController, Modifier.fillMaxWidth()) } }
         ) { innerPadding ->
-            val navController = rememberNavController()
-
-            Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-                var navBarVisible by remember { mutableStateOf(true) }
-                NavHost(
-                    navController = navController,
-                    startDestination = Destination.AuthGraph,
-                    modifier = Modifier.align(Alignment.TopCenter)
-
-                ) {
-                    navigation<Destination.AuthGraph>(startDestination = Destination.LoginScreen) {
-                        composable<Destination.LoginScreen> {
-                            navBarVisible = false
-                            Login(
-                                onHomeScreen = { navController.navigate(Destination.HomeScreen) },
-                                onRegisterScreen = { navController.navigate(Destination.RegisterScreen) },
-                            )
-                        }
-                        composable<Destination.RegisterScreen> {
-                            navBarVisible = false
-                            Register (
-                                onHomeScreen = { navController.navigate(Destination.HomeScreen) },
-                                onLoginScreen = { navController.navigate(Destination.LoginScreen) },
-                            )
-                        }
+            NavHost(
+                navController = navController,
+                startDestination = Destination.AuthGraph,
+                modifier = Modifier.fillMaxSize().padding(innerPadding)
+            ) {
+                navigation<Destination.AuthGraph>(startDestination = Destination.LoginScreen) {
+                    composable<Destination.LoginScreen> {
+                        navBarVisible = false
+                        Login(
+                            onHomeScreen = { navController.navigate(Destination.HomeScreen) },
+                            onRegisterScreen = { navController.navigate(Destination.RegisterScreen) },
+                        )
                     }
-                    navigation<Destination.HomeGraph>(startDestination = Destination.HomeScreen) {
-                        composable<Destination.HomeScreen> {
-                            navBarVisible = true
-                            val tokenService = koinInject<TokenService>()
-                            val userServiceTI = koinInject<UserServiceTI>()
-                            val operationServiceTI = koinInject<OperationServiceTI>()
-                            val instrumentServiceTI = koinInject<InstrumentServiceTI>()
-                            val extras = MutableCreationExtras().apply {
-                                set(HomeViewModel.NAV_CONTROLLER, navController)
-                                set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
-                                set(HomeViewModel.USER_SERVICE_TI_KEY, userServiceTI)
-                                set(HomeViewModel.OPERATION_SERVICE_TI_KEY, operationServiceTI)
-                                set(HomeViewModel.INSTRUMENT_SERVICE_TI_KEY, instrumentServiceTI)
-                            }
-                            val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
-                            HomeVM(viewModel)
-                        }
-                        composable<Destination.AccountScreen> {
-                            navBarVisible = true
-                            val operationServiceTI = koinInject<OperationServiceTI>()
-                            val instrumentServiceTI = koinInject<InstrumentServiceTI>()
-                            val args = it.toRoute<Destination.AccountScreen>()
-                            val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                                instrumentServiceTI.shareByFigi(a, f)?.instrument
-                            }
-                            Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare)
-                        }
-                        composable<Destination.AssetScreen> {
-                            navBarVisible = false
-                            val instrumentServiceTI = koinInject<InstrumentServiceTI>()
-                            val operationServiceTI = koinInject<OperationServiceTI>()
-                            val analyseService = koinInject<AnalyseService>()
-                            val args = it.toRoute<Destination.AssetScreen>()
-                            val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                                instrumentServiceTI.shareByFigi(a, f)?.instrument
-                            }
-                            val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
-                                operationServiceTI.getPortfolio(at, aid)
-                            }
-                            Asset(
-                                args.uid,
-                                args.authToken,
-                                args.accountId,
-                                getInfo,
-                                getPortfolio,
-                                analyseService::getLast,
-                                modifier = Modifier.verticalScroll(rememberScrollState())
-                            )
-                        }
-                    }
-                    navigation<Destination.SettingsGraph>(startDestination = Destination.SettingsScreen) {
-                        composable<Destination.SettingsScreen> {
-                            navBarVisible = true
-                            val userService = koinInject<UserService>()
-                            val accountService = koinInject<AccountService>()
-                            val tokenService = koinInject<TokenService>()
-                            val extras = MutableCreationExtras().apply {
-                                set(SettingsViewModel.NAV_CONTROLLER, navController)
-                                set(SettingsViewModel.USER_SERVICE_KEY, userService)
-                                set(SettingsViewModel.ACCOUNT_SERVICE_KEY, accountService)
-                                set(SettingsViewModel.TOKEN_SERVICE_KEY, tokenService)
-                            }
-                            val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
-                            SettingsVM(viewModel)
-                        }
-                        composable<Destination.EditEmailScreen> {
-                            navBarVisible = false
-                            val userService = koinInject<UserService>()
-                            EditEmail(
-                                actSave = userService::updateEmail,
-                                navToBack = navController::navigateUp
-                            )
-                        }
-                        composable<Destination.EditPasswordScreen> {
-                            navBarVisible = false
-                            val userService = koinInject<UserService>()
-                            EditPassword(
-                                actSave = userService::updatePassword,
-                                navToBack = navController::navigateUp
-                            )
-                        }
-                        composable<Destination.EditAccountScreen> {
-                            navBarVisible = false
-                            val accountService = koinInject<AccountService>()
-                            val args = it.toRoute<Destination.EditAccountScreen>()
-                            EditAccount(
-                                accountId = args.accountId,
-                                actChangeRiskFree = accountService::changeRiskFree,
-                                actChangeBenchmark = accountService::changeBenchmark,
-                                navToBack = navController::navigateUp
-                            )
-                        }
-                        composable<Destination.AddAuthTokenScreen> {
-                            navBarVisible = false
-                            val tokenService = koinInject<TokenService>()
-                            AddAuthToken(
-                                actSave = tokenService::create,
-                                navToBack = navController::navigateUp
-                            )
-                        }
-                        composable<Destination.EditAuthTokenScreen> {
-                            navBarVisible = false
-                            val tokenService = koinInject<TokenService>()
-                            val args = it.toRoute<Destination.EditAuthTokenScreen>()
-                            EditAuthToken(
-                                tokenId = args.tokenId,
-                                actSave = tokenService::update,
-                                navToBack = navController::navigateUp
-                            )
-                        }
+                    composable<Destination.RegisterScreen> {
+                        navBarVisible = false
+                        Register (
+                            onHomeScreen = { navController.navigate(Destination.HomeScreen) },
+                            onLoginScreen = { navController.navigate(Destination.LoginScreen) },
+                        )
                     }
                 }
-                BottomNavigationBar(navController, navBarVisible, Modifier.align(Alignment.BottomCenter))
+                navigation<Destination.HomeGraph>(startDestination = Destination.HomeScreen) {
+                    composable<Destination.HomeScreen> {
+                        navBarVisible = true
+                        val tokenService = koinInject<TokenService>()
+                        val userServiceTI = koinInject<UserServiceTI>()
+                        val operationServiceTI = koinInject<OperationServiceTI>()
+                        val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                        val extras = MutableCreationExtras().apply {
+                            set(HomeViewModel.NAV_CONTROLLER, navController)
+                            set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
+                            set(HomeViewModel.USER_SERVICE_TI_KEY, userServiceTI)
+                            set(HomeViewModel.OPERATION_SERVICE_TI_KEY, operationServiceTI)
+                            set(HomeViewModel.INSTRUMENT_SERVICE_TI_KEY, instrumentServiceTI)
+                        }
+                        val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
+                        HomeVM(viewModel)
+                    }
+                    composable<Destination.AccountScreen> {
+                        navBarVisible = true
+                        val operationServiceTI = koinInject<OperationServiceTI>()
+                        val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                        val args = it.toRoute<Destination.AccountScreen>()
+                        val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
+                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                        }
+                        Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare)
+                    }
+                    composable<Destination.AssetScreen> {
+                        navBarVisible = false
+                        val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                        val operationServiceTI = koinInject<OperationServiceTI>()
+                        val analyseService = koinInject<AnalyseService>()
+                        val args = it.toRoute<Destination.AssetScreen>()
+                        val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
+                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                        }
+                        val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
+                            operationServiceTI.getPortfolio(at, aid)
+                        }
+                        Asset(
+                            args.uid,
+                            args.authToken,
+                            args.accountId,
+                            getInfo,
+                            getPortfolio,
+                            analyseService::getLast,
+                            modifier = Modifier.verticalScroll(rememberScrollState())
+                        )
+                    }
+                }
+                navigation<Destination.SettingsGraph>(startDestination = Destination.SettingsScreen) {
+                    composable<Destination.SettingsScreen> {
+                        navBarVisible = true
+                        val userService = koinInject<UserService>()
+                        val accountService = koinInject<AccountService>()
+                        val tokenService = koinInject<TokenService>()
+                        val extras = MutableCreationExtras().apply {
+                            set(SettingsViewModel.NAV_CONTROLLER, navController)
+                            set(SettingsViewModel.USER_SERVICE_KEY, userService)
+                            set(SettingsViewModel.ACCOUNT_SERVICE_KEY, accountService)
+                            set(SettingsViewModel.TOKEN_SERVICE_KEY, tokenService)
+                        }
+                        val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
+                        SettingsVM(viewModel)
+                    }
+                    composable<Destination.EditEmailScreen> {
+                        navBarVisible = false
+                        val userService = koinInject<UserService>()
+                        EditEmail(
+                            actSave = userService::updateEmail,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                    composable<Destination.EditPasswordScreen> {
+                        navBarVisible = false
+                        val userService = koinInject<UserService>()
+                        EditPassword(
+                            actSave = userService::updatePassword,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                    composable<Destination.EditAccountScreen> {
+                        navBarVisible = false
+                        val accountService = koinInject<AccountService>()
+                        val args = it.toRoute<Destination.EditAccountScreen>()
+                        EditAccount(
+                            accountId = args.accountId,
+                            actChangeRiskFree = accountService::changeRiskFree,
+                            actChangeBenchmark = accountService::changeBenchmark,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                    composable<Destination.AddAuthTokenScreen> {
+                        navBarVisible = false
+                        val tokenService = koinInject<TokenService>()
+                        AddAuthToken(
+                            actSave = tokenService::create,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                    composable<Destination.EditAuthTokenScreen> {
+                        navBarVisible = false
+                        val tokenService = koinInject<TokenService>()
+                        val args = it.toRoute<Destination.EditAuthTokenScreen>()
+                        EditAuthToken(
+                            tokenId = args.tokenId,
+                            actSave = tokenService::update,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                }
             }
         }
     }

@@ -14,8 +14,8 @@ class AnalyseService(
 ) {
     suspend fun getLast(accountId: String): List<Analyse>? {
         val response = client.get("$baseUrl/api/analysis/$accountId/latest") { bearerAuth(AuthService.jwt) }
+        if (response.status.isSuccess()) return response.body()
         println(response.bodyAsText())
-        return if (response.status.isSuccess()) response.body()
-        else null
+        return null
     }
 }

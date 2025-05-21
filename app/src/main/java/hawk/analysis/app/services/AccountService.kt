@@ -31,6 +31,7 @@ class AccountService(
                 acc.forEach { lastUpdatedAt[it.id] = it.updatedAt }
             }
         }
+        println(response.bodyAsText())
         return null
     }
 
@@ -45,6 +46,7 @@ class AccountService(
             if (response.status.isSuccess()) {
                 return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
             }
+            println(response.bodyAsText())
         }
         return null
     }
@@ -60,6 +62,7 @@ class AccountService(
             if (response.status.isSuccess()) {
                 return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
             }
+            println(response.bodyAsText())
         }
         return null
     }

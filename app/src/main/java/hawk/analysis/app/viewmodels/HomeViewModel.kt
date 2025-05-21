@@ -51,6 +51,7 @@ class HomeViewModel(
 
     init {
         updateAccounts()
+        startPeriodicUpdates()
     }
 
     fun navToAnalyseAccount() {
@@ -64,16 +65,11 @@ class HomeViewModel(
     fun startPeriodicUpdates() {
         updateJob?.cancel()
         updateJob = viewModelScope.launch {
+            delay(INITIAL_DELAY)
             while (true) {
                 val executionTime = measureTimeMillis {
                     _currentAccount.value?.let { currentAccount ->
                         updatePortfolioInfo(accountsToToken.first { it.first == currentAccount })
-                    }
-
-                    _currentState.update {
-                        it.copy(
-                            lastUpdatedAt = System.now(),
-                        )
                     }
                 }
                 val lastTime = UPDATE_INTERVAL - executionTime
@@ -87,7 +83,7 @@ class HomeViewModel(
         val tokens = tokenService.getAllByUserId() ?: emptyList()
         val set = HashSet<Pair<Account, TokenInfo>>()
         for (token in tokens) {
-            userServiceTI.getAccounts(token.authToken).accounts.forEach { acc ->
+            userServiceTI.getAccounts(token.authToken)?.accounts?.forEach { acc ->
                 set.add(acc to token)
             }
         }
@@ -108,7 +104,6 @@ class HomeViewModel(
                     MoneyState(cur, money)
                 } else null
             }
-            println(moneyStates)
             val shareStates = portfolio.positions.filter { it.instrumentType == "share" }.mapNotNull { portShare ->
                 val share = instrumentsServiceTI.shareByFigi(token.authToken, portShare.figi)?.instrument
                 if (share != null) {
@@ -130,7 +125,6 @@ class HomeViewModel(
                     )
                 } else null
             }
-            println(shareStates)
             _currentState.update { it.copy(
                 lastUpdatedAt = System.now(),
                 sum = portfolio.totalAmountPortfolio.toBigDecimal(),
@@ -168,7 +162,8 @@ class HomeViewModel(
     }
 
     companion object {
-        private const val UPDATE_INTERVAL = 5000L
+        private const val INITIAL_DELAY = 250L
+        private const val UPDATE_INTERVAL = 3000L
 
         val NAV_CONTROLLER = object : CreationExtras.Key<NavController> {}
         val USER_SERVICE_TI_KEY = object : CreationExtras.Key<UserServiceTI> {}

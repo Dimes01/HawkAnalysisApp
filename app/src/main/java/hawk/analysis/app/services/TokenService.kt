@@ -12,6 +12,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -28,11 +29,13 @@ class TokenService(
         val response = client.get("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
         }
-        return if (response.status.isSuccess()) {
+        if (response.status.isSuccess()) {
             val body = response.body<List<TokenInfo>>()
             body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
-            body
-        } else null
+            return body
+        }
+        println(response.bodyAsText())
+        return null
     }
 
     suspend fun create(name: String, password: String, authToken: String): Boolean {
@@ -42,7 +45,7 @@ class TokenService(
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }
-        return response.status.isSuccess()
+        return response.status.isSuccess().also { println(response.bodyAsText()) }
     }
 
     suspend fun update(id: Int, name: String, password: String): Boolean {
@@ -53,6 +56,7 @@ class TokenService(
                 contentType(ContentType.Application.Json)
                 setBody(bodyRequest)
             }
+            println(response.bodyAsText())
             return response.status.isSuccess()
         }
         return false
@@ -65,6 +69,7 @@ class TokenService(
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }
+        println(response.bodyAsText())
         return response.status.isSuccess()
     }
 }

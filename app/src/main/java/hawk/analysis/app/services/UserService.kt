@@ -28,8 +28,13 @@ class UserService(
 
     suspend fun getById(): UserInfo? {
         val response = client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) }
-        return if (response.status.isSuccess()) return response.body()
-        else null
+        if (response.status.isSuccess()) {
+            val body = response.body<UserInfo>()
+            lastUpdatedAt = body.updatedAt
+            return body
+        }
+        println(response.bodyAsText())
+        return null
     }
 
     suspend fun updateEmail(newEmail: String, password: String): UserInfo? {
@@ -39,13 +44,14 @@ class UserService(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        return if (response.status.isSuccess()) {
+        if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
-            body
+            return body
         } else {
+            println(response.bodyAsText())
             lastError = response.bodyAsText()
-            null
+            return null
         }
     }
 
@@ -56,13 +62,14 @@ class UserService(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        return if (response.status.isSuccess()) {
+        if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
-            body
+            return body
         } else {
+            println(response.bodyAsText())
             lastError = response.bodyAsText()
-            null
+            return null
         }
     }
 }

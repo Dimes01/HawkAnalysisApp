@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -47,12 +48,12 @@ import kotlinx.datetime.format
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel) {
-    viewModel.startPeriodicUpdates()
     val selectedAccount = viewModel.currentAccount.collectAsState()
     val state = viewModel.currentState.collectAsState()
     Home(
         selectedAccount = selectedAccount.value,
         state = state.value,
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer),
         onUpdateAccount = viewModel::updateAccounts,
         onPrevAccount = viewModel::selectPreviousAccount,
         onNextAccount = viewModel::selectNextAccount,
@@ -74,7 +75,7 @@ fun Home(
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         var modifierMainPart: Modifier = Modifier
         selectedAccount?.let { account ->

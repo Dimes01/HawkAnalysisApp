@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hawk.analysis.app.R
@@ -37,7 +36,6 @@ import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
-import org.koin.core.qualifier.named
 
 @Preview(name = "Light", widthDp = 440, heightDp = 956)
 @Preview(name = "Dark", widthDp = 440, heightDp = 956, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -57,8 +55,8 @@ fun Login(
 ) {
     val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
-    var email = "user@mail.com"
-    var password = "1234"
+    var email = remember { mutableStateOf("user@mail.com") }
+    var password = remember { mutableStateOf("1234") }
     val modifierForButtons = Modifier
         .fillMaxWidth()
         .padding(0.dp, 2.dp)
@@ -116,15 +114,15 @@ fun Login(
                     )
                 }
                 HawkOutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
+                    value = email.value,
+                    onValueChange = { email.value = it },
                     label = "E-mail",
                     isError = isError,
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = password.value,
+                    onValueChange = { password.value = it },
                     label = "Пароль",
                     isPassword = true,
                     isError = isError,
@@ -135,7 +133,7 @@ fun Login(
                     modifier = modifierForButtons,
                     onClick = {
                         coroutineScope.launch {
-                            val response = authService.login(email, password)
+                            val response = authService.login(email.value, password.value)
                             if (response != null) onHomeScreen()
                             else isError = true
                         }

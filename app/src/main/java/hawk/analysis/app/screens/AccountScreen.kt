@@ -113,18 +113,19 @@ fun Account(
             HawkHorizontalDivider()
 
             val totalAmountPortfolio = portfolio?.totalAmountPortfolio?.toBigDecimal(2)
-            val expectedYield = portfolio?.expectedYield?.toBigDecimal(2)
-            val expectedYieldRelative = expectedYield?.divide(totalAmountPortfolio)?.hawkScale()
-            HawkParameterRelative(
-                name = "Текущая доходность",
-                value = "$expectedYield",
-                valueRelative = "$expectedYieldRelative",
-                modifier = modifierForParams,
-                color = colorParams,
-                colorRelative = colorParamsRelative
-            )
-            HawkHorizontalDivider()
-
+            if (totalAmountPortfolio?.compareTo(BigDecimal.ZERO) != 0) {
+                val expectedYield = portfolio?.expectedYield?.toBigDecimal(2)
+                val expectedYieldRelative = expectedYield?.divide(totalAmountPortfolio)?.hawkScale()
+                HawkParameterRelative(
+                    name = "Текущая доходность",
+                    value = "$expectedYield",
+                    valueRelative = "$expectedYieldRelative",
+                    modifier = modifierForParams,
+                    color = colorParams,
+                    colorRelative = colorParamsRelative
+                )
+                HawkHorizontalDivider()
+            }
             val dailyYield = portfolio?.dailyYield?.toBigDecimal(2)
             val dailyYieldRelative = portfolio?.dailyYieldRelative?.toBigDecimal(2)
             HawkParameterRelative(
