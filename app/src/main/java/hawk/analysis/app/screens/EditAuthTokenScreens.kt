@@ -81,6 +81,7 @@ fun AddAuthToken(
                 value = password,
                 onValueChange = { password = it },
                 label = "Пароль",
+                isPassword = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Row(
@@ -144,6 +145,7 @@ fun EditAuthToken(
                 value = password,
                 onValueChange = { password = it },
                 label = "Пароль",
+                isPassword = true,
                 modifier = Modifier.fillMaxWidth()
             )
             Row(

@@ -19,7 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import hawk.analysis.app.dto.Analyse
+import hawk.analysis.app.dto.AssetAnalyse
 import hawk.analysis.app.ui.components.HawkHorizontalDivider
 import hawk.analysis.app.ui.components.HawkInfoSection
 import hawk.analysis.app.ui.components.HawkInfoSectionHeader
@@ -27,10 +27,9 @@ import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.utilities.accountAPI
-import hawk.analysis.app.utilities.analyse
+import hawk.analysis.app.utilities.assetAnalyse
 import hawk.analysis.app.utilities.dateTimeFormat
 import hawk.analysis.app.utilities.portfolio
-import hawk.analysis.app.utilities.shareLkoh
 import hawk.analysis.app.utilities.shareNvtk
 import hawk.analysis.restlib.contracts.PortfolioPosition
 import hawk.analysis.restlib.contracts.PortfolioResponse
@@ -48,7 +47,7 @@ fun AssetPreview() {
             accountId = accountAPI.id,
             getInfo = { _, _ -> shareNvtk },
             getPortfolioAsset = { _, _ -> portfolio },
-            getAnalysis = { _ -> listOf(analyse) },
+            getAnalysis = { _ -> listOf(assetAnalyse) },
             modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer).padding(10.dp)
         )
     }
@@ -61,17 +60,17 @@ fun Asset(
     accountId: String,
     getInfo: suspend (authToken: String, figi: String) -> Share?,
     getPortfolioAsset: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
-    getAnalysis: suspend (accountId: String) -> List<Analyse>?,
+    getAnalysis: suspend (accountId: String) -> List<AssetAnalyse>?,
     modifier: Modifier = Modifier
 ) {
     var info: Share? by remember { mutableStateOf(null) }
     var portAsset: PortfolioPosition? by remember { mutableStateOf(null) }
-    var analyse: Analyse? by remember { mutableStateOf(null) }
+    var assetAnalyse: AssetAnalyse? by remember { mutableStateOf(null) }
     LaunchedEffect(key1 = Unit) {
         info = getInfo(authToken, uid)
         portAsset = getPortfolioAsset(authToken, accountId)?.positions?.firstOrNull { it.figi == uid }
         if (portAsset != null)
-            analyse = getAnalysis(accountId)?.firstOrNull { it.securitiesId == portAsset?.instrumentUid }
+            assetAnalyse = getAnalysis(accountId)?.firstOrNull { it.securitiesId == portAsset?.instrumentUid }
     }
     Column(
         modifier = modifier,
@@ -124,21 +123,21 @@ fun Asset(
             HawkParameter("Доходность за день", "$dailyYield", modifierForParams, colorParams)
         }
         HawkInfoSection(header = { HawkInfoSectionHeader("Рискованность") }) {
-            HawkParameter("Начало анализа", "${analyse?.dateFrom?.format(dateTimeFormat)}", modifierForParams, colorParams)
+            HawkParameter("Начало анализа", "${assetAnalyse?.dateFrom?.format(dateTimeFormat)}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Конец анализа", "${analyse?.dateTo?.format(dateTimeFormat)}", modifierForParams, colorParams)
+            HawkParameter("Конец анализа", "${assetAnalyse?.dateTo?.format(dateTimeFormat)}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Средняя цена", "${analyse?.mean}", modifierForParams, colorParams)
+            HawkParameter("Средняя цена", "${assetAnalyse?.mean}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Стандартное отклонение", "${analyse?.stdDev}", modifierForParams, colorParams)
+            HawkParameter("Стандартное отклонение", "${assetAnalyse?.stdDev}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент вариации", "${analyse?.variation}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент вариации", "${assetAnalyse?.variation}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент Шарпа", "${analyse?.sharp}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент Шарпа", "${assetAnalyse?.sharp}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент информации", "${analyse?.information}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент информации", "${assetAnalyse?.information}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент Сортино", "${analyse?.sortino}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент Сортино", "${assetAnalyse?.sortino}", modifierForParams, colorParams)
         }
     }
 }

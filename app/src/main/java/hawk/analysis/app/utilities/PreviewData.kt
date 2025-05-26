@@ -2,7 +2,7 @@ package hawk.analysis.app.utilities
 
 import android.icu.math.BigDecimal
 import hawk.analysis.app.dto.AccountInfo
-import hawk.analysis.app.dto.Analyse
+import hawk.analysis.app.dto.AssetAnalyse
 import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.restlib.contracts.AccessLevel
@@ -272,7 +272,7 @@ val portfolio = PortfolioResponse(
     dailyYieldRelative = Quotation(units = 0, nano = -720000000)
 )
 
-val analyse = Analyse(
+val assetAnalyse = AssetAnalyse(
     id = 1,
     accountId = accountAPI.id,
     securitiesId = shareNvtk.figi,

@@ -39,7 +39,7 @@ class TokenService(
     }
 
     suspend fun create(name: String, password: String, authToken: String): Boolean {
-        val bodyRequest = CreateTokenRequest(name, password, authToken)
+        val bodyRequest = CreateTokenRequest(name = name, password = password, authToken = authToken)
         val response = client.post("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)

@@ -8,6 +8,8 @@ import hawk.analysis.restlib.contracts.CurrencyRequest
 import hawk.analysis.restlib.contracts.InstrumentExchangeType
 import hawk.analysis.restlib.contracts.InstrumentIdType
 import hawk.analysis.restlib.contracts.InstrumentType
+import hawk.analysis.restlib.contracts.OperationState
+import hawk.analysis.restlib.contracts.OperationType
 import hawk.analysis.restlib.contracts.RealExchange
 import hawk.analysis.restlib.contracts.SecurityTradingStatus
 import hawk.analysis.restlib.contracts.ShareType
@@ -63,6 +65,18 @@ object InstrumentTypeSerializer : KSerializer<InstrumentType> {
     override val descriptor = PrimitiveSerialDescriptor(InstrumentType::class.qualifiedName!!, PrimitiveKind.STRING)
     override fun deserialize(decoder: Decoder): InstrumentType = InstrumentType.byName(decoder.decodeString()) ?: InstrumentType.INSTRUMENT_TYPE_UNSPECIFIED
     override fun serialize(encoder: Encoder, value: InstrumentType) = encoder.encodeString(value.name)
+}
+
+object OperationStateSerializer : KSerializer<OperationState> {
+    override val descriptor = PrimitiveSerialDescriptor(OperationState::class.qualifiedName!!, PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): OperationState = OperationState.byName(decoder.decodeString()) ?: OperationState.OPERATION_STATE_UNSPECIFIED
+    override fun serialize(encoder: Encoder, value: OperationState) = encoder.encodeString(value.name)
+}
+
+object OperationTypeSerializer : KSerializer<OperationType> {
+    override val descriptor = PrimitiveSerialDescriptor(OperationType::class.qualifiedName!!, PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): OperationType = OperationType.byName(decoder.decodeString()) ?: OperationType.OPERATION_TYPE_UNSPECIFIED
+    override fun serialize(encoder: Encoder, value: OperationType) = encoder.encodeString(value.name)
 }
 
 object RealExchangeSerializer : KSerializer<RealExchange> {

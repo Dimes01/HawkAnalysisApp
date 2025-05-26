@@ -1,6 +1,8 @@
 package hawk.analysis.app.tiapi
 
 import hawk.analysis.restlib.contracts.CurrencyRequest
+import hawk.analysis.restlib.contracts.OperationRequest
+import hawk.analysis.restlib.contracts.OperationResponse
 import hawk.analysis.restlib.contracts.PortfolioRequest
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import io.ktor.client.HttpClient
@@ -21,6 +23,17 @@ class OperationServiceTI(
 ) {
     companion object {
         private val log: Logger = LoggerFactory.getLogger(OperationServiceTI::class.java)
+    }
+
+    suspend fun getOperations(authToken: String, request: OperationRequest): OperationResponse? {
+        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetOperations") {
+            bearerAuth(authToken)
+            contentType()
+            setBody(request)
+        }
+        if (response.status.isSuccess()) return response.body()
+        println(response.bodyAsText())
+        return null
     }
 
     suspend fun getPortfolio(

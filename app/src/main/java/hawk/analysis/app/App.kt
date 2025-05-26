@@ -127,11 +127,12 @@ fun App() {
                         navBarVisible = true
                         val operationServiceTI = koinInject<OperationServiceTI>()
                         val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                        val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AccountScreen>()
                         val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
                             instrumentServiceTI.shareByFigi(a, f)?.instrument
                         }
-                        Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare)
+                        Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare, analyseService::getAccountLast)
                     }
                     composable<Destination.AssetScreen> {
                         navBarVisible = false
@@ -151,7 +152,7 @@ fun App() {
                             args.accountId,
                             getInfo,
                             getPortfolio,
-                            analyseService::getLast,
+                            analyseService::getAssetLast,
                             modifier = Modifier.verticalScroll(rememberScrollState())
                         )
                     }

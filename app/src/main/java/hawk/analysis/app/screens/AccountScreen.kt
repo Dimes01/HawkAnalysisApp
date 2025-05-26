@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hawk.analysis.app.dto.AccountAnalyse
 import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.HawkHorizontalDivider
 import hawk.analysis.app.ui.components.HawkInfoSection
@@ -26,6 +29,7 @@ import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkParameterRelative
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.utilities.accountAPI
+import hawk.analysis.app.utilities.dateTimeFormat
 import hawk.analysis.app.utilities.hawkScale
 import hawk.analysis.app.utilities.portfolio
 import hawk.analysis.app.utilities.shareNvtk
@@ -33,12 +37,13 @@ import hawk.analysis.restlib.contracts.PortfolioResponse
 import hawk.analysis.restlib.contracts.Share
 import hawk.analysis.restlib.utilities.categoryTranslations
 import hawk.analysis.restlib.utilities.toBigDecimal
+import kotlinx.datetime.format
 
 @Preview
 @Composable
 fun AccountPreview() {
     HawkAnalysisAppTheme {
-        Account(accountAPI.id, "", { _, _ -> portfolio }, { _, _ -> shareNvtk })
+        Account(accountAPI.id, "", { _, _ -> portfolio }, { _, _ -> shareNvtk }, { _ -> emptyList() })
     }
 }
 
@@ -48,9 +53,12 @@ fun Account(
     authToken: String,
     getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
     getShare: suspend (authToken: String, figi: String) -> Share?,
+    getAnalyse: suspend (accountId: String) -> List<AccountAnalyse>?,
 ) {
     var portfolio: PortfolioResponse? by remember { mutableStateOf(null) }
+    var analyse: AccountAnalyse? by remember { mutableStateOf(null) }
     var sectors by remember { mutableStateOf(HashMap<String, BigDecimal>()) }
+    var error by remember { mutableStateOf("") }
     LaunchedEffect(key1 = Unit) {
         portfolio = getPortfolio(authToken, accountId)
         if (portfolio != null) {
@@ -62,12 +70,18 @@ fun Account(
                     sectors[sector] = sectors.getOrDefault(sector, BigDecimal.ZERO).add(amount)
                 }
             }
+            try {
+                analyse = getAnalyse(accountId)?.single().also { error = "" }
+            } catch (e: Exception) {
+                error = "Не удалось получить анализ"
+            }
         }
     }
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.surfaceContainer)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 15.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
@@ -85,32 +99,46 @@ fun Account(
             HawkHorizontalDivider()
 
             val totalAmountShares = portfolio?.totalAmountShares?.toBigDecimal(2)
-            HawkParameter("Сумма акций", "$totalAmountShares", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountShares?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма акций", "$totalAmountShares", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountBonds = portfolio?.totalAmountBonds?.toBigDecimal(2)
-            HawkParameter("Сумма облигаций", "$totalAmountBonds", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountBonds?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма облигаций", "$totalAmountBonds", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountEtf = portfolio?.totalAmountEtf?.toBigDecimal(2)
-            HawkParameter("Сумма фондов", "$totalAmountEtf", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountEtf?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма фондов", "$totalAmountEtf", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountCurrencies = portfolio?.totalAmountCurrencies?.toBigDecimal(2)
-            HawkParameter("Сумма валют", "$totalAmountCurrencies", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountCurrencies?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма валют", "$totalAmountCurrencies", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountFutures = portfolio?.totalAmountFutures?.toBigDecimal(2)
-            HawkParameter("Сумма фьючерсов", "$totalAmountFutures", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountFutures?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма фьючерсов", "$totalAmountFutures", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountOptions = portfolio?.totalAmountOptions?.toBigDecimal(2)
-            HawkParameter("Сумма опционов", "$totalAmountOptions", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountOptions?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма опционов", "$totalAmountOptions", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountSp = portfolio?.totalAmountSp?.toBigDecimal(2)
-            HawkParameter("Сумма структурных нот", "$totalAmountSp", modifierForParams, colorParams)
-            HawkHorizontalDivider()
+            if (totalAmountSp?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameter("Сумма структурных нот", "$totalAmountSp", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+            }
 
             val totalAmountPortfolio = portfolio?.totalAmountPortfolio?.toBigDecimal(2)
             if (totalAmountPortfolio?.compareTo(BigDecimal.ZERO) != 0) {
@@ -128,14 +156,44 @@ fun Account(
             }
             val dailyYield = portfolio?.dailyYield?.toBigDecimal(2)
             val dailyYieldRelative = portfolio?.dailyYieldRelative?.toBigDecimal(2)
-            HawkParameterRelative(
-                name = "Доходность за день",
-                value = "$dailyYield",
-                valueRelative = "$dailyYieldRelative",
-                modifier = modifierForParams,
-                color = colorParams,
-                colorRelative = colorParamsRelative
-            )
+            if (dailyYield?.compareTo(BigDecimal.ZERO) != 0 && dailyYieldRelative?.compareTo(BigDecimal.ZERO) != 0) {
+                HawkParameterRelative(
+                    name = "Доходность за день",
+                    value = "$dailyYield",
+                    valueRelative = "$dailyYieldRelative",
+                    modifier = modifierForParams,
+                    color = colorParams,
+                    colorRelative = colorParamsRelative
+                )
+            }
+        }
+
+        if (analyse != null) {
+            HawkInfoSection(header = { HawkInfoSectionHeader("Рискованность") }) {
+                HawkParameter("Начало анализа", "${analyse?.dateFrom?.format(dateTimeFormat)}", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+                HawkParameter("Конец анализа", "${analyse?.dateTo?.format(dateTimeFormat)}", modifierForParams, colorParams)
+                HawkHorizontalDivider()
+                HawkParameter("Средняя цена", String.format("%.2f", analyse!!.mean), modifierForParams, colorParams)
+                HawkHorizontalDivider()
+                HawkParameter("Стандартное отклонение", String.format("%.2f", analyse!!.stdDev), modifierForParams, colorParams)
+                if (analyse?.variation != null) {
+                    HawkHorizontalDivider()
+                    HawkParameter("Коэффициент вариации", String.format("%.2f", analyse!!.variation), modifierForParams, colorParams)
+                }
+                if (analyse?.sharp != null) {
+                    HawkHorizontalDivider()
+                    HawkParameter("Коэффициент Шарпа", String.format("%.2f", analyse!!.sharp), modifierForParams, colorParams)
+                }
+                if (analyse?.information != null) {
+                    HawkHorizontalDivider()
+                    HawkParameter("Коэффициент информации", String.format("%.2f", analyse!!.information), modifierForParams, colorParams)
+                }
+                if (analyse?.sortino != null) {
+                    HawkHorizontalDivider()
+                    HawkParameter("Коэффициент Сортино", String.format("%.2f", analyse!!.sortino), modifierForParams, colorParams)
+                }
+            }
         }
 //        HawkInfoSection(
 //            header = { HawkInfoSectionHeader("Отрасли") }
