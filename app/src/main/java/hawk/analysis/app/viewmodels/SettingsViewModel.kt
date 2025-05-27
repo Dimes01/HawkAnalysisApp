@@ -36,13 +36,13 @@ class SettingsViewModel(
     }
 
     private suspend fun updateInfo() {
-        userService.getById()?.also { user -> _state.update { it.copy(profile = user) } }
-        accountService.getAllByUserId()?.also { acc -> _state.update { it.copy(accounts = acc) } }
-        tokenService.getAllByUserId()?.also { token -> _state.update { it.copy(tokens = token) } }
+        userService.getById().response?.also { user -> _state.update { it.copy(profile = user) } }
+        accountService.getAllByUserId().response?.also { acc -> _state.update { it.copy(accounts = acc) } }
+        tokenService.getAllByUserId().response?.also { token -> _state.update { it.copy(tokens = token) } }
     }
 
     suspend fun actGetTickerByFigi(figi: String): String? = state.value.tokens.firstOrNull()?.authToken?.let {
-        instrumentServiceTI.shareByFigi(it, figi)?.instrument?.ticker
+        instrumentServiceTI.shareByFigi(it, figi).response?.instrument?.ticker
     }
 
     fun navToEditEmail() {

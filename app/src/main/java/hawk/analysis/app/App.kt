@@ -23,6 +23,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
+import hawk.analysis.app.dto.AccountAnalyse
+import hawk.analysis.app.dto.AssetAnalyse
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.Account
@@ -130,9 +132,15 @@ fun App() {
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AccountScreen>()
                         val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                            instrumentServiceTI.shareByFigi(a, f).response?.instrument
                         }
-                        Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare, analyseService::getAccountLast)
+                        val getPortfolio: suspend (token: String, acc: String) -> PortfolioResponse? = { t, a ->
+                            operationServiceTI.getPortfolio(t, a).response
+                        }
+                        val getAccountLast: suspend (acc: String) -> List<AccountAnalyse>? = { a ->
+                            analyseService.getAccountLast(a).response
+                        }
+                        Account(args.accountId, args.authToken, getPortfolio, getShare, getAccountLast)
                     }
                     composable<Destination.AssetScreen> {
                         navBarVisible = false
@@ -141,10 +149,13 @@ fun App() {
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AssetScreen>()
                         val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                            instrumentServiceTI.shareByFigi(a, f).response?.instrument
                         }
                         val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
-                            operationServiceTI.getPortfolio(at, aid)
+                            operationServiceTI.getPortfolio(at, aid).response
+                        }
+                        val getAssetLast: suspend (acc: String) -> List<AssetAnalyse>? = { a ->
+                            analyseService.getAssetLast(a).response
                         }
                         Asset(
                             args.uid,
@@ -152,7 +163,7 @@ fun App() {
                             args.accountId,
                             getInfo,
                             getPortfolio,
-                            analyseService::getAssetLast,
+                            getAssetLast,
                             modifier = Modifier.verticalScroll(rememberScrollState())
                         )
                     }

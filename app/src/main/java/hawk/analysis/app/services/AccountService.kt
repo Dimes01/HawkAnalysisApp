@@ -4,6 +4,8 @@ import android.icu.math.BigDecimal
 import hawk.analysis.app.dto.AccountInfo
 import hawk.analysis.app.dto.UpdateBenchmarkRequest
 import hawk.analysis.app.dto.UpdateRiskFreeRequest
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.HawkResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -22,48 +24,50 @@ class AccountService(
 ) {
     val lastUpdatedAt = HashMap<String, Instant>()
 
-    suspend fun getAllByUserId(): List<AccountInfo>? {
+    suspend fun getAllByUserId(): HawkResponse<List<AccountInfo>> {
         val response = client.get("$baseUrl/api/accounts") {
             bearerAuth(AuthService.jwt)
         }
         if (response.status.isSuccess()) {
-            return response.body<List<AccountInfo>>().also { acc ->
-                acc.forEach { lastUpdatedAt[it.id] = it.updatedAt }
-            }
+            val body = response.body<List<AccountInfo>>()
+            body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
+            return HawkResponse(response = body, error = null)
         }
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        return HawkResponse(response = null, error = error)
     }
 
-    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): AccountInfo? {
-        lastUpdatedAt[accountId]?.also {
-            val request = UpdateRiskFreeRequest(accountId, riskFree, it)
+    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): HawkResponse<AccountInfo> {
+        val lastUpd = lastUpdatedAt[accountId]
+        return if (lastUpd != null) {
+            val request = UpdateRiskFreeRequest(accountId, riskFree, lastUpd)
             val response = client.patch("$baseUrl/api/accounts/update/risk-free") {
                 bearerAuth(AuthService.jwt)
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
             if (response.status.isSuccess()) {
-                return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
-            }
-            println(response.bodyAsText())
-        }
-        return null
+                val body = response.body<AccountInfo>()
+                lastUpdatedAt[body.id] = body.updatedAt
+                HawkResponse(response = body, error = null)
+            } else HawkResponse(response = null, error = response.body<ErrorResponse>())
+        } else HawkResponse(response = null, error = null)
     }
 
-    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo? {
-        lastUpdatedAt[accountId]?.also {
-            val request = UpdateBenchmarkRequest(accountId, figiBenchmark, it)
+    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): HawkResponse<AccountInfo> {
+        val lastUpd = lastUpdatedAt[accountId]
+        return if (lastUpd != null) {
+            val request = UpdateBenchmarkRequest(accountId, figiBenchmark, lastUpd)
             val response = client.patch("$baseUrl/api/accounts/update/benchmark") {
                 bearerAuth(AuthService.jwt)
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
             if (response.status.isSuccess()) {
-                return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
-            }
-            println(response.bodyAsText())
-        }
-        return null
+                val body = response.body<AccountInfo>()
+                lastUpdatedAt[body.id] = body.updatedAt
+                HawkResponse(response = body, error = null)
+            } else HawkResponse(response = null, error = response.body<ErrorResponse>())
+        } else HawkResponse(response = null, error = null)
     }
 }

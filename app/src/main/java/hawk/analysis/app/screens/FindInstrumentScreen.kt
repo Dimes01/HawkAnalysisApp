@@ -40,6 +40,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.findInstruments
 import hawk.analysis.restlib.contracts.FindInstrumentResponse
 import hawk.analysis.restlib.contracts.InstrumentShort
@@ -58,7 +59,7 @@ fun FindInstrumentPreview() {
 @Composable
 fun FindInstrument(
     authToken: String,
-    actFind: suspend (String, String) -> FindInstrumentResponse?,
+    actFind: suspend (String, String) -> HawkResponse<FindInstrumentResponse>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()

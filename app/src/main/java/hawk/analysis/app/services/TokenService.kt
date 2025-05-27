@@ -4,6 +4,8 @@ import hawk.analysis.app.dto.CreateTokenRequest
 import hawk.analysis.app.dto.RemoveTokenRequest
 import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.dto.UpdateTokenRequest
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.HawkResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -12,7 +14,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -25,51 +26,54 @@ class TokenService(
     var lastUpdatedAt = HashMap<Int, Instant>()
         private set
 
-    suspend fun getAllByUserId(): List<TokenInfo>? {
+    suspend fun getAllByUserId(): HawkResponse<List<TokenInfo>> {
         val response = client.get("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
         }
         if (response.status.isSuccess()) {
             val body = response.body<List<TokenInfo>>()
             body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
-            return body
+            return HawkResponse(response = body, error = null)
         }
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        return HawkResponse(response = null, error = error)
     }
 
-    suspend fun create(name: String, password: String, authToken: String): Boolean {
+    suspend fun create(name: String, password: String, authToken: String): HawkResponse<Boolean> {
         val bodyRequest = CreateTokenRequest(name = name, password = password, authToken = authToken)
         val response = client.post("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }
-        return response.status.isSuccess().also { println(response.bodyAsText()) }
+        if (response.status.isSuccess()) return HawkResponse(true, null)
+        val error = response.body<ErrorResponse>()
+        return HawkResponse(response = null, error = error)
     }
 
-    suspend fun update(id: Int, name: String, password: String): Boolean {
-        lastUpdatedAt[id]?.also {
-            val bodyRequest = UpdateTokenRequest(id, name, password, it)
+    suspend fun update(id: Int, name: String, password: String): HawkResponse<Boolean> {
+        val lastUpd = lastUpdatedAt[id]
+        return if (lastUpd != null) {
+            val bodyRequest = UpdateTokenRequest(id, name, password, lastUpd)
             val response = client.patch("$baseUrl/api/tokens") {
                 bearerAuth(AuthService.jwt)
                 contentType(ContentType.Application.Json)
                 setBody(bodyRequest)
             }
-            println(response.bodyAsText())
-            return response.status.isSuccess()
-        }
-        return false
+            if (response.status.isSuccess()) HawkResponse(response = true, error = null)
+            else HawkResponse(response = false, error = response.body<ErrorResponse>())
+        } else return HawkResponse(response = null, error = null)
     }
 
-    suspend fun remove(id: Int, password: String): Boolean {
+    suspend fun remove(id: Int, password: String): HawkResponse<Boolean> {
         val bodyRequest = RemoveTokenRequest(id, password)
         val response = client.delete("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
         }
-        println(response.bodyAsText())
-        return response.status.isSuccess()
+        if (response.status.isSuccess()) return HawkResponse(true, null)
+        val error = response.body<ErrorResponse>()
+        return HawkResponse(response = null, error = error)
     }
 }
