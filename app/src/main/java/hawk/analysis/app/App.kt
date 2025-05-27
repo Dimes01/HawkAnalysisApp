@@ -34,6 +34,7 @@ import hawk.analysis.app.screens.EditEmail
 import hawk.analysis.app.screens.EditPassword
 import hawk.analysis.app.screens.FindInstrument
 import hawk.analysis.app.screens.HomeVM
+import hawk.analysis.app.screens.Information
 import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
 import hawk.analysis.app.screens.SettingsVM
@@ -226,6 +227,12 @@ fun App() {
                             actFind = instrumentServiceTI::findInstruments,
                             navToBack = navController::navigateUp
                         )
+                    }
+                }
+                navigation<Destination.InformationGraph>(startDestination = Destination.InformationScreen) {
+                    composable<Destination.InformationScreen> {
+                        navBarVisible = true
+                        Information()
                     }
                 }
             }

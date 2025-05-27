@@ -6,6 +6,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -51,11 +52,11 @@ fun BottomNavigationBar(navController: NavController, modifier: Modifier = Modif
 
 object NavBarItems {
     val BarItems = listOf(
-//        BarItem(
-//            title = "Анализ",
-//            image = Icons.Outlined.BarChart,
-//            route = Destination.HomeScreen
-//        ),
+        BarItem(
+            title = "Информация",
+            image = Icons.Outlined.Info,
+            route = Destination.InformationScreen
+        ),
         BarItem(
             title = "Главная",
             image = Icons.Outlined.Home,
