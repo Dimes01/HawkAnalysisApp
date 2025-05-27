@@ -55,8 +55,8 @@ fun Login(
 ) {
     val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
-    var email = remember { mutableStateOf("user@mail.com") }
-    var password = remember { mutableStateOf("1234") }
+    var email = remember { mutableStateOf("android15@mail.ru") }
+    var password = remember { mutableStateOf("1111") }
     val modifierForButtons = Modifier
         .fillMaxWidth()
         .padding(0.dp, 2.dp)

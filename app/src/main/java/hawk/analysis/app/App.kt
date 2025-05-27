@@ -32,6 +32,7 @@ import hawk.analysis.app.screens.EditAccount
 import hawk.analysis.app.screens.EditAuthToken
 import hawk.analysis.app.screens.EditEmail
 import hawk.analysis.app.screens.EditPassword
+import hawk.analysis.app.screens.FindInstrument
 import hawk.analysis.app.screens.HomeVM
 import hawk.analysis.app.screens.Login
 import hawk.analysis.app.screens.Register
@@ -46,6 +47,7 @@ import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
+import hawk.analysis.app.viewmodels.SharedViewModel
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import hawk.analysis.restlib.contracts.Share
 import org.koin.android.ext.koin.androidContext
@@ -109,16 +111,13 @@ fun App() {
                 navigation<Destination.HomeGraph>(startDestination = Destination.HomeScreen) {
                     composable<Destination.HomeScreen> {
                         navBarVisible = true
-                        val tokenService = koinInject<TokenService>()
-                        val userServiceTI = koinInject<UserServiceTI>()
-                        val operationServiceTI = koinInject<OperationServiceTI>()
-                        val instrumentServiceTI = koinInject<InstrumentServiceTI>()
                         val extras = MutableCreationExtras().apply {
                             set(HomeViewModel.NAV_CONTROLLER, navController)
-                            set(HomeViewModel.TOKEN_SERVICE_KEY, tokenService)
-                            set(HomeViewModel.USER_SERVICE_TI_KEY, userServiceTI)
-                            set(HomeViewModel.OPERATION_SERVICE_TI_KEY, operationServiceTI)
-                            set(HomeViewModel.INSTRUMENT_SERVICE_TI_KEY, instrumentServiceTI)
+                            set(HomeViewModel.TOKEN_SERVICE_KEY, koinInject<TokenService>())
+                            set(HomeViewModel.USER_SERVICE_TI_KEY, koinInject<UserServiceTI>())
+                            set(HomeViewModel.OPERATION_SERVICE_TI_KEY, koinInject<OperationServiceTI>())
+                            set(HomeViewModel.INSTRUMENT_SERVICE_TI_KEY, koinInject<InstrumentServiceTI>())
+                            set(HomeViewModel.SHARED_VIEW_MODEL, koinInject<SharedViewModel>())
                         }
                         val viewModel = viewModel<HomeViewModel>(factory = HomeViewModel.Factory, extras = extras)
                         HomeVM(viewModel)
@@ -160,14 +159,13 @@ fun App() {
                 navigation<Destination.SettingsGraph>(startDestination = Destination.SettingsScreen) {
                     composable<Destination.SettingsScreen> {
                         navBarVisible = true
-                        val userService = koinInject<UserService>()
-                        val accountService = koinInject<AccountService>()
-                        val tokenService = koinInject<TokenService>()
                         val extras = MutableCreationExtras().apply {
                             set(SettingsViewModel.NAV_CONTROLLER, navController)
-                            set(SettingsViewModel.USER_SERVICE_KEY, userService)
-                            set(SettingsViewModel.ACCOUNT_SERVICE_KEY, accountService)
-                            set(SettingsViewModel.TOKEN_SERVICE_KEY, tokenService)
+                            set(SettingsViewModel.USER_SERVICE_KEY, koinInject<UserService>())
+                            set(SettingsViewModel.ACCOUNT_SERVICE_KEY, koinInject<AccountService>())
+                            set(SettingsViewModel.TOKEN_SERVICE_KEY, koinInject<TokenService>())
+                            set(SettingsViewModel.INSTRUMENT_SERVICE_TI_KEY, koinInject<InstrumentServiceTI>())
+                            set(SettingsViewModel.SHARED_VIEW_MODEL_KEY, koinInject<SharedViewModel>())
                         }
                         val viewModel = viewModel<SettingsViewModel>(factory = SettingsViewModel.Factory, extras = extras)
                         SettingsVM(viewModel)
@@ -193,9 +191,11 @@ fun App() {
                         val accountService = koinInject<AccountService>()
                         val args = it.toRoute<Destination.EditAccountScreen>()
                         EditAccount(
+                            authToken = args.authToken,
                             accountId = args.accountId,
                             actChangeRiskFree = accountService::changeRiskFree,
                             actChangeBenchmark = accountService::changeBenchmark,
+                            navToFindFIGI = { token -> navController.navigate(Destination.FindInstrumentScreen(token))  },
                             navToBack = navController::navigateUp
                         )
                     }
@@ -214,6 +214,16 @@ fun App() {
                         EditAuthToken(
                             tokenId = args.tokenId,
                             actSave = tokenService::update,
+                            navToBack = navController::navigateUp
+                        )
+                    }
+                    composable<Destination.FindInstrumentScreen> {
+                        navBarVisible = false
+                        val instrumentServiceTI = koinInject<InstrumentServiceTI>()
+                        val args = it.toRoute<Destination.FindInstrumentScreen>()
+                        FindInstrument(
+                            authToken = args.authToken,
+                            actFind = instrumentServiceTI::findInstruments,
                             navToBack = navController::navigateUp
                         )
                     }

@@ -17,7 +17,8 @@ sealed interface Destination {
     @Serializable data object SettingsScreen : Destination
     @Serializable data object EditEmailScreen : Destination
     @Serializable data object EditPasswordScreen : Destination
-    @Serializable data class EditAccountScreen(val accountId: String) : Destination
+    @Serializable data class EditAccountScreen(val authToken: String, val accountId: String) : Destination
     @Serializable data object AddAuthTokenScreen : Destination
     @Serializable data class EditAuthTokenScreen(val tokenId: Int) : Destination
+    @Serializable data class FindInstrumentScreen(val authToken: String) : Destination
 }

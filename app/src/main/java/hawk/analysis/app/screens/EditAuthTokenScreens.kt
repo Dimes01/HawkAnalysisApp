@@ -69,7 +69,8 @@ fun AddAuthToken(
                 value = authToken,
                 onValueChange = { authToken = it },
                 label = "Auth-токен",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isPassword = true
             )
             HawkOutlinedTextField(
                 value = name,

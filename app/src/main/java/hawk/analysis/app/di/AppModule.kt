@@ -8,6 +8,7 @@ import hawk.analysis.app.services.UserService
 import hawk.analysis.app.tiapi.InstrumentServiceTI
 import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
+import hawk.analysis.app.viewmodels.SharedViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -38,6 +39,7 @@ val commonModule = module {
     single<UserServiceTI> { UserServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<OperationServiceTI> { OperationServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
     single<InstrumentServiceTI> { InstrumentServiceTI(baseUrl = get(named(urlTInvestApi)), client = get()) }
+    singleOf(::SharedViewModel)
     single<HttpClient> { HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })

@@ -124,12 +124,12 @@ data class InstrumentShort(
     val figi: String,
     val ticker: String,
     val classCode: String,
-    @Serializable(with = InstrumentTypeSerializer::class)
-    val instrumentType: InstrumentType,
+    val instrumentType: String,
     val name: String,
     val uid: String,
     val positionUid: String,
-    val instrumentKind: Int,
+    @Serializable(InstrumentTypeSerializer::class)
+    val instrumentKind: InstrumentType,
     val apiTradeAvailableFlag: Boolean,
     val forIisFlag: Boolean,
     val forQualInvestorFlag: Boolean,

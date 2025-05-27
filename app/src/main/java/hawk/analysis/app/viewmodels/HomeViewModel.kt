@@ -38,8 +38,9 @@ class HomeViewModel(
     private val userServiceTI: UserServiceTI,
     private val operationServiceTI: OperationServiceTI,
     private val instrumentsServiceTI: InstrumentServiceTI,
+    private val sharedViewModel: SharedViewModel,
 ) : ViewModel() {
-    private val accountsToToken: MutableList<Pair<Account, TokenInfo>> = mutableListOf()
+    private val accountsToToken = sharedViewModel.accountsToToken
 
     private val _currentState = MutableStateFlow(HomeScreenState())
     val currentState: StateFlow<HomeScreenState> = _currentState
@@ -87,8 +88,7 @@ class HomeViewModel(
                 set.add(acc to token)
             }
         }
-        accountsToToken.clear()
-        accountsToToken.addAll(set)
+        sharedViewModel.update(set)
         if (accountsToToken.isEmpty()) _currentAccount.value = null
         else _currentAccount.value = accountsToToken.first().first
     }
@@ -170,6 +170,7 @@ class HomeViewModel(
         val TOKEN_SERVICE_KEY = object : CreationExtras.Key<TokenService> {}
         val OPERATION_SERVICE_TI_KEY = object : CreationExtras.Key<OperationServiceTI> {}
         val INSTRUMENT_SERVICE_TI_KEY = object : CreationExtras.Key<InstrumentServiceTI> {}
+        val SHARED_VIEW_MODEL = object : CreationExtras.Key<SharedViewModel> {}
 
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -178,7 +179,8 @@ class HomeViewModel(
                     tokenService = this[TOKEN_SERVICE_KEY] as TokenService,
                     userServiceTI = this[USER_SERVICE_TI_KEY] as UserServiceTI,
                     operationServiceTI = this[OPERATION_SERVICE_TI_KEY] as OperationServiceTI,
-                    instrumentsServiceTI = this[INSTRUMENT_SERVICE_TI_KEY] as InstrumentServiceTI
+                    instrumentsServiceTI = this[INSTRUMENT_SERVICE_TI_KEY] as InstrumentServiceTI,
+                    sharedViewModel = this[SHARED_VIEW_MODEL] as SharedViewModel
                 )
             }
         }

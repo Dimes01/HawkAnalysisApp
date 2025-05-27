@@ -11,7 +11,10 @@ import hawk.analysis.restlib.contracts.AccountStatus
 import hawk.analysis.restlib.contracts.AccountType
 import hawk.analysis.restlib.contracts.BrandData
 import hawk.analysis.restlib.contracts.Currency
+import hawk.analysis.restlib.contracts.FindInstrumentResponse
 import hawk.analysis.restlib.contracts.InstrumentExchangeType
+import hawk.analysis.restlib.contracts.InstrumentShort
+import hawk.analysis.restlib.contracts.InstrumentType
 import hawk.analysis.restlib.contracts.MoneyValue
 import hawk.analysis.restlib.contracts.PortfolioPosition
 import hawk.analysis.restlib.contracts.PortfolioResponse
@@ -285,3 +288,132 @@ val assetAnalyse = AssetAnalyse(
     sortino = 0.0,
     information = 0.0,
 )
+
+val findInstruments = FindInstrumentResponse(listOf(
+    InstrumentShort(
+        isin = "RU0009033591",
+        figi = "BBG004RVFFC0",
+        ticker = "TATN",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Татнефть",
+        uid = "88468f6c-c67a-4fb4-a006-53eed803883c",
+        positionUid = "43ba384c-a484-4ee7-842d-59b80260fa3f",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:33:00Z"),
+//        first1dayCandleDate = Instant.parse("2001-12-07T07:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU0009091573",
+        figi = "BBG00475KHX6",
+        ticker = "TRNFP",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Транснефть - привилегированные акции",
+        uid = "653d47e9-dbd4-407a-a1c3-47f897df4694",
+        positionUid = "d154098b-135b-4df9-ab3a-e719459debc3",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:35:00Z"),
+//        first1dayCandleDate = Instant.parse("2002-05-22T07:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU000A0J2Q06",
+        figi = "BBG004731354",
+        ticker = "ROSN",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Роснефть",
+        uid = "fd417230-19cf-4e7b-9623-f7c9ca18ec6b",
+        positionUid = "0a0acc65-84db-4ffc-b359-faa00de99d41",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:33:00Z"),
+//        first1dayCandleDate = Instant.parse("2006-07-19T07:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU0009062467",
+        figi = "BBG004S684M6",
+        ticker = "SIBN",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Газпром нефть",
+        uid = "9ba367af-dfbd-4d9c-8730-4b1d5a47756e",
+        positionUid = "fdf347d4-9262-474d-ae19-aedcd8c375a1",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:33:00Z"),
+//        first1dayCandleDate = Instant.parse("1999-09-06T00:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU0006944147",
+        figi = "BBG004S68829",
+        ticker = "TATNP",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Татнефть - привилегированные акции",
+        uid = "efdb54d3-2f92-44da-b7a3-8849e96039f6",
+        positionUid = "25d48d77-b2bc-4617-ba87-eeaa06f2cf2c",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:35:00Z"),
+//        first1dayCandleDate = Instant.parse("2007-07-12T07:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU0007976965",
+        figi = "BBG004S686N0",
+        ticker = "BANEP",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Башнефть - привилегированные акции",
+        uid = "a5776620-1e2f-47ea-bbd6-06d8e4a236d8",
+        positionUid = "aeaa8f4a-5149-49ed-8b9d-816b739bc882",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:35:00Z"),
+//        first1dayCandleDate = Instant.parse("2011-11-18T00:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+    InstrumentShort(
+        isin = "RU0007976957",
+        figi = "BBG004S68758",
+        ticker = "BANE",
+        classCode = "TQBR",
+        instrumentType = "share",
+        name = "Башнефть",
+        uid = "0a55e045-e9a6-42d2-ac55-29674634af2f",
+        positionUid = "b37bbda4-1c2b-4929-9a38-6a6eeec6aa3d",
+        instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE,
+        apiTradeAvailableFlag = true,
+        forIisFlag = true,
+//        first1minCandleDate = Instant.parse("2018-03-07T18:51:00Z"),
+//        first1dayCandleDate = Instant.parse("2011-11-18T00:00:00Z"),
+        forQualInvestorFlag = false,
+        weekendFlag = true,
+        lot = 1
+    ),
+))

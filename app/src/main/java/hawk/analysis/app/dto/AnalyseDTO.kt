@@ -13,13 +13,13 @@ data class AssetAnalyse(
     val securitiesId: String,
     val dateFrom: Instant,
     val dateTo: Instant,
-    val mean: Double,
-    val stdDev: Double,
-    val variation: Double?,
-    val sharp: Double?,
-    val information: Double?,
-    val sortino: Double?
-)
+    override val mean: Double,
+    override val stdDev: Double,
+    override val variation: Double?,
+    override val sharp: Double?,
+    override val information: Double?,
+    override val sortino: Double?
+) : AnalyseInfo
 
 @Serializable
 data class AccountAnalyse(
@@ -27,10 +27,19 @@ data class AccountAnalyse(
     val accountId: String,
     val dateFrom: Instant,
     val dateTo: Instant,
-    val mean: Double,
-    val stdDev: Double,
-    val variation: Double?,
-    val sharp: Double?,
-    val information: Double?,
+    override val mean: Double,
+    override val stdDev: Double,
+    override val variation: Double?,
+    override val sharp: Double?,
+    override val information: Double?,
+    override val sortino: Double?
+) : AnalyseInfo
+
+interface AnalyseInfo {
+    val mean: Double
+    val stdDev: Double
+    val variation: Double?
+    val sharp: Double?
+    val information: Double?
     val sortino: Double?
-)
+}

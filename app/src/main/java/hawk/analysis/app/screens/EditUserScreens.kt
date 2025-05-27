@@ -130,13 +130,15 @@ fun EditPassword(
                 value = oldPassword,
                 onValueChange = { oldPassword = it },
                 label = "Старый пароль",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isPassword = true
             )
             HawkOutlinedTextField(
                 value = newPassword,
                 onValueChange = { newPassword = it },
                 label = "Новый пароль",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isPassword = true
             )
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),

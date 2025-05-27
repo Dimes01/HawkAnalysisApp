@@ -4,6 +4,7 @@ import android.icu.math.BigDecimal
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
+import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import kotlinx.coroutines.launch
 
@@ -32,20 +34,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditAccountPreview() {
     HawkAnalysisAppTheme {
-        EditAccount("1234567890", { _, _ -> null }, { _, _ -> null }, {})
+        EditAccount("", "1234567890", { _, _ -> null }, { _, _ -> null }, {}, {})
     }
 }
 
 @Composable
 fun EditAccount(
+    authToken: String,
     accountId: String,
     actChangeRiskFree: suspend (String, BigDecimal?) -> AccountInfo?,
     actChangeBenchmark: suspend (String, String?) -> AccountInfo?,
+    navToFindFIGI: (String) -> Unit,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var riskFree by remember { mutableStateOf("") }
-    var tickerBenchmark by remember { mutableStateOf("") }
+    var figiBenchmark by remember { mutableStateOf("") }
     var errorRiskFree: String? by remember { mutableStateOf(null) }
     var errorBenchmark: String? by remember { mutableStateOf(null) }
     Column(
@@ -86,17 +90,18 @@ fun EditAccount(
                 header = { HawkInfoSectionHeader("Бенчмарк") }
             ) {
                 HawkOutlinedTextField(
-                    value = tickerBenchmark,
-                    onValueChange = { tickerBenchmark = it },
-                    label = "Тикер бенчмарка",
+                    value = figiBenchmark,
+                    onValueChange = { figiBenchmark = it },
+                    label = "FIGI бенчмарка",
                     modifier = Modifier.fillMaxWidth()
                 )
-                Column(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.End
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+                    HawkTonalButton("Найти FIGI") { navToFindFIGI(authToken) }
                     HawkOutlinedButton("Сохранить") { coroutineScope.launch {
-                        val info = actChangeBenchmark(accountId, if (tickerBenchmark.isNotEmpty()) tickerBenchmark else null)
+                        val info = actChangeBenchmark(accountId, if (figiBenchmark.isNotEmpty()) figiBenchmark else null)
                         if (info == null) errorBenchmark = "Не удалось изменить бенчмарк"
                     } }
                 }

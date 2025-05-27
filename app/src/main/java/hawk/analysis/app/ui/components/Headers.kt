@@ -85,7 +85,7 @@ fun HawkHeader(
 @Composable
 fun HawkSimpleHeader(
     name: String,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     label: @Composable () -> Unit = {}
