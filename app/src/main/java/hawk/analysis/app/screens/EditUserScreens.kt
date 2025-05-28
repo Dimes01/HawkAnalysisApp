@@ -23,6 +23,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
 import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditEmailPreview() {
     HawkAnalysisAppTheme {
-        EditEmail({ _, _ -> null }, {})
+        EditEmail({ _, _ -> HawkResponse(null, null) }, {})
     }
 }
 
@@ -38,14 +39,14 @@ fun EditEmailPreview() {
 @Composable
 fun EditPasswordPreview() {
     HawkAnalysisAppTheme {
-        EditPassword({ _, _ -> null }, {})
+        EditPassword({ _, _ -> HawkResponse(null, null) }, {})
     }
 }
 
 
 @Composable
 fun EditEmail(
-    actSave: suspend (String, String) -> HawkResponse<UserInfo>,
+    actSave: suspend (String, String) -> HawkResponse<UserInfo, ErrorResponse>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -92,7 +93,7 @@ fun EditEmail(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val info = actSave(email, password)
+                        val info = actSave(email, password).response
                         if (info != null) navToBack()
                         else error = "Не удалось изменить e-mail"
                     } }
@@ -107,7 +108,7 @@ fun EditEmail(
 
 @Composable
 fun EditPassword(
-    actSave: suspend (String, String) -> HawkResponse<UserInfo>,
+    actSave: suspend (String, String) -> HawkResponse<UserInfo, ErrorResponse>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -156,7 +157,7 @@ fun EditPassword(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val info = actSave(oldPassword, newPassword)
+                        val info = actSave(oldPassword, newPassword).response
                         if (info != null) navToBack()
                         else error = "Не удалось изменить пароль"
                     } }

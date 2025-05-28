@@ -28,6 +28,7 @@ import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
 import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
@@ -35,7 +36,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditAccountPreview() {
     HawkAnalysisAppTheme {
-        EditAccount("", "1234567890", { _, _ -> null }, { _, _ -> null }, {}, {})
+        EditAccount(
+            authToken = "",
+            accountId = "1234567890",
+            actChangeRiskFree = { _, _ -> HawkResponse(null, null) },
+            actChangeBenchmark = { _, _ -> HawkResponse(null, null) },
+            navToFindFIGI = {},
+            navToBack = {}
+        )
     }
 }
 
@@ -43,8 +51,8 @@ fun EditAccountPreview() {
 fun EditAccount(
     authToken: String,
     accountId: String,
-    actChangeRiskFree: suspend (String, BigDecimal?) -> HawkResponse<AccountInfo>,
-    actChangeBenchmark: suspend (String, String?) -> HawkResponse<AccountInfo>,
+    actChangeRiskFree: suspend (String, BigDecimal?) -> HawkResponse<AccountInfo, ErrorResponse>,
+    actChangeBenchmark: suspend (String, String?) -> HawkResponse<AccountInfo, ErrorResponse>,
     navToFindFIGI: (String) -> Unit,
     navToBack: () -> Unit,
 ) {
@@ -81,7 +89,7 @@ fun EditAccount(
                     horizontalAlignment = Alignment.End
                 ) {
                     HawkOutlinedButton("Сохранить") { coroutineScope.launch {
-                        val info = actChangeRiskFree(accountId, if (riskFree.isNotEmpty()) BigDecimal(riskFree) else null )
+                        val info = actChangeRiskFree(accountId, if (riskFree.isNotEmpty()) BigDecimal(riskFree) else null ).response
                         if (info == null) errorRiskFree = "Не удалось изменить ставку"
                     } }
                 }
@@ -102,7 +110,7 @@ fun EditAccount(
                 ) {
                     HawkTonalButton("Найти FIGI") { navToFindFIGI(authToken) }
                     HawkOutlinedButton("Сохранить") { coroutineScope.launch {
-                        val info = actChangeBenchmark(accountId, if (figiBenchmark.isNotEmpty()) figiBenchmark else null)
+                        val info = actChangeBenchmark(accountId, if (figiBenchmark.isNotEmpty()) figiBenchmark else null).response
                         if (info == null) errorBenchmark = "Не удалось изменить бенчмарк"
                     } }
                 }

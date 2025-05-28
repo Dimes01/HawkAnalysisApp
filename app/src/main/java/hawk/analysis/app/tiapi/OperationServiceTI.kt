@@ -1,6 +1,7 @@
 package hawk.analysis.app.tiapi
 
 import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.restlib.contracts.Currency
 import hawk.analysis.restlib.contracts.CurrencyRequest
@@ -29,7 +30,7 @@ class OperationServiceTI(
         private val log: Logger = LoggerFactory.getLogger(OperationServiceTI::class.java)
     }
 
-    suspend fun getOperations(authToken: String, request: OperationRequest): HawkResponse<OperationResponse> {
+    suspend fun getOperations(authToken: String, request: OperationRequest): HawkResponse<OperationResponse, ErrorResponseTI> {
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetOperations") {
             bearerAuth(authToken)
             contentType()
@@ -39,12 +40,12 @@ class OperationServiceTI(
             val body = response.body<OperationResponse>()
             return HawkResponse(response = body, error = null)
         }
-        return HawkResponse(response = null, error = response.body<ErrorResponse>())
+        return HawkResponse(response = null, error = response.body<ErrorResponseTI>())
     }
 
     suspend fun getPortfolio(
         authToken: String, accountId: String, currency: CurrencyRequest = CurrencyRequest.RUB
-    ): HawkResponse<PortfolioResponse> {
+    ): HawkResponse<PortfolioResponse, ErrorResponseTI> {
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
@@ -56,6 +57,6 @@ class OperationServiceTI(
             val body = response.body<PortfolioResponse>()
             return HawkResponse(response = body, error = null)
         }
-        return HawkResponse(response = null, error = response.body<ErrorResponse>())
+        return HawkResponse(response = null, error = response.body<ErrorResponseTI>())
     }
 }

@@ -40,6 +40,8 @@ import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.findInstruments
 import hawk.analysis.restlib.contracts.FindInstrumentResponse
@@ -52,14 +54,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun FindInstrumentPreview() {
     HawkAnalysisAppTheme {
-        FindInstrument("", { _, _ -> findInstruments }, {})
+        FindInstrument("", { _, _ -> HawkResponse(findInstruments, null) }, {})
     }
 }
 
 @Composable
 fun FindInstrument(
     authToken: String,
-    actFind: suspend (String, String) -> HawkResponse<FindInstrumentResponse>,
+    actFind: suspend (String, String) -> HawkResponse<FindInstrumentResponse, ErrorResponseTI>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -67,7 +69,7 @@ fun FindInstrument(
     var query: String by remember { mutableStateOf("") }
     var errorFind: String? by remember { mutableStateOf(null) }
     LaunchedEffect(key1 = Unit) {
-        instruments.addAll(actFind(authToken, query)?.instruments ?: emptyList<InstrumentShort>())
+        instruments.addAll(actFind(authToken, query).response?.instruments ?: emptyList<InstrumentShort>())
     }
     Column(
         modifier = Modifier
@@ -92,7 +94,7 @@ fun FindInstrument(
                 text = "Поиск",
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { coroutineScope.launch {
-                    actFind(authToken, query).let {
+                    actFind(authToken, query).response.let {
                         if (it == null) errorFind = "Произошла ошибка при поиске"
                         else {
                             errorFind = null

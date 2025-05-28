@@ -1,5 +1,6 @@
 package hawk.analysis.app.services
 
+import androidx.core.util.rangeTo
 import hawk.analysis.app.dto.CreateTokenRequest
 import hawk.analysis.app.dto.RemoveTokenRequest
 import hawk.analysis.app.dto.TokenInfo
@@ -26,7 +27,7 @@ class TokenService(
     var lastUpdatedAt = HashMap<Int, Instant>()
         private set
 
-    suspend fun getAllByUserId(): HawkResponse<List<TokenInfo>> {
+    suspend fun getAllByUserId(): HawkResponse<List<TokenInfo>, ErrorResponse> {
         val response = client.get("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
         }
@@ -34,12 +35,13 @@ class TokenService(
             val body = response.body<List<TokenInfo>>()
             body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
             return HawkResponse(response = body, error = null)
-        }
-        val error = response.body<ErrorResponse>()
-        return HawkResponse(response = null, error = error)
+        } else if (response.status.value in 400..499) {
+            val error = response.body<ErrorResponse>()
+            return HawkResponse(response = null, error = error)
+        } else return HawkResponse(response = null, error = null)
     }
 
-    suspend fun create(name: String, password: String, authToken: String): HawkResponse<Boolean> {
+    suspend fun create(name: String, password: String, authToken: String): HawkResponse<Boolean, ErrorResponse> {
         val bodyRequest = CreateTokenRequest(name = name, password = password, authToken = authToken)
         val response = client.post("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
@@ -51,7 +53,7 @@ class TokenService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun update(id: Int, name: String, password: String): HawkResponse<Boolean> {
+    suspend fun update(id: Int, name: String, password: String): HawkResponse<Boolean, ErrorResponse> {
         val lastUpd = lastUpdatedAt[id]
         return if (lastUpd != null) {
             val bodyRequest = UpdateTokenRequest(id, name, password, lastUpd)
@@ -65,7 +67,7 @@ class TokenService(
         } else return HawkResponse(response = null, error = null)
     }
 
-    suspend fun remove(id: Int, password: String): HawkResponse<Boolean> {
+    suspend fun remove(id: Int, password: String): HawkResponse<Boolean, ErrorResponse> {
         val bodyRequest = RemoveTokenRequest(id, password)
         val response = client.delete("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)

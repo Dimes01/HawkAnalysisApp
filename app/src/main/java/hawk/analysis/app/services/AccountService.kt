@@ -24,7 +24,7 @@ class AccountService(
 ) {
     val lastUpdatedAt = HashMap<String, Instant>()
 
-    suspend fun getAllByUserId(): HawkResponse<List<AccountInfo>> {
+    suspend fun getAllByUserId(): HawkResponse<List<AccountInfo>, ErrorResponse> {
         val response = client.get("$baseUrl/api/accounts") {
             bearerAuth(AuthService.jwt)
         }
@@ -37,7 +37,7 @@ class AccountService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): HawkResponse<AccountInfo> {
+    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): HawkResponse<AccountInfo, ErrorResponse> {
         val lastUpd = lastUpdatedAt[accountId]
         return if (lastUpd != null) {
             val request = UpdateRiskFreeRequest(accountId, riskFree, lastUpd)
@@ -54,7 +54,7 @@ class AccountService(
         } else HawkResponse(response = null, error = null)
     }
 
-    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): HawkResponse<AccountInfo> {
+    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): HawkResponse<AccountInfo, ErrorResponse> {
         val lastUpd = lastUpdatedAt[accountId]
         return if (lastUpd != null) {
             val request = UpdateBenchmarkRequest(accountId, figiBenchmark, lastUpd)

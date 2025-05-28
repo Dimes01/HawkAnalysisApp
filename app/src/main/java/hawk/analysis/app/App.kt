@@ -25,6 +25,7 @@ import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
 import hawk.analysis.app.dto.AccountAnalyse
 import hawk.analysis.app.dto.AssetAnalyse
+import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.Account
@@ -48,9 +49,11 @@ import hawk.analysis.app.tiapi.InstrumentServiceTI
 import hawk.analysis.app.tiapi.OperationServiceTI
 import hawk.analysis.app.tiapi.UserServiceTI
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.app.viewmodels.SettingsViewModel
 import hawk.analysis.app.viewmodels.SharedViewModel
+import hawk.analysis.restlib.contracts.InstrumentResponse
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import hawk.analysis.restlib.contracts.Share
 import org.koin.android.ext.koin.androidContext
@@ -131,16 +134,13 @@ fun App() {
                         val instrumentServiceTI = koinInject<InstrumentServiceTI>()
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AccountScreen>()
-                        val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f).response?.instrument
-                        }
-                        val getPortfolio: suspend (token: String, acc: String) -> PortfolioResponse? = { t, a ->
-                            operationServiceTI.getPortfolio(t, a).response
-                        }
-                        val getAccountLast: suspend (acc: String) -> List<AccountAnalyse>? = { a ->
-                            analyseService.getAccountLast(a).response
-                        }
-                        Account(args.accountId, args.authToken, getPortfolio, getShare, getAccountLast)
+                        Account(
+                            accountId = args.accountId,
+                            authToken = args.authToken,
+                            getPortfolio = operationServiceTI::getPortfolio,
+                            getShare = instrumentServiceTI::shareByFigi,
+                            getAnalyse = analyseService::getAccountLast
+                        )
                     }
                     composable<Destination.AssetScreen> {
                         navBarVisible = false
@@ -148,22 +148,13 @@ fun App() {
                         val operationServiceTI = koinInject<OperationServiceTI>()
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AssetScreen>()
-                        val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f).response?.instrument
-                        }
-                        val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
-                            operationServiceTI.getPortfolio(at, aid).response
-                        }
-                        val getAssetLast: suspend (acc: String) -> List<AssetAnalyse>? = { a ->
-                            analyseService.getAssetLast(a).response
-                        }
                         Asset(
                             args.uid,
                             args.authToken,
                             args.accountId,
-                            getInfo,
-                            getPortfolio,
-                            getAssetLast,
+                            instrumentServiceTI::shareByFigi,
+                            operationServiceTI::getPortfolio,
+                            analyseService::getAssetLast,
                             modifier = Modifier.verticalScroll(rememberScrollState())
                         )
                     }

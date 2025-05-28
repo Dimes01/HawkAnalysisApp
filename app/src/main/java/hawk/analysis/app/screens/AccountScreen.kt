@@ -28,12 +28,15 @@ import hawk.analysis.app.ui.components.HawkInfoSectionHeader
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkParameterRelative
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.accountAPI
 import hawk.analysis.app.utilities.dateTimeFormat
 import hawk.analysis.app.utilities.hawkScale
 import hawk.analysis.app.utilities.portfolio
 import hawk.analysis.app.utilities.shareNvtk
+import hawk.analysis.restlib.contracts.InstrumentResponse
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import hawk.analysis.restlib.contracts.Share
 import hawk.analysis.restlib.utilities.categoryTranslations
@@ -43,9 +46,9 @@ import kotlinx.datetime.format
 @Preview
 @Composable
 fun AccountPreview() {
-    val getPortfolio = { _: String, _: String -> HawkResponse(portfolio, null) }
-    val getShare = { _: String, _: String -> HawkResponse(shareNvtk, null) }
-    val getAnalyse = { _: String, _: String -> HawkResponse<List<AccountAnalyse>>(emptyList(), null) }
+    val getPortfolio = { _: String, _: String -> HawkResponse(portfolio, ErrorResponseTI(1, "", 30001)) }
+    val getShare = { _: String, _: String -> HawkResponse(InstrumentResponse(shareNvtk), ErrorResponseTI(1, "", 30001)) }
+    val getAnalyse = { _: String -> HawkResponse<List<AccountAnalyse>, ErrorResponse>(emptyList(), null) }
 
     HawkAnalysisAppTheme {
         Account(accountAPI.id, "", getPortfolio, getShare, getAnalyse)
@@ -56,19 +59,19 @@ fun AccountPreview() {
 fun Account(
     accountId: String,
     authToken: String,
-    getPortfolio: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse>,
-    getShare: suspend (authToken: String, figi: String) -> HawkResponse<Share>,
-    getAnalyse: suspend (accountId: String) -> HawkResponse<List<AccountAnalyse>>,
+    getPortfolio: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse, ErrorResponseTI>,
+    getShare: suspend (authToken: String, figi: String) -> HawkResponse<InstrumentResponse<Share>, ErrorResponseTI>,
+    getAnalyse: suspend (accountId: String) -> HawkResponse<List<AccountAnalyse>, ErrorResponse>,
 ) {
     var portfolio: PortfolioResponse? by remember { mutableStateOf(null) }
     var analyse: AccountAnalyse? by remember { mutableStateOf(null) }
     var sectors by remember { mutableStateOf(HashMap<String, BigDecimal>()) }
     var error by remember { mutableStateOf("") }
     LaunchedEffect(key1 = Unit) {
-        portfolio = getPortfolio(authToken, accountId)
+        portfolio = getPortfolio(authToken, accountId).response
         if (portfolio != null) {
             portfolio?.positions?.forEach { pos ->
-                getShare(authToken, pos.figi)?.let { share ->
+                getShare(authToken, pos.figi).response?.instrument?.let { share ->
                     val count = pos.quantity.toBigDecimal(0, MathContext.ROUND_FLOOR)
                     val amount = pos.currentPrice.toBigDecimal(2).multiply(count).hawkScale(2)
                     val sector = categoryTranslations[share.sector] ?: "Другое"
@@ -76,7 +79,7 @@ fun Account(
                 }
             }
             try {
-                analyse = getAnalyse(accountId)?.single().also { error = "" }
+                analyse = getAnalyse(accountId).response?.single().also { error = "" }
             } catch (e: Exception) {
                 error = "Не удалось получить анализ"
             }

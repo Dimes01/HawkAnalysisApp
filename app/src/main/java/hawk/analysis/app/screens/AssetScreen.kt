@@ -26,12 +26,15 @@ import hawk.analysis.app.ui.components.HawkInfoSectionHeader
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.accountAPI
 import hawk.analysis.app.utilities.assetAnalyse
 import hawk.analysis.app.utilities.dateTimeFormat
 import hawk.analysis.app.utilities.portfolio
 import hawk.analysis.app.utilities.shareNvtk
+import hawk.analysis.restlib.contracts.InstrumentResponse
 import hawk.analysis.restlib.contracts.PortfolioPosition
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import hawk.analysis.restlib.contracts.Share
@@ -46,9 +49,9 @@ fun AssetPreview() {
             uid = shareNvtk.figi,
             authToken = "",
             accountId = accountAPI.id,
-            getInfo = { _, _ -> shareNvtk },
-            getPortfolioAsset = { _, _ -> portfolio },
-            getAnalysis = { _ -> listOf(assetAnalyse) },
+            getInfo = { _, _ -> HawkResponse(InstrumentResponse(shareNvtk), null) },
+            getPortfolioAsset = { _, _ -> HawkResponse(portfolio, null) },
+            getAnalysis = { _ -> HawkResponse(listOf(assetAnalyse), null) },
             modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer).padding(10.dp)
         )
     }
@@ -59,19 +62,19 @@ fun Asset(
     uid: String,
     authToken: String,
     accountId: String,
-    getInfo: suspend (authToken: String, figi: String) -> HawkResponse<Share>,
-    getPortfolioAsset: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse>,
-    getAnalysis: suspend (accountId: String) -> HawkResponse<List<AssetAnalyse>>,
+    getInfo: suspend (authToken: String, figi: String) -> HawkResponse<InstrumentResponse<Share>, ErrorResponseTI>,
+    getPortfolioAsset: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse, ErrorResponseTI>,
+    getAnalysis: suspend (accountId: String) -> HawkResponse<List<AssetAnalyse>, ErrorResponse>,
     modifier: Modifier = Modifier
 ) {
     var info: Share? by remember { mutableStateOf(null) }
     var portAsset: PortfolioPosition? by remember { mutableStateOf(null) }
     var assetAnalyse: AssetAnalyse? by remember { mutableStateOf(null) }
     LaunchedEffect(key1 = Unit) {
-        info = getInfo(authToken, uid)
-        portAsset = getPortfolioAsset(authToken, accountId)?.positions?.firstOrNull { it.figi == uid }
+        info = getInfo(authToken, uid).response?.instrument
+        portAsset = getPortfolioAsset(authToken, accountId).response?.positions?.firstOrNull { it.figi == uid }
         if (portAsset != null)
-            assetAnalyse = getAnalysis(accountId)?.firstOrNull { it.securitiesId == portAsset?.instrumentUid }
+            assetAnalyse = getAnalysis(accountId).response?.firstOrNull { it.securitiesId == portAsset?.instrumentUid }
     }
     Column(
         modifier = modifier,

@@ -23,6 +23,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.ErrorResponse
 import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AddAuthTokenPreview() {
     HawkAnalysisAppTheme {
-        AddAuthToken({ _, _, _ -> true }, {})
+        AddAuthToken({ _, _, _ -> HawkResponse(true, null) }, {})
     }
 }
 
@@ -38,14 +39,14 @@ fun AddAuthTokenPreview() {
 @Composable
 fun EditAuthTokenPreview() {
     HawkAnalysisAppTheme {
-        EditAuthToken(1, { _, _, _ -> true }, {})
+        EditAuthToken(1, { _, _, _ -> HawkResponse(true, null) }, {})
     }
 }
 
 
 @Composable
 fun AddAuthToken(
-    actSave: suspend (name: String, password: String, authToken: String) -> HawkResponse<Boolean>,
+    actSave: suspend (name: String, password: String, authToken: String) -> HawkResponse<Boolean, ErrorResponse>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -101,8 +102,8 @@ fun AddAuthToken(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val res = actSave(name, password, authToken)
-                        if (res) navToBack()
+                        val res = actSave(name, password, authToken).response
+                        if (res != null && res) navToBack()
                         else error = "Не удалось создать токен"
                     } }
                 )
@@ -117,7 +118,7 @@ fun AddAuthToken(
 @Composable
 fun EditAuthToken(
     tokenId: Int,
-    actSave: suspend (id: Int, name: String, password: String) -> HawkResponse<Boolean>,
+    actSave: suspend (id: Int, name: String, password: String) -> HawkResponse<Boolean, ErrorResponse>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -165,8 +166,8 @@ fun EditAuthToken(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val res = actSave(tokenId, name, password)
-                        if (res) navToBack()
+                        val res = actSave(tokenId, name, password).response
+                        if (res != null && res) navToBack()
                         else error = "Не удалось изменить информацию"
                     } }
                 )

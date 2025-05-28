@@ -24,7 +24,7 @@ class AuthService(
             private set
     }
 
-    suspend fun login(email: String, password: String): HawkResponse<LoginResponse> {
+    suspend fun login(email: String, password: String): HawkResponse<LoginResponse, ErrorResponse> {
         val requestBody = LoginRequest(email = email, password = password)
         val response = client.post("$baseUrl/api/users/sign-in") {
             contentType(ContentType.Application.Json)
@@ -39,7 +39,7 @@ class AuthService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun register(name: String, email: String, password: String): HawkResponse<RegisterResponse> {
+    suspend fun register(name: String, email: String, password: String): HawkResponse<RegisterResponse, ErrorResponse> {
         val requestBody = RegisterRequest(name = name, email = email, password = password)
         val response = client.post("$baseUrl/api/users/sign-up") {
             contentType(ContentType.Application.Json)

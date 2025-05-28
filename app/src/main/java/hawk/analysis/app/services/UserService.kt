@@ -24,7 +24,7 @@ class UserService(
     var lastUpdatedAt: Instant = Clock.System.now()
         private set
 
-    suspend fun getById(): HawkResponse<UserInfo?> {
+    suspend fun getById(): HawkResponse<UserInfo, ErrorResponse> {
         val response = client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) }
         if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
@@ -35,7 +35,7 @@ class UserService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun updateEmail(newEmail: String, password: String): HawkResponse<UserInfo?> {
+    suspend fun updateEmail(newEmail: String, password: String): HawkResponse<UserInfo, ErrorResponse> {
         val request = UpdateEmailRequest(lastUpdatedAt = lastUpdatedAt, password = password, newEmail = newEmail)
         val response = client.patch("$baseUrl/api/users/update/email") {
             bearerAuth(AuthService.jwt)
@@ -51,7 +51,7 @@ class UserService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun updatePassword(oldPassword: String, newPassword: String): HawkResponse<UserInfo?> {
+    suspend fun updatePassword(oldPassword: String, newPassword: String): HawkResponse<UserInfo, ErrorResponse> {
         val request = UpdatePasswordRequest(lastUpdatedAt, oldPassword, newPassword)
         val response = client.patch("$baseUrl/api/users/update/password") {
             bearerAuth(AuthService.jwt)

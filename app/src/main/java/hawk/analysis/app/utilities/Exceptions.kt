@@ -10,7 +10,14 @@ data class ErrorResponse(
     val parameter: String? = null,
 )
 
-data class HawkResponse<T>(
+@Serializable
+data class ErrorResponseTI(
+    val code: Int,
+    val message: String,
+    val description: Int,
+)
+
+data class HawkResponse<T, D>(
     val response: T?,
-    val error: ErrorResponse?
+    val error: D?
 )

@@ -20,7 +20,7 @@ class AnalyseService(
     private val baseUrl: String,
     private val client: HttpClient
 ) {
-    suspend fun getAssetLast(accountId: String): HawkResponse<List<AssetAnalyse>> {
+    suspend fun getAssetLast(accountId: String): HawkResponse<List<AssetAnalyse>, ErrorResponse> {
         val response = client.post("$baseUrl/api/analysis/assets/latest") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
@@ -34,7 +34,7 @@ class AnalyseService(
         return HawkResponse(response = null, error = error)
     }
 
-    suspend fun getAccountLast(accountId: String): HawkResponse<List<AccountAnalyse>> {
+    suspend fun getAccountLast(accountId: String): HawkResponse<List<AccountAnalyse>, ErrorResponse> {
         val response = client.post("$baseUrl/api/analysis/accounts/latest") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
