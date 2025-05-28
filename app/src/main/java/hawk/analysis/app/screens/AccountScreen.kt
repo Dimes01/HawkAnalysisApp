@@ -174,9 +174,9 @@ fun Account(
                 HawkHorizontalDivider()
                 HawkParameter("Конец анализа", "${analyse?.dateTo?.format(dateTimeFormat)}", modifierForParams, colorParams)
                 HawkHorizontalDivider()
-                HawkParameter("Средняя цена", String.format("%.2f", analyse!!.mean), modifierForParams, colorParams)
+                HawkParameter("Средняя доходность", String.format("%.2f%%", analyse!!.mean * 100), modifierForParams, colorParams)
                 HawkHorizontalDivider()
-                HawkParameter("Стандартное отклонение", String.format("%.2f", analyse!!.stdDev), modifierForParams, colorParams)
+                HawkParameter("Стандартное отклонение", String.format("%.2f%%", analyse!!.stdDev * 100), modifierForParams, colorParams)
                 if (analyse?.variation != null) {
                     HawkHorizontalDivider()
                     HawkParameter("Коэффициент вариации", String.format("%.2f", analyse!!.variation), modifierForParams, colorParams)

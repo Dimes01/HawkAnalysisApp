@@ -2,6 +2,7 @@ package hawk.analysis.app.viewmodels
 
 import android.icu.math.BigDecimal
 import android.icu.math.MathContext
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -48,11 +49,15 @@ class HomeViewModel(
     private val _currentAccount = MutableStateFlow<Account?>(null)
     val currentAccount: StateFlow<Account?> = _currentAccount.asStateFlow()
 
+    private val _loadIndicator = MutableStateFlow<Boolean>(true)
+    val loadIndicator: StateFlow<Boolean> = _loadIndicator
+
     private var updateJob: Job? = null
 
     init {
         updateAccounts()
         startPeriodicUpdates()
+
     }
 
     fun navToAnalyseAccount() {
@@ -79,6 +84,8 @@ class HomeViewModel(
             }
         }
     }
+
+
 
     fun updateAccounts() = viewModelScope.launch {
         val tokens = tokenService.getAllByUserId() ?: emptyList()
@@ -133,6 +140,7 @@ class HomeViewModel(
                 money = moneyStates,
                 shares = shareStates
             ) }
+            if (_loadIndicator.value) _loadIndicator.value = false
         }
     }
 

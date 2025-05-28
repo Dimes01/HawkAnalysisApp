@@ -127,17 +127,17 @@ fun Asset(
             HawkHorizontalDivider()
             HawkParameter("Конец анализа", "${assetAnalyse?.dateTo?.format(dateTimeFormat)}", modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Средняя цена", "${assetAnalyse?.mean}", modifierForParams, colorParams)
+            HawkParameter("Средняя доходность", String.format("%.2f%%", assetAnalyse?.mean?.times(100)), modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Стандартное отклонение", "${assetAnalyse?.stdDev}", modifierForParams, colorParams)
+            HawkParameter("Стандартное отклонение", String.format("%.2f%%", assetAnalyse?.stdDev?.times(100)), modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент вариации", "${assetAnalyse?.variation}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент вариации", String.format("%.2f", assetAnalyse?.variation), modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент Шарпа", "${assetAnalyse?.sharp}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент Шарпа", String.format("%.2f", assetAnalyse?.sharp), modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент информации", "${assetAnalyse?.information}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент информации", String.format("%.2f", assetAnalyse?.information), modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Коэффициент Сортино", "${assetAnalyse?.sortino}", modifierForParams, colorParams)
+            HawkParameter("Коэффициент Сортино", String.format("%.2f", assetAnalyse?.sortino), modifierForParams, colorParams)
         }
     }
 }

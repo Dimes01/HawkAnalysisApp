@@ -53,7 +53,7 @@ class AccountService(
 
     suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo? {
         lastUpdatedAt[accountId]?.also {
-            val request = UpdateBenchmarkRequest(accountId, figiBenchmark, it)
+            val request = UpdateBenchmarkRequest(accountId = accountId, figiBenchmark = figiBenchmark, lastUpdatedAt = it)
             val response = client.patch("$baseUrl/api/accounts/update/benchmark") {
                 bearerAuth(AuthService.jwt)
                 contentType(ContentType.Application.Json)

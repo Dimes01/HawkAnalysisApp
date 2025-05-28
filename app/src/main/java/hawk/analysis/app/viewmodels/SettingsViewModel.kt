@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
+import hawk.analysis.app.dto.AccountInfo
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.SettingsScreenState
 import hawk.analysis.app.services.AccountService
@@ -29,20 +30,21 @@ class SettingsViewModel(
     private val _state = MutableStateFlow(SettingsScreenState())
     val state: StateFlow<SettingsScreenState> = _state
 
-    init {
-        viewModelScope.launch {
-            updateInfo()
-        }
-    }
-
-    private suspend fun updateInfo() {
+    suspend fun updateInfo() {
+        tokenService.getAllByUserId()?.also { tokens -> _state.update { it.copy(tokens = tokens) } }
         userService.getById()?.also { user -> _state.update { it.copy(profile = user) } }
-        accountService.getAllByUserId()?.also { acc -> _state.update { it.copy(accounts = acc) } }
-        tokenService.getAllByUserId()?.also { token -> _state.update { it.copy(tokens = token) } }
-    }
-
-    suspend fun actGetTickerByFigi(figi: String): String? = state.value.tokens.firstOrNull()?.authToken?.let {
-        instrumentServiceTI.shareByFigi(it, figi)?.instrument?.ticker
+        accountService.getAllByUserId()?.also { accounts ->
+            val formattedAcc: List<AccountInfo> = accounts.map { acc ->
+                if (acc.benchmarkUid == null) acc
+                else {
+                    _state.value.tokens.firstOrNull()?.let { token ->
+                        val ticker = instrumentServiceTI.shareByFigi(token.authToken, acc.benchmarkUid)?.instrument?.ticker ?: acc.benchmarkUid
+                        acc.copy(benchmarkUid = ticker)
+                    } ?: acc
+                }
+            }
+            _state.update { it.copy(accounts = formattedAcc) }
+        }
     }
 
     fun navToEditEmail() {

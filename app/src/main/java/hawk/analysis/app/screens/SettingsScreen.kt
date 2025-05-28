@@ -16,6 +16,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,16 +50,16 @@ fun SettingsPreview() {
         tokens = listOf(token)
     )
     HawkAnalysisAppTheme {
-        Settings(state, { _ -> "" }, {}, {}, {}, {}, {})
+        Settings(state, {}, {}, {}, {}, {})
     }
 }
 
 @Composable
 fun SettingsVM(viewModel: SettingsViewModel) {
+    LaunchedEffect(key1 = Unit) { viewModel.updateInfo() }
     val state = viewModel.state.collectAsState()
     Settings(
         state = state.value,
-        actGetTickerByFigi = viewModel::actGetTickerByFigi,
         navToEditEmail = viewModel::navToEditEmail,
         navToEditPassword = viewModel::navToEditPassword,
         navToEditAccount = viewModel::navToEditAccount,
@@ -67,7 +71,6 @@ fun SettingsVM(viewModel: SettingsViewModel) {
 @Composable
 fun Settings(
     state: SettingsScreenState,
-    actGetTickerByFigi: suspend (String) -> String?,
     navToEditEmail: () -> Unit,
     navToEditPassword: () -> Unit,
     navToEditAccount: (String) -> Unit,
@@ -114,11 +117,6 @@ fun Settings(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     state.accounts.forEach { acc ->
-                        var ticker = "Не определено"
-
-                        LaunchedEffect(key1 = Unit) {
-                            acc.benchmarkUid?.let { figi -> actGetTickerByFigi(figi)?.let { ticker = it } }
-                        }
                         HawkInfoSection(
                             header = { HawkInfoSectionHeaderEdit(acc.id, onClickEdit = { navToEditAccount(acc.id) }) }
                         ) {
@@ -126,7 +124,7 @@ fun Settings(
                             HawkParameter("Открыт", acc.openedDate.format(dateTimeFormat), modifierForParameters)
                             HawkParameter("Закрыт", acc.closedDate.format(dateTimeFormat), modifierForParameters)
                             HawkParameter("Безрисковая ставка", "${acc.riskFree?.setScale(2, MathContext.ROUND_HALF_UP)}", modifierForParameters)
-                            HawkParameter("Бенчмарк", ticker, modifierForParameters)
+                            HawkParameter("Бенчмарк", acc.benchmarkUid ?: "Не определено", modifierForParameters)
                         }
                     }
                 }

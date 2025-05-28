@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -17,12 +18,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,21 +47,52 @@ import hawk.analysis.app.utilities.timeFormat
 import hawk.analysis.app.viewmodels.HomeViewModel
 import hawk.analysis.restlib.contracts.Account
 import hawk.analysis.restlib.utilities.toBigDecimal
+import kotlinx.coroutines.delay
 import kotlinx.datetime.format
+
+@Preview()
+@Composable
+fun HomePreview() {
+    HawkAnalysisAppTheme {
+        Home(
+            selectedAccount = accountTI,
+            state = state,
+            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
+            onUpdateAccount = {},
+            onPrevAccount = {},
+            onNextAccount = {},
+            navToAnalyseAccount = {}
+        )
+    }
+}
+
+@Preview(widthDp = 440, heightDp = 956)
+@Composable
+fun LoadScreenPreview() {
+    HawkAnalysisAppTheme {
+        LoadScreen(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer))
+    }
+}
 
 @Composable
 fun HomeVM(viewModel: HomeViewModel) {
     val selectedAccount = viewModel.currentAccount.collectAsState()
     val state = viewModel.currentState.collectAsState()
-    Home(
-        selectedAccount = selectedAccount.value,
-        state = state.value,
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainer),
-        onUpdateAccount = viewModel::updateAccounts,
-        onPrevAccount = viewModel::selectPreviousAccount,
-        onNextAccount = viewModel::selectNextAccount,
-        navToAnalyseAccount = viewModel::navToAnalyseAccount,
-    )
+    val loadIndicator = viewModel.loadIndicator.collectAsState()
+    if (!loadIndicator.value) {
+        Home(
+            selectedAccount = selectedAccount.value,
+            state = state.value,
+            modifier = Modifier.fillMaxSize()
+                .background(MaterialTheme.colorScheme.surfaceContainer),
+            onUpdateAccount = viewModel::updateAccounts,
+            onPrevAccount = viewModel::selectPreviousAccount,
+            onNextAccount = viewModel::selectNextAccount,
+            navToAnalyseAccount = viewModel::navToAnalyseAccount,
+        )
+    } else {
+        LoadScreen(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer))
+    }
 }
 
 @Composable
@@ -267,18 +301,26 @@ fun HawkSection(name: String, content: LazyListScope.() -> Unit) {
     )
 }
 
-@Preview()
 @Composable
-fun HomePreview() {
-    HawkAnalysisAppTheme {
-        Home(
-            selectedAccount = accountTI,
-            state = state,
-            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
-            onUpdateAccount = {},
-            onPrevAccount = {},
-            onNextAccount = {},
-            navToAnalyseAccount = {}
+fun LoadScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Ожидайте загрузки информации",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 5.dp,
+        )
+        Text(
+            text = "Это займет не более 10 секунд",
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.outline
         )
     }
 }

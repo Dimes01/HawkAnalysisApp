@@ -74,7 +74,8 @@ fun EditEmail(
                 value = password,
                 onValueChange = { password = it },
                 label = "Пароль",
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isPassword = true
             )
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
