@@ -23,6 +23,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
@@ -44,7 +45,7 @@ fun EditAuthTokenPreview() {
 
 @Composable
 fun AddAuthToken(
-    actSave: suspend (name: String, password: String, authToken: String) -> Boolean,
+    actSave: suspend (name: String, password: String, authToken: String) -> HawkResponse<Boolean>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -116,7 +117,7 @@ fun AddAuthToken(
 @Composable
 fun EditAuthToken(
     tokenId: Int,
-    actSave: suspend (id: Int, name: String, password: String) -> Boolean,
+    actSave: suspend (id: Int, name: String, password: String) -> HawkResponse<Boolean>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()

@@ -88,10 +88,10 @@ class HomeViewModel(
 
 
     fun updateAccounts() = viewModelScope.launch {
-        val tokens = tokenService.getAllByUserId() ?: emptyList()
+        val tokens = tokenService.getAllByUserId().response ?: emptyList()
         val set = HashSet<Pair<Account, TokenInfo>>()
         for (token in tokens) {
-            userServiceTI.getAccounts(token.authToken)?.accounts?.forEach { acc ->
+            userServiceTI.getAccounts(token.authToken).response?.accounts?.forEach { acc ->
                 set.add(acc to token)
             }
         }
@@ -103,16 +103,16 @@ class HomeViewModel(
     private suspend fun updatePortfolioInfo(pair: Pair<Account, TokenInfo>) {
         val acc = pair.first
         val token = pair.second
-        operationServiceTI.getPortfolio(token.authToken, acc.id)?.let { portfolio ->
+        operationServiceTI.getPortfolio(token.authToken, acc.id).response?.let { portfolio ->
             val moneyStates = portfolio.positions.filter { it.instrumentType == "currency" }.mapNotNull { portCur ->
-                val cur = instrumentsServiceTI.currencyByFigi(token.authToken, portCur.figi)?.instrument
+                val cur = instrumentsServiceTI.currencyByFigi(token.authToken, portCur.figi).response?.instrument
                 if (cur != null) {
                     val money = MoneyValue(portCur.averagePositionPrice.currency, portCur.quantity.units, portCur.quantity.nano)
                     MoneyState(cur, money)
                 } else null
             }
             val shareStates = portfolio.positions.filter { it.instrumentType == "share" }.mapNotNull { portShare ->
-                val share = instrumentsServiceTI.shareByFigi(token.authToken, portShare.figi)?.instrument
+                val share = instrumentsServiceTI.shareByFigi(token.authToken, portShare.figi).response?.instrument
                 if (share != null) {
                     val currentPrice = portShare.currentPrice.toBigDecimal()
                     val quantity = BigDecimal(portShare.quantity.units)

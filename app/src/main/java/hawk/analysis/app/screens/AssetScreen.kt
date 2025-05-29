@@ -26,6 +26,7 @@ import hawk.analysis.app.ui.components.HawkInfoSectionHeader
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.accountAPI
 import hawk.analysis.app.utilities.assetAnalyse
 import hawk.analysis.app.utilities.dateTimeFormat
@@ -58,9 +59,9 @@ fun Asset(
     uid: String,
     authToken: String,
     accountId: String,
-    getInfo: suspend (authToken: String, figi: String) -> Share?,
-    getPortfolioAsset: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
-    getAnalysis: suspend (accountId: String) -> List<AssetAnalyse>?,
+    getInfo: suspend (authToken: String, figi: String) -> HawkResponse<Share>,
+    getPortfolioAsset: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse>,
+    getAnalysis: suspend (accountId: String) -> HawkResponse<List<AssetAnalyse>>,
     modifier: Modifier = Modifier
 ) {
     var info: Share? by remember { mutableStateOf(null) }

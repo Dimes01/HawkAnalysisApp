@@ -28,6 +28,7 @@ import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
@@ -44,8 +45,8 @@ fun EditAccountPreview() {
 fun EditAccount(
     authToken: String,
     accountId: String,
-    actChangeRiskFree: suspend (String, BigDecimal?) -> AccountInfo?,
-    actChangeBenchmark: suspend (String, String?) -> AccountInfo?,
+    actChangeRiskFree: suspend (String, BigDecimal?) -> HawkResponse<AccountInfo>,
+    actChangeBenchmark: suspend (String, String?) -> HawkResponse<AccountInfo>,
     navToFindFIGI: (String) -> Unit,
     navToBack: () -> Unit,
 ) {

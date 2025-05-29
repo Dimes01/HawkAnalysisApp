@@ -1,6 +1,10 @@
 package hawk.analysis.app.tiapi
 
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.HawkResponse
+import hawk.analysis.restlib.contracts.Currency
 import hawk.analysis.restlib.contracts.CurrencyRequest
+import hawk.analysis.restlib.contracts.InstrumentResponse
 import hawk.analysis.restlib.contracts.OperationRequest
 import hawk.analysis.restlib.contracts.OperationResponse
 import hawk.analysis.restlib.contracts.PortfolioRequest
@@ -25,20 +29,22 @@ class OperationServiceTI(
         private val log: Logger = LoggerFactory.getLogger(OperationServiceTI::class.java)
     }
 
-    suspend fun getOperations(authToken: String, request: OperationRequest): OperationResponse? {
+    suspend fun getOperations(authToken: String, request: OperationRequest): HawkResponse<OperationResponse> {
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetOperations") {
             bearerAuth(authToken)
             contentType()
             setBody(request)
         }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        if (response.status.isSuccess()) {
+            val body = response.body<OperationResponse>()
+            return HawkResponse(response = body, error = null)
+        }
+        return HawkResponse(response = null, error = response.body<ErrorResponse>())
     }
 
     suspend fun getPortfolio(
         authToken: String, accountId: String, currency: CurrencyRequest = CurrencyRequest.RUB
-    ): PortfolioResponse? {
+    ): HawkResponse<PortfolioResponse> {
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
@@ -46,8 +52,10 @@ class OperationServiceTI(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        if (response.status.isSuccess()) {
+            val body = response.body<PortfolioResponse>()
+            return HawkResponse(response = body, error = null)
+        }
+        return HawkResponse(response = null, error = response.body<ErrorResponse>())
     }
 }

@@ -23,6 +23,7 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
@@ -44,7 +45,7 @@ fun EditPasswordPreview() {
 
 @Composable
 fun EditEmail(
-    actSave: suspend (String, String) -> UserInfo?,
+    actSave: suspend (String, String) -> HawkResponse<UserInfo>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -107,7 +108,7 @@ fun EditEmail(
 
 @Composable
 fun EditPassword(
-    actSave: suspend (String, String) -> UserInfo?,
+    actSave: suspend (String, String) -> HawkResponse<UserInfo>,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()

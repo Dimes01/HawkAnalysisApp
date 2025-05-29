@@ -1,5 +1,7 @@
 package hawk.analysis.app.tiapi
 
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.restlib.contracts.Currency
 import hawk.analysis.restlib.contracts.FindInstrumentRequest
 import hawk.analysis.restlib.contracts.FindInstrumentResponse
@@ -22,39 +24,45 @@ class InstrumentServiceTI(
     private val client: HttpClient,
     private val baseUrl: String,
 ) {
-    suspend fun currencyByFigi(authToken: String, figi: String): InstrumentResponse<Currency>? {
+    suspend fun currencyByFigi(authToken: String, figi: String): HawkResponse<InstrumentResponse<Currency>> {
         val request = InstrumentRequest(InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI, "", figi)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/CurrencyBy") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        if (response.status.isSuccess()) {
+            val body = response.body<InstrumentResponse<Currency>>()
+            return HawkResponse(response = body, error = null)
+        }
+        return HawkResponse(response = null, error = response.body<ErrorResponse>())
     }
 
-    suspend fun shareByFigi(authToken: String, figi: String): InstrumentResponse<Share>? {
+    suspend fun shareByFigi(authToken: String, figi: String): HawkResponse<InstrumentResponse<Share>> {
         val request = InstrumentRequest(InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI, "", figi)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        if (response.status.isSuccess()) {
+            val body = response.body<InstrumentResponse<Share>>()
+            return HawkResponse(response = body, error = null)
+        }
+        return HawkResponse(response = null, error = response.body<ErrorResponse>())
     }
 
-    suspend fun findInstruments(authToken: String, query: String): FindInstrumentResponse? {
+    suspend fun findInstruments(authToken: String, query: String): HawkResponse<FindInstrumentResponse> {
         val request = FindInstrumentRequest(query = query, instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE, apiTradeAvailableFlag = true)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/FindInstrument") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
         }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        if (response.status.isSuccess()) {
+            val body = response.body<FindInstrumentResponse>()
+            return HawkResponse(response = body, error = null)
+        }
+        return HawkResponse(response = null, error = response.body<ErrorResponse>())
     }
 }

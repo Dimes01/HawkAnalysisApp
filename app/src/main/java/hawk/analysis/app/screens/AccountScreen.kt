@@ -28,6 +28,7 @@ import hawk.analysis.app.ui.components.HawkInfoSectionHeader
 import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkParameterRelative
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.HawkResponse
 import hawk.analysis.app.utilities.accountAPI
 import hawk.analysis.app.utilities.dateTimeFormat
 import hawk.analysis.app.utilities.hawkScale
@@ -42,8 +43,12 @@ import kotlinx.datetime.format
 @Preview
 @Composable
 fun AccountPreview() {
+    val getPortfolio = { _: String, _: String -> HawkResponse(portfolio, null) }
+    val getShare = { _: String, _: String -> HawkResponse(shareNvtk, null) }
+    val getAnalyse = { _: String, _: String -> HawkResponse<List<AccountAnalyse>>(emptyList(), null) }
+
     HawkAnalysisAppTheme {
-        Account(accountAPI.id, "", { _, _ -> portfolio }, { _, _ -> shareNvtk }, { _ -> emptyList() })
+        Account(accountAPI.id, "", getPortfolio, getShare, getAnalyse)
     }
 }
 
@@ -51,9 +56,9 @@ fun AccountPreview() {
 fun Account(
     accountId: String,
     authToken: String,
-    getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
-    getShare: suspend (authToken: String, figi: String) -> Share?,
-    getAnalyse: suspend (accountId: String) -> List<AccountAnalyse>?,
+    getPortfolio: suspend (authToken: String, accountId: String) -> HawkResponse<PortfolioResponse>,
+    getShare: suspend (authToken: String, figi: String) -> HawkResponse<Share>,
+    getAnalyse: suspend (accountId: String) -> HawkResponse<List<AccountAnalyse>>,
 ) {
     var portfolio: PortfolioResponse? by remember { mutableStateOf(null) }
     var analyse: AccountAnalyse? by remember { mutableStateOf(null) }
