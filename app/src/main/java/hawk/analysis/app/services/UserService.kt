@@ -3,6 +3,8 @@ package hawk.analysis.app.services
 import hawk.analysis.app.dto.UpdateEmailRequest
 import hawk.analysis.app.dto.UpdatePasswordRequest
 import hawk.analysis.app.dto.UserInfo
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.NotSuccessfulResponseException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -30,8 +32,8 @@ class UserService(
             lastUpdatedAt = body.updatedAt
             return body
         }
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun updateEmail(newEmail: String, password: String): UserInfo {
@@ -45,10 +47,9 @@ class UserService(
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
             return body
-        } else {
-            println(response.bodyAsText())
-            return null
         }
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun updatePassword(oldPassword: String, newPassword: String): UserInfo {
@@ -62,9 +63,8 @@ class UserService(
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
             return body
-        } else {
-            println(response.bodyAsText())
-            return null
         }
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 }

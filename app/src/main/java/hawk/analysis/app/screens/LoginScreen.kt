@@ -61,7 +61,7 @@ fun Login(
         .fillMaxWidth()
         .padding(0.dp, 2.dp)
     val modifierForTextFields = Modifier.fillMaxWidth()
-    var isError by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
     HawkAnalysisAppTheme {
         Column(
             modifier = Modifier
@@ -100,9 +100,9 @@ fun Login(
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (isError) {
+                if (error.isNotBlank()) {
                     ErrorMessage(
-                        text = "Неверный логин или пароль",
+                        text = error,
                         modifier = Modifier
                             .fillMaxWidth()
                             .border(
@@ -117,7 +117,7 @@ fun Login(
                     value = email.value,
                     onValueChange = { email.value = it },
                     label = "E-mail",
-                    isError = isError,
+                    isError = error.isNotBlank(),
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
@@ -125,7 +125,7 @@ fun Login(
                     onValueChange = { password.value = it },
                     label = "Пароль",
                     isPassword = true,
-                    isError = isError,
+                    isError = error.isNotBlank(),
                     modifier = modifierForTextFields
                 )
                 HawkOutlinedButton(
@@ -133,9 +133,12 @@ fun Login(
                     modifier = modifierForButtons,
                     onClick = {
                         coroutineScope.launch {
-                            val response = authService.login(email.value, password.value)
-                            if (response != null) onHomeScreen()
-                            else isError = true
+                            try {
+                                authService.login(email.value, password.value)
+                                onHomeScreen()
+                            } catch (e: Exception) {
+                                error = e.message ?: "Неопределенная ошибка"
+                            }
                         }
                     }
                 )

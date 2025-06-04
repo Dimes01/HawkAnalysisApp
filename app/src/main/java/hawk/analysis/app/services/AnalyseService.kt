@@ -3,6 +3,8 @@ package hawk.analysis.app.services
 import hawk.analysis.app.dto.AccountAnalyse
 import hawk.analysis.app.dto.AnalyseRequest
 import hawk.analysis.app.dto.AssetAnalyse
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.NotSuccessfulResponseException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -24,8 +26,8 @@ class AnalyseService(
             setBody(AnalyseRequest(accountId))
         }
         if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun getAccountLast(accountId: String): List<AccountAnalyse> {
@@ -35,7 +37,7 @@ class AnalyseService(
             setBody(AnalyseRequest(accountId))
         }
         if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 }

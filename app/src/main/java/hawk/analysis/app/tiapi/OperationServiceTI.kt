@@ -1,5 +1,7 @@
 package hawk.analysis.app.tiapi
 
+import hawk.analysis.app.utilities.ErrorResponseTI
+import hawk.analysis.app.utilities.NotSuccessfulResponseTIException
 import hawk.analysis.restlib.contracts.CurrencyRequest
 import hawk.analysis.restlib.contracts.OperationRequest
 import hawk.analysis.restlib.contracts.OperationResponse
@@ -25,20 +27,9 @@ class OperationServiceTI(
         private val log: Logger = LoggerFactory.getLogger(OperationServiceTI::class.java)
     }
 
-    suspend fun getOperations(authToken: String, request: OperationRequest): OperationResponse? {
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetOperations") {
-            bearerAuth(authToken)
-            contentType()
-            setBody(request)
-        }
-        if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
-    }
-
     suspend fun getPortfolio(
         authToken: String, accountId: String, currency: CurrencyRequest = CurrencyRequest.RUB
-    ): PortfolioResponse? {
+    ): PortfolioResponse {
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
         val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
@@ -47,7 +38,7 @@ class OperationServiceTI(
             setBody(request)
         }
         if (response.status.isSuccess()) return response.body()
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponseTI>()
+        throw NotSuccessfulResponseTIException(response, error)
     }
 }

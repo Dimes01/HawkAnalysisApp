@@ -53,9 +53,9 @@ fun AccountPreview() {
 fun Account(
     accountId: String,
     authToken: String,
-    getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
-    getShare: suspend (authToken: String, figi: String) -> Share?,
-    getAnalyse: suspend (accountId: String) -> List<AccountAnalyse>?,
+    getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse,
+    getShare: suspend (authToken: String, figi: String) -> Share,
+    getAnalyse: suspend (accountId: String) -> List<AccountAnalyse>,
 ) {
     val currencyString = stringResource(R.string.currency_rub)
     var portfolio: PortfolioResponse? by remember { mutableStateOf(null) }
@@ -63,21 +63,19 @@ fun Account(
     var sectors by remember { mutableStateOf(HashMap<String, BigDecimal>()) }
     var error by remember { mutableStateOf("") }
     LaunchedEffect(key1 = Unit) {
-        portfolio = getPortfolio(authToken, accountId)
-        if (portfolio != null) {
-            portfolio?.positions?.forEach { pos ->
-                getShare(authToken, pos.figi)?.let { share ->
+        try {
+            portfolio = getPortfolio(authToken, accountId)
+            portfolio!!.positions.forEach { pos ->
+                getShare(authToken, pos.figi).let { share ->
                     val count = pos.quantity.toBigDecimal(0, MathContext.ROUND_FLOOR)
                     val amount = pos.currentPrice.toBigDecimal(2).multiply(count).hawkScale(2)
                     val sector = categoryTranslations[share.sector] ?: "Другое"
                     sectors[sector] = sectors.getOrDefault(sector, BigDecimal.ZERO).add(amount)
                 }
             }
-            try {
-                analyse = getAnalyse(accountId)?.single().also { error = "" }
-            } catch (e: Exception) {
-                error = "Не удалось получить анализ"
-            }
+            analyse = getAnalyse(accountId).single().also { error = "" }
+        } catch (e: Exception) {
+            error = e.message ?: "Неопределенная ошибка"
         }
     }
     Column(
@@ -198,23 +196,5 @@ fun Account(
                 }
             }
         }
-//        HawkInfoSection(
-//            header = { HawkInfoSectionHeader("Отрасли") }
-//        ) {
-//            sectors.forEach { sector ->
-//                portfolio?.totalAmountPortfolio?.toBigDecimal(2)?.let { total ->
-//                    val part = if (total.compareTo(BigDecimal.ZERO) != 0) sector.value.divide(total).hawkScale(2)
-//                        else BigDecimal.ZERO
-//                    HawkParameterRelative(
-//                        name = sector.key,
-//                        value = "${sector.value}",
-//                        valueRelative = "$part",
-//                        modifier = modifierForParams,
-//                        color = colorParams,
-//                        colorRelative = colorParamsRelative
-//                    )
-//                }
-//            }
-//        }
     }
 }

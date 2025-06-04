@@ -13,7 +13,6 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -29,16 +28,14 @@ class AccountService(
         val response = client.get("$baseUrl/api/accounts") {
             bearerAuth(AuthService.jwt)
         }
-        if (!response.status.isSuccess()) {
-            val error = response.body<ErrorResponse>()
-            throw NotSuccessfulResponseException(response, error)
-        }
-        return response.body<List<AccountInfo>>().also { acc ->
+        if (response.status.isSuccess()) return response.body<List<AccountInfo>>().also { acc ->
             acc.forEach { lastUpdatedAt[it.id] = it.updatedAt }
         }
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 
-    suspend fun tchangeRiskFree(accountId: String, riskFree: BigDecimal?): AccountInfo {
+    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): AccountInfo {
         lastUpdatedAt[accountId]?.also {
             val request = UpdateRiskFreeRequest(accountId, riskFree, it)
             val response = client.patch("$baseUrl/api/accounts/update/risk-free") {
@@ -49,12 +46,13 @@ class AccountService(
             if (response.status.isSuccess()) {
                 return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
             }
-            println(response.bodyAsText())
+            val error = response.body<ErrorResponse>()
+            throw NotSuccessfulResponseException(response, error)
         }
         throw NotSuccessfulRequestException("Нет информации о времени последнего обновления")
     }
 
-    suspend fun tchangeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo {
+    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo {
         lastUpdatedAt[accountId]?.also {
             val request = UpdateBenchmarkRequest(accountId = accountId, figiBenchmark = figiBenchmark, lastUpdatedAt = it)
             val response = client.patch("$baseUrl/api/accounts/update/benchmark") {
@@ -65,8 +63,9 @@ class AccountService(
             if (response.status.isSuccess()) {
                 return response.body<AccountInfo>().also { lastUpdatedAt[it.id] = it.updatedAt }
             }
-            println(response.bodyAsText())
+            val error = response.body<ErrorResponse>()
+            throw NotSuccessfulResponseException(response, error)
         }
-        return null
+        throw NotSuccessfulRequestException("Нет информации о времени последнего обновления")
     }
 }

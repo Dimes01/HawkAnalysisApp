@@ -4,6 +4,8 @@ import hawk.analysis.app.dto.LoginRequest
 import hawk.analysis.app.dto.LoginResponse
 import hawk.analysis.app.dto.RegisterRequest
 import hawk.analysis.app.dto.RegisterResponse
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.NotSuccessfulResponseException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -33,8 +35,8 @@ class AuthService(
             jwt = responseBody.jwtToken
             return responseBody
         }
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun register(name: String, email: String, password: String): RegisterResponse {
@@ -48,7 +50,7 @@ class AuthService(
             jwt = responseBody.jwtToken
             return responseBody
         }
-        println(response.bodyAsText())
-        return null
+        val error = response.body<ErrorResponse>()
+        throw NotSuccessfulResponseException(response, error)
     }
 }

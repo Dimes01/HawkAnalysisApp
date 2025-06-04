@@ -99,9 +99,11 @@ fun AddAuthToken(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val res = actSave(name, password, authToken)
-                        if (res) navToBack()
-                        else error = "Не удалось создать токен"
+                        try {
+                            if (actSave(name, password, authToken)) navToBack()
+                        } catch (e: Exception) {
+                            error = e.message
+                        }
                     } }
                 )
             }
@@ -163,9 +165,11 @@ fun EditAuthToken(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val res = actSave(tokenId, name, password)
-                        if (res) navToBack()
-                        else error = "Не удалось изменить информацию"
+                        try {
+                            if (actSave(tokenId, name, password)) navToBack()
+                        } catch (e: Exception) {
+                            error = e.message
+                        }
                     } }
                 )
             }

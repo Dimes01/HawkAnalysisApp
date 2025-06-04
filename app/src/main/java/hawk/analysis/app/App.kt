@@ -132,8 +132,8 @@ fun App() {
                         val instrumentServiceTI = koinInject<InstrumentServiceTI>()
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AccountScreen>()
-                        val getShare: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                        val getShare: suspend (authToken: String, figi: String) -> Share = { a, f ->
+                            instrumentServiceTI.shareByFigi(a, f).instrument
                         }
                         Account(args.accountId, args.authToken, operationServiceTI::getPortfolio, getShare, analyseService::getAccountLast)
                     }
@@ -143,10 +143,10 @@ fun App() {
                         val operationServiceTI = koinInject<OperationServiceTI>()
                         val analyseService = koinInject<AnalyseService>()
                         val args = it.toRoute<Destination.AssetScreen>()
-                        val getInfo: suspend (authToken: String, figi: String) -> Share? = { a, f ->
-                            instrumentServiceTI.shareByFigi(a, f)?.instrument
+                        val getInfo: suspend (authToken: String, figi: String) -> Share = { a, f ->
+                            instrumentServiceTI.shareByFigi(a, f).instrument
                         }
-                        val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse? = { at, aid ->
+                        val getPortfolio: suspend (authToken: String, accountId: String) -> PortfolioResponse = { at, aid ->
                             operationServiceTI.getPortfolio(at, aid)
                         }
                         Asset(

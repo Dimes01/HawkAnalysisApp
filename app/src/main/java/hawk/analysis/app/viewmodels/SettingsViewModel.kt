@@ -51,10 +51,10 @@ class SettingsViewModel(
                     if (acc.benchmarkUid == null) acc
                     else {
                         _state.value.tokens.firstOrNull()?.let { token ->
-                            val ticker = instrumentServiceTI.shareByFigi(
+                            val ticker = try { instrumentServiceTI.shareByFigi(
                                 token.authToken,
                                 acc.benchmarkUid
-                            )?.instrument?.ticker ?: acc.benchmarkUid
+                            ).instrument.ticker } catch (e: Exception) { acc.benchmarkUid }
                             acc.copy(benchmarkUid = ticker)
                         } ?: acc
                     }

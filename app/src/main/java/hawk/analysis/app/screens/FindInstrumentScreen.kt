@@ -57,7 +57,7 @@ fun FindInstrumentPreview() {
 @Composable
 fun FindInstrument(
     authToken: String,
-    actFind: suspend (String, String) -> FindInstrumentResponse?,
+    actFind: suspend (String, String) -> FindInstrumentResponse,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -65,7 +65,9 @@ fun FindInstrument(
     var query: String by remember { mutableStateOf("") }
     var errorFind: String? by remember { mutableStateOf(null) }
     LaunchedEffect(key1 = Unit) {
-        instruments.addAll(actFind(authToken, query)?.instruments ?: emptyList<InstrumentShort>())
+        instruments.addAll(try {
+            actFind(authToken, query).instruments
+        } catch (e: Exception) { emptyList<InstrumentShort>() })
     }
     Column(
         modifier = Modifier

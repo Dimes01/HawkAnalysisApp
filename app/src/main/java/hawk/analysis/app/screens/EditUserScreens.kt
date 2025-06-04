@@ -23,13 +23,14 @@ import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.userAPI
 import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
 @Composable
 fun EditEmailPreview() {
     HawkAnalysisAppTheme {
-        EditEmail({ _, _ -> null }, {})
+        EditEmail({ _, _ -> userAPI }, {})
     }
 }
 
@@ -37,14 +38,14 @@ fun EditEmailPreview() {
 @Composable
 fun EditPasswordPreview() {
     HawkAnalysisAppTheme {
-        EditPassword({ _, _ -> null }, {})
+        EditPassword({ _, _ -> userAPI }, {})
     }
 }
 
 
 @Composable
 fun EditEmail(
-    actSave: suspend (String, String) -> UserInfo?,
+    actSave: suspend (String, String) -> UserInfo,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -92,9 +93,12 @@ fun EditEmail(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val info = actSave(email, password)
-                        if (info != null) navToBack()
-                        else error = "Не удалось изменить e-mail"
+                        try {
+                            actSave(email, password)
+                            navToBack()
+                        } catch (e: Exception) {
+                            error = e.message
+                        }
                     } }
                 )
             }
@@ -107,7 +111,7 @@ fun EditEmail(
 
 @Composable
 fun EditPassword(
-    actSave: suspend (String, String) -> UserInfo?,
+    actSave: suspend (String, String) -> UserInfo,
     navToBack: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -156,9 +160,12 @@ fun EditPassword(
                     text = "Сохранить",
                     modifier = Modifier.weight(0.5f),
                     onClick = { coroutineScope.launch {
-                        val info = actSave(oldPassword, newPassword)
-                        if (info != null) navToBack()
-                        else error = "Не удалось изменить пароль"
+                        try {
+                            actSave(oldPassword, newPassword)
+                            navToBack()
+                        } catch (e: Exception) {
+                            error = e.message
+                        }
                     } }
                 )
             }

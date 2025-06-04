@@ -60,9 +60,9 @@ fun Asset(
     uid: String,
     authToken: String,
     accountId: String,
-    getInfo: suspend (authToken: String, figi: String) -> Share?,
-    getPortfolioAsset: suspend (authToken: String, accountId: String) -> PortfolioResponse?,
-    getAnalysis: suspend (accountId: String) -> List<AssetAnalyse>?,
+    getInfo: suspend (authToken: String, figi: String) -> Share,
+    getPortfolioAsset: suspend (authToken: String, accountId: String) -> PortfolioResponse,
+    getAnalysis: suspend (accountId: String) -> List<AssetAnalyse>,
     modifier: Modifier = Modifier
 ) {
     val currencyString = stringResource(R.string.currency_rub)
@@ -71,10 +71,22 @@ fun Asset(
     var portAsset: PortfolioPosition? by remember { mutableStateOf(null) }
     var assetAnalyse: AssetAnalyse? by remember { mutableStateOf(null) }
     LaunchedEffect(key1 = Unit) {
-        info = getInfo(authToken, uid)
-        portAsset = getPortfolioAsset(authToken, accountId)?.positions?.firstOrNull { it.figi == uid }
-        if (portAsset != null)
-            assetAnalyse = getAnalysis(accountId)?.firstOrNull { it.securitiesId == portAsset?.instrumentUid }
+        try {
+            info = getInfo(authToken, uid)
+        } catch (e: Exception) {
+            // TODO: написать обработку ошибки
+        }
+        try {
+            portAsset = getPortfolioAsset(authToken, accountId).positions.firstOrNull { it.figi == uid }
+        } catch (e: Exception) {
+            // TODO: написать обработку ошибки
+        }
+        try {
+            if (portAsset != null)
+                assetAnalyse = getAnalysis(accountId).firstOrNull { it.securitiesId == portAsset?.instrumentUid }
+        } catch (e: Exception) {
+            // TODO: написать обработку ошибки
+        }
     }
     Column(
         modifier = modifier,

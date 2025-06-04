@@ -13,6 +13,11 @@ class NotSuccessfulRequestException(message: String) : Exception(message)
  */
 class NotSuccessfulResponseException(val response: HttpResponse, val error: ErrorResponse) : Exception(error.details)
 
+/**
+ * Рекомендуется использовать, когда приходит ответ с кодом 4хх или 5хх
+ */
+class NotSuccessfulResponseTIException(val response: HttpResponse, val error: ErrorResponseTI) : Exception(error.message)
+
 @Serializable
 data class ErrorResponse(
     val details: String,

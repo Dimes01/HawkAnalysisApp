@@ -28,13 +28,14 @@ import hawk.analysis.app.ui.components.HawkParameter
 import hawk.analysis.app.ui.components.HawkSimpleHeader
 import hawk.analysis.app.ui.components.HawkTonalButton
 import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
+import hawk.analysis.app.utilities.accountAPI
 import kotlinx.coroutines.launch
 
 @Preview(widthDp = 440, heightDp = 956)
 @Composable
 fun EditAccountPreview() {
     HawkAnalysisAppTheme {
-        EditAccount("", "1234567890", { _, _ -> null }, { _, _ -> null }, {}, {})
+        EditAccount("", "1234567890", { _, _ -> accountAPI }, { _, _ -> accountAPI }, {}, {})
     }
 }
 
@@ -44,8 +45,8 @@ fun EditAccountPreview() {
 fun EditAccount(
     authToken: String,
     accountId: String,
-    actChangeRiskFree: suspend (String, BigDecimal?) -> AccountInfo?,
-    actChangeBenchmark: suspend (String, String?) -> AccountInfo?,
+    actChangeRiskFree: suspend (String, BigDecimal?) -> AccountInfo,
+    actChangeBenchmark: suspend (String, String?) -> AccountInfo,
     navToFindFIGI: (String) -> Unit,
     navToBack: () -> Unit,
 ) {
@@ -82,8 +83,11 @@ fun EditAccount(
                     horizontalAlignment = Alignment.End
                 ) {
                     HawkOutlinedButton("Сохранить") { coroutineScope.launch {
-                        val info = actChangeRiskFree(accountId, if (riskFree.isNotEmpty()) BigDecimal(riskFree) else null )
-                        if (info == null) errorRiskFree = "Не удалось изменить ставку"
+                        try {
+                            actChangeRiskFree(accountId, if (riskFree.isNotEmpty()) BigDecimal(riskFree) else null )
+                        } catch (e: Exception) {
+                            errorRiskFree = e.message ?: "Неопределенная ошибка"
+                        }
                     } }
                 }
             }
@@ -103,8 +107,11 @@ fun EditAccount(
                 ) {
                     HawkTonalButton("Найти FIGI") { navToFindFIGI(authToken) }
                     HawkOutlinedButton("Сохранить") { coroutineScope.launch {
-                        val info = actChangeBenchmark(accountId, if (figiBenchmark.isNotEmpty()) figiBenchmark else null)
-                        if (info == null) errorBenchmark = "Не удалось изменить бенчмарк"
+                        try {
+                            actChangeBenchmark(accountId, if (figiBenchmark.isNotEmpty()) figiBenchmark else null)
+                        } catch (e: Exception) {
+                            errorBenchmark = e.message ?: "Неопределенная ошибка"
+                        }
                     } }
                 }
             }

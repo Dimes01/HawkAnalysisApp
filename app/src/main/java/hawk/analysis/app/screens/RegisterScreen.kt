@@ -60,7 +60,7 @@ fun Register(
     var password = remember { mutableStateOf("12345678") }
     val modifierForButtons = Modifier.fillMaxWidth().padding(0.dp, 2.dp)
     val modifierForTextFields = Modifier.fillMaxWidth()
-    var isError by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf("") }
     HawkAnalysisAppTheme {
         Column(
             modifier = Modifier
@@ -99,7 +99,7 @@ fun Register(
                 verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.Top),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (isError) {
+                if (error.isNotBlank()) {
                     ErrorMessage(
                         text = "Неверный логин или пароль",
                         modifier = Modifier
@@ -116,14 +116,14 @@ fun Register(
                     value = name.value,
                     onValueChange = { name.value = it },
                     label = "Никнейм",
-                    isError = isError,
+                    isError = error.isNotBlank(),
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
                     value = email.value,
                     onValueChange = { email.value = it },
                     label = "E-mail",
-                    isError = isError,
+                    isError = error.isNotBlank(),
                     modifier = modifierForTextFields,
                 )
                 HawkOutlinedTextField(
@@ -131,16 +131,19 @@ fun Register(
                     onValueChange = { password.value = it },
                     label = "Пароль",
                     isPassword = true,
-                    isError = isError,
+                    isError = error.isNotBlank(),
                     modifier = modifierForTextFields
                 )
                 HawkOutlinedButton(
                     text = "Зарегистрироваться",
                     modifier = modifierForButtons,
                     onClick = { coroutineScope.launch {
-                        val response = authService.register(name.value, email.value, password.value)
-                        if (response != null) onHomeScreen()
-                        else isError = true
+                        try {
+                            authService.register(name.value, email.value, password.value)
+                            onHomeScreen()
+                        } catch (e: Exception) {
+                            error = e.message ?: "Неопределенная ошибка"
+                        }
                     } }
                 )
                 HawkTonalButton(
