@@ -2,22 +2,23 @@ package hawk.analysis.app.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import hawk.analysis.app.dto.AccountInfo
+import hawk.analysis.app.dto.TokenInfo
+import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.SettingsScreenState
 import hawk.analysis.app.services.AccountService
 import hawk.analysis.app.services.TokenService
 import hawk.analysis.app.services.UserService
 import hawk.analysis.app.tiapi.InstrumentServiceTI
+import hawk.analysis.app.utilities.NotSuccessfulResponseException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val navController: NavController,
@@ -31,20 +32,46 @@ class SettingsViewModel(
     val state: StateFlow<SettingsScreenState> = _state
 
     suspend fun updateInfo() {
-        tokenService.getAllByUserId()?.also { tokens -> _state.update { it.copy(tokens = tokens) } }
-        userService.getById()?.also { user -> _state.update { it.copy(profile = user) } }
-        accountService.getAllByUserId()?.also { accounts ->
-            val formattedAcc: List<AccountInfo> = accounts.map { acc ->
-                if (acc.benchmarkUid == null) acc
-                else {
-                    _state.value.tokens.firstOrNull()?.let { token ->
-                        val ticker = instrumentServiceTI.shareByFigi(token.authToken, acc.benchmarkUid)?.instrument?.ticker ?: acc.benchmarkUid
-                        acc.copy(benchmarkUid = ticker)
-                    } ?: acc
+        var tokenError = ""; var userError = ""; var accountsError = ""
+        val tokens: List<TokenInfo> = try {
+            tokenService.getAllByUserId()
+        } catch (e: NotSuccessfulResponseException) {
+            tokenError = e.error.details
+            emptyList()
+        }
+        val user: UserInfo = try {
+            userService.getById()
+        } catch (e: NotSuccessfulResponseException) {
+            userError = e.error.details
+            UserInfo.default()
+        }
+        val accounts: List<AccountInfo> = try {
+            accountService.getAllByUserId().also { localAccounts ->
+                localAccounts.map { acc ->
+                    if (acc.benchmarkUid == null) acc
+                    else {
+                        _state.value.tokens.firstOrNull()?.let { token ->
+                            val ticker = instrumentServiceTI.shareByFigi(
+                                token.authToken,
+                                acc.benchmarkUid
+                            )?.instrument?.ticker ?: acc.benchmarkUid
+                            acc.copy(benchmarkUid = ticker)
+                        } ?: acc
+                    }
                 }
             }
-            _state.update { it.copy(accounts = formattedAcc) }
+        } catch (e: NotSuccessfulResponseException) {
+            accountsError = e.error.details
+            emptyList()
         }
+        _state.update { it.copy(
+            tokens = tokens,
+            profile = user,
+            accounts = accounts,
+            errorUpdateToken = tokenError,
+            errorUpdateUser = userError,
+            errorUpdateAccount = accountsError
+        ) }
     }
 
     fun navToEditEmail() {

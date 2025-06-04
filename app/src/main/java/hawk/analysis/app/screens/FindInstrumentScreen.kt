@@ -43,7 +43,6 @@ import hawk.analysis.app.ui.theme.HawkAnalysisAppTheme
 import hawk.analysis.app.utilities.findInstruments
 import hawk.analysis.restlib.contracts.FindInstrumentResponse
 import hawk.analysis.restlib.contracts.InstrumentShort
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

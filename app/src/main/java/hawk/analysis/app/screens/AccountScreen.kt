@@ -18,8 +18,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hawk.analysis.app.R
 import hawk.analysis.app.dto.AccountAnalyse
 import hawk.analysis.app.ui.components.CommonInformation
 import hawk.analysis.app.ui.components.HawkHorizontalDivider
@@ -55,6 +57,7 @@ fun Account(
     getShare: suspend (authToken: String, figi: String) -> Share?,
     getAnalyse: suspend (accountId: String) -> List<AccountAnalyse>?,
 ) {
+    val currencyString = stringResource(R.string.currency_rub)
     var portfolio: PortfolioResponse? by remember { mutableStateOf(null) }
     var analyse: AccountAnalyse? by remember { mutableStateOf(null) }
     var sectors by remember { mutableStateOf(HashMap<String, BigDecimal>()) }
@@ -100,43 +103,43 @@ fun Account(
 
             val totalAmountShares = portfolio?.totalAmountShares?.toBigDecimal(2)
             if (totalAmountShares?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма акций", "$totalAmountShares", modifierForParams, colorParams)
+                HawkParameter("Сумма акций", "$totalAmountShares $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountBonds = portfolio?.totalAmountBonds?.toBigDecimal(2)
             if (totalAmountBonds?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма облигаций", "$totalAmountBonds", modifierForParams, colorParams)
+                HawkParameter("Сумма облигаций", "$totalAmountBonds $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountEtf = portfolio?.totalAmountEtf?.toBigDecimal(2)
             if (totalAmountEtf?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма фондов", "$totalAmountEtf", modifierForParams, colorParams)
+                HawkParameter("Сумма фондов", "$totalAmountEtf $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountCurrencies = portfolio?.totalAmountCurrencies?.toBigDecimal(2)
             if (totalAmountCurrencies?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма валют", "$totalAmountCurrencies", modifierForParams, colorParams)
+                HawkParameter("Сумма валют", "$totalAmountCurrencies $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountFutures = portfolio?.totalAmountFutures?.toBigDecimal(2)
             if (totalAmountFutures?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма фьючерсов", "$totalAmountFutures", modifierForParams, colorParams)
+                HawkParameter("Сумма фьючерсов", "$totalAmountFutures $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountOptions = portfolio?.totalAmountOptions?.toBigDecimal(2)
             if (totalAmountOptions?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма опционов", "$totalAmountOptions", modifierForParams, colorParams)
+                HawkParameter("Сумма опционов", "$totalAmountOptions $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
             val totalAmountSp = portfolio?.totalAmountSp?.toBigDecimal(2)
             if (totalAmountSp?.compareTo(BigDecimal.ZERO) != 0) {
-                HawkParameter("Сумма структурных нот", "$totalAmountSp", modifierForParams, colorParams)
+                HawkParameter("Сумма структурных нот", "$totalAmountSp $currencyString", modifierForParams, colorParams)
                 HawkHorizontalDivider()
             }
 
@@ -146,7 +149,7 @@ fun Account(
                 val expectedYieldRelative = expectedYield?.divide(totalAmountPortfolio)?.hawkScale()
                 HawkParameterRelative(
                     name = "Текущая доходность",
-                    value = "$expectedYield",
+                    value = "$expectedYield $currencyString",
                     valueRelative = "$expectedYieldRelative",
                     modifier = modifierForParams,
                     color = colorParams,
@@ -159,7 +162,7 @@ fun Account(
             if (dailyYield?.compareTo(BigDecimal.ZERO) != 0 && dailyYieldRelative?.compareTo(BigDecimal.ZERO) != 0) {
                 HawkParameterRelative(
                     name = "Доходность за день",
-                    value = "$dailyYield",
+                    value = "$dailyYield $currencyString",
                     valueRelative = "$dailyYieldRelative",
                     modifier = modifierForParams,
                     color = colorParams,

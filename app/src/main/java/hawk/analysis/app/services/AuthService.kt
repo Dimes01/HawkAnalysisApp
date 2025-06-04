@@ -22,7 +22,7 @@ class AuthService(
             private set
     }
 
-    suspend fun login(email: String, password: String): LoginResponse? {
+    suspend fun login(email: String, password: String): LoginResponse {
         val requestBody = LoginRequest(email = email, password = password)
         val response = client.post("$baseUrl/api/users/sign-in") {
             contentType(ContentType.Application.Json)
@@ -37,7 +37,7 @@ class AuthService(
         return null
     }
 
-    suspend fun register(name: String, email: String, password: String): RegisterResponse? {
+    suspend fun register(name: String, email: String, password: String): RegisterResponse {
         val requestBody = RegisterRequest(name = name, email = email, password = password)
         val response = client.post("$baseUrl/api/users/sign-up") {
             contentType(ContentType.Application.Json)

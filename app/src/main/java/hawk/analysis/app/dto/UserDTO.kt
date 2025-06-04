@@ -1,5 +1,6 @@
 package hawk.analysis.app.dto
 
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
@@ -39,7 +40,11 @@ data class UserInfo(
     val email: String,
     val updatedAt: Instant,
     val createdAt: Instant,
-)
+) {
+    companion object {
+        fun default(): UserInfo = UserInfo(0, "", "", Clock.System.now(), Clock.System.now())
+    }
+}
 
 @Serializable
 data class UpdateEmailRequest(

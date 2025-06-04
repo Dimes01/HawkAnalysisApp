@@ -22,11 +22,8 @@ class UserService(
 ) {
     var lastUpdatedAt: Instant = Clock.System.now()
         private set
-    // TODO: сделать нормальный класс для ошибки
-    var lastError: String = ""
-        private set
 
-    suspend fun getById(): UserInfo? {
+    suspend fun getById(): UserInfo {
         val response = client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) }
         if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
@@ -37,7 +34,7 @@ class UserService(
         return null
     }
 
-    suspend fun updateEmail(newEmail: String, password: String): UserInfo? {
+    suspend fun updateEmail(newEmail: String, password: String): UserInfo {
         val request = UpdateEmailRequest(lastUpdatedAt = lastUpdatedAt, password = password, newEmail = newEmail)
         val response = client.patch("$baseUrl/api/users/update/email") {
             bearerAuth(AuthService.jwt)
@@ -50,12 +47,11 @@ class UserService(
             return body
         } else {
             println(response.bodyAsText())
-            lastError = response.bodyAsText()
             return null
         }
     }
 
-    suspend fun updatePassword(oldPassword: String, newPassword: String): UserInfo? {
+    suspend fun updatePassword(oldPassword: String, newPassword: String): UserInfo {
         val request = UpdatePasswordRequest(lastUpdatedAt, oldPassword, newPassword)
         val response = client.patch("$baseUrl/api/users/update/password") {
             bearerAuth(AuthService.jwt)
@@ -68,7 +64,6 @@ class UserService(
             return body
         } else {
             println(response.bodyAsText())
-            lastError = response.bodyAsText()
             return null
         }
     }

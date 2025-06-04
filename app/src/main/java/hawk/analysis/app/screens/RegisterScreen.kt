@@ -55,9 +55,9 @@ fun Register(
 ) {
     val authService = koinInject<AuthService>()
     val coroutineScope = rememberCoroutineScope()
-    var name = remember { mutableStateOf("") }
-    var email = remember { mutableStateOf("") }
-    var password = remember { mutableStateOf("") }
+    var name = remember { mutableStateOf("demo") }
+    var email = remember { mutableStateOf("demo@mail.ru") }
+    var password = remember { mutableStateOf("12345678") }
     val modifierForButtons = Modifier.fillMaxWidth().padding(0.dp, 2.dp)
     val modifierForTextFields = Modifier.fillMaxWidth()
     var isError by remember { mutableStateOf(false) }

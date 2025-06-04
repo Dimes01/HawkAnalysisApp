@@ -22,11 +22,11 @@ const val urlApi = "urlApi"
 const val urlTInvestApi = "urlTInvestApi"
 
 val devModule = module {
-    single<String>(named(urlApi)) { "http://10.0.2.2:8080" }
+    single<String>(named(urlApi)) { "http://10.0.2.2:7163" }
 }
 
 val prodModule = module {
-    single<String>(named(urlApi)) { "http://31.128.50.75:8080" }
+    single<String>(named(urlApi)) { "http://178.130.50.178:7163" }
 }
 
 val commonModule = module {

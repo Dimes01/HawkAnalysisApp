@@ -25,7 +25,7 @@ class TokenService(
     var lastUpdatedAt = HashMap<Int, Instant>()
         private set
 
-    suspend fun getAllByUserId(): List<TokenInfo>? {
+    suspend fun getAllByUserId(): List<TokenInfo> {
         val response = client.get("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
         }

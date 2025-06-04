@@ -17,7 +17,7 @@ class AnalyseService(
     private val baseUrl: String,
     private val client: HttpClient
 ) {
-    suspend fun getAssetLast(accountId: String): List<AssetAnalyse>? {
+    suspend fun getAssetLast(accountId: String): List<AssetAnalyse> {
         val response = client.post("$baseUrl/api/analysis/assets/latest") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
@@ -28,7 +28,7 @@ class AnalyseService(
         return null
     }
 
-    suspend fun getAccountLast(accountId: String): List<AccountAnalyse>? {
+    suspend fun getAccountLast(accountId: String): List<AccountAnalyse> {
         val response = client.post("$baseUrl/api/analysis/accounts/latest") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)

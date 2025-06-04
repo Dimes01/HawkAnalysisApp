@@ -1,6 +1,7 @@
 package hawk.analysis.app
 
 import android.app.Application
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -23,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import hawk.analysis.app.di.commonModule
 import hawk.analysis.app.di.devModule
+import hawk.analysis.app.di.prodModule
 import hawk.analysis.app.nav.BottomNavigationBar
 import hawk.analysis.app.nav.Destination
 import hawk.analysis.app.screens.Account
@@ -153,7 +156,9 @@ fun App() {
                             getInfo,
                             getPortfolio,
                             analyseService::getAssetLast,
-                            modifier = Modifier.verticalScroll(rememberScrollState())
+                            modifier = Modifier
+                                .verticalScroll(rememberScrollState())
+                                .background(MaterialTheme.colorScheme.surfaceContainer).padding(10.dp)
                         )
                     }
                 }

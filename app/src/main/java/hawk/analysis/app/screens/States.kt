@@ -6,7 +6,6 @@ import hawk.analysis.app.dto.TokenInfo
 import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.restlib.contracts.Currency
 import hawk.analysis.restlib.contracts.MoneyValue
-import hawk.analysis.restlib.contracts.Share
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -20,9 +19,12 @@ data class HomeScreenState(
 )
 
 data class SettingsScreenState(
-    val profile: UserInfo = UserInfo(0, "", "", Clock.System.now(), Clock.System.now()),
+    val profile: UserInfo = UserInfo.default(),
     val accounts: List<AccountInfo> = emptyList(),
-    val tokens: List<TokenInfo> = emptyList()
+    val tokens: List<TokenInfo> = emptyList(),
+    val errorUpdateToken: String = "",
+    val errorUpdateUser: String = "",
+    val errorUpdateAccount: String = "",
 )
 
 data class MoneyState(

@@ -2,11 +2,8 @@ package hawk.analysis.app.utilities
 
 import android.icu.math.BigDecimal
 import android.icu.math.MathContext
-import androidx.compose.ui.res.stringResource
 import hawk.analysis.app.R
-import hawk.analysis.restlib.contracts.MoneyValue
 import kotlinx.datetime.format.DateTimeComponents
-import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.char
 
 val dateFormat = DateTimeComponents.Format { year(); char('.'); monthNumber(); char('.'); dayOfMonth() }

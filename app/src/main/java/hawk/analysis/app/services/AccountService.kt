@@ -4,6 +4,9 @@ import android.icu.math.BigDecimal
 import hawk.analysis.app.dto.AccountInfo
 import hawk.analysis.app.dto.UpdateBenchmarkRequest
 import hawk.analysis.app.dto.UpdateRiskFreeRequest
+import hawk.analysis.app.utilities.ErrorResponse
+import hawk.analysis.app.utilities.NotSuccessfulRequestException
+import hawk.analysis.app.utilities.NotSuccessfulResponseException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -22,20 +25,20 @@ class AccountService(
 ) {
     val lastUpdatedAt = HashMap<String, Instant>()
 
-    suspend fun getAllByUserId(): List<AccountInfo>? {
+    suspend fun getAllByUserId(): List<AccountInfo> {
         val response = client.get("$baseUrl/api/accounts") {
             bearerAuth(AuthService.jwt)
         }
-        if (response.status.isSuccess()) {
-            return response.body<List<AccountInfo>>().also { acc ->
-                acc.forEach { lastUpdatedAt[it.id] = it.updatedAt }
-            }
+        if (!response.status.isSuccess()) {
+            val error = response.body<ErrorResponse>()
+            throw NotSuccessfulResponseException(response, error)
         }
-        println(response.bodyAsText())
-        return null
+        return response.body<List<AccountInfo>>().also { acc ->
+            acc.forEach { lastUpdatedAt[it.id] = it.updatedAt }
+        }
     }
 
-    suspend fun changeRiskFree(accountId: String, riskFree: BigDecimal?): AccountInfo? {
+    suspend fun tchangeRiskFree(accountId: String, riskFree: BigDecimal?): AccountInfo {
         lastUpdatedAt[accountId]?.also {
             val request = UpdateRiskFreeRequest(accountId, riskFree, it)
             val response = client.patch("$baseUrl/api/accounts/update/risk-free") {
@@ -48,10 +51,10 @@ class AccountService(
             }
             println(response.bodyAsText())
         }
-        return null
+        throw NotSuccessfulRequestException("Нет информации о времени последнего обновления")
     }
 
-    suspend fun changeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo? {
+    suspend fun tchangeBenchmark(accountId: String, figiBenchmark: String?): AccountInfo {
         lastUpdatedAt[accountId]?.also {
             val request = UpdateBenchmarkRequest(accountId = accountId, figiBenchmark = figiBenchmark, lastUpdatedAt = it)
             val response = client.patch("$baseUrl/api/accounts/update/benchmark") {

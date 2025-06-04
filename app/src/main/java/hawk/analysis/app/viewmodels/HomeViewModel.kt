@@ -2,7 +2,6 @@ package hawk.analysis.app.viewmodels
 
 import android.icu.math.BigDecimal
 import android.icu.math.MathContext
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope

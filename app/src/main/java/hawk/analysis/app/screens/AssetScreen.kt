@@ -17,8 +17,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hawk.analysis.app.R
 import hawk.analysis.app.dto.AssetAnalyse
 import hawk.analysis.app.ui.components.HawkHorizontalDivider
 import hawk.analysis.app.ui.components.HawkInfoSection
@@ -63,6 +65,8 @@ fun Asset(
     getAnalysis: suspend (accountId: String) -> List<AssetAnalyse>?,
     modifier: Modifier = Modifier
 ) {
+    val currencyString = stringResource(R.string.currency_rub)
+    val strIfNull = "Не определено"
     var info: Share? by remember { mutableStateOf(null) }
     var portAsset: PortfolioPosition? by remember { mutableStateOf(null) }
     var assetAnalyse: AssetAnalyse? by remember { mutableStateOf(null) }
@@ -99,13 +103,13 @@ fun Asset(
         val modifierForParams = Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 2.dp)
         val colorParams = MaterialTheme.colorScheme.onTertiaryContainer
         HawkInfoSection(header = { HawkInfoSectionHeader("Информация") }) {
-            HawkParameter("Название", info?.name ?: "", modifierForParams, colorParams)
+            HawkParameter("Название", info?.name ?: strIfNull, modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Страна", info?.countryOfRiskName ?: "", modifierForParams, colorParams)
+            HawkParameter("Страна", info?.countryOfRiskName ?: strIfNull, modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Биржа", info?.exchange ?: "", modifierForParams, colorParams)
+            HawkParameter("Биржа", info?.exchange ?: strIfNull, modifierForParams, colorParams)
             HawkHorizontalDivider()
-            HawkParameter("Отрасль", info?.sector ?: "", modifierForParams, colorParams)
+            HawkParameter("Отрасль", info?.sector ?: strIfNull, modifierForParams, colorParams)
         }
         HawkInfoSection(header = { HawkInfoSectionHeader("Стоимость") }) {
             HawkParameter("Лотность", "${info?.lot}", modifierForParams, colorParams)
@@ -114,13 +118,13 @@ fun Asset(
             HawkParameter("Количество в портфеле", "$quantity", modifierForParams, colorParams)
             HawkHorizontalDivider()
             val meanFifo = portAsset?.averagePositionPriceFifo?.toBigDecimal()?.setScale(2, MathContext.ROUND_HALF_UP)
-            HawkParameter("Средняя цена по FIFO", "$meanFifo", modifierForParams, colorParams)
+            HawkParameter("Средняя цена по FIFO", "$meanFifo $currencyString", modifierForParams, colorParams)
             HawkHorizontalDivider()
             val expectedYield = portAsset?.expectedYield?.toBigDecimal()?.setScale(2, MathContext.ROUND_HALF_UP)
-            HawkParameter("Текущая доходность", "$expectedYield", modifierForParams, colorParams)
+            HawkParameter("Текущая доходность", "$expectedYield $currencyString", modifierForParams, colorParams)
             HawkHorizontalDivider()
             val dailyYield = portAsset?.dailyYield?.toBigDecimal()?.setScale(2, MathContext.ROUND_HALF_UP)
-            HawkParameter("Доходность за день", "$dailyYield", modifierForParams, colorParams)
+            HawkParameter("Доходность за день", "$dailyYield $currencyString", modifierForParams, colorParams)
         }
         HawkInfoSection(header = { HawkInfoSectionHeader("Рискованность") }) {
             HawkParameter("Начало анализа", "${assetAnalyse?.dateFrom?.format(dateTimeFormat)}", modifierForParams, colorParams)

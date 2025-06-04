@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import hawk.analysis.app.dto.AccountInfo
 import hawk.analysis.app.ui.components.ErrorMessage
 import hawk.analysis.app.ui.components.HawkOutlinedButton
 import hawk.analysis.app.ui.components.HawkOutlinedTextField
