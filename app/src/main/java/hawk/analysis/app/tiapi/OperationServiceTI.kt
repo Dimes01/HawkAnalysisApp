@@ -2,9 +2,9 @@ package hawk.analysis.app.tiapi
 
 import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.NotSuccessfulResponseTIException
+import hawk.analysis.app.utilities.tryParseError
+import hawk.analysis.app.utilities.withTimeOut
 import hawk.analysis.restlib.contracts.CurrencyRequest
-import hawk.analysis.restlib.contracts.OperationRequest
-import hawk.analysis.restlib.contracts.OperationResponse
 import hawk.analysis.restlib.contracts.PortfolioRequest
 import hawk.analysis.restlib.contracts.PortfolioResponse
 import io.ktor.client.HttpClient
@@ -12,7 +12,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -32,13 +31,13 @@ class OperationServiceTI(
     ): PortfolioResponse {
         log.info("Getting portfolio from T-InvestA API")
         val request = PortfolioRequest(accountId, currency)
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
+        val response = withTimeOut { client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.OperationsService/GetPortfolio") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) return response.body()
-        val error = response.body<ErrorResponseTI>()
+        val error = tryParseError { response.body<ErrorResponseTI>() }
         throw NotSuccessfulResponseTIException(response, error)
     }
 }

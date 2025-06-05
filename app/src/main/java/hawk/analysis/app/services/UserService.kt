@@ -5,6 +5,8 @@ import hawk.analysis.app.dto.UpdatePasswordRequest
 import hawk.analysis.app.dto.UserInfo
 import hawk.analysis.app.utilities.ErrorResponse
 import hawk.analysis.app.utilities.NotSuccessfulResponseException
+import hawk.analysis.app.utilities.tryParseError
+import hawk.analysis.app.utilities.withTimeOut
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -26,45 +28,45 @@ class UserService(
         private set
 
     suspend fun getById(): UserInfo {
-        val response = client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) }
+        val response = withTimeOut { client.get("$baseUrl/api/users") { bearerAuth(AuthService.jwt) } }
         if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
             return body
         }
-        val error = response.body<ErrorResponse>()
+        val error = tryParseError { response.body<ErrorResponse>() }
         throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun updateEmail(newEmail: String, password: String): UserInfo {
         val request = UpdateEmailRequest(lastUpdatedAt = lastUpdatedAt, password = password, newEmail = newEmail)
-        val response = client.patch("$baseUrl/api/users/update/email") {
+        val response = withTimeOut { client.patch("$baseUrl/api/users/update/email") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
             return body
         }
-        val error = response.body<ErrorResponse>()
+        val error = tryParseError { response.body<ErrorResponse>() }
         throw NotSuccessfulResponseException(response, error)
     }
 
     suspend fun updatePassword(oldPassword: String, newPassword: String): UserInfo {
         val request = UpdatePasswordRequest(lastUpdatedAt, oldPassword, newPassword)
-        val response = client.patch("$baseUrl/api/users/update/password") {
+        val response = withTimeOut { client.patch("$baseUrl/api/users/update/password") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) {
             val body = response.body<UserInfo>()
             lastUpdatedAt = body.updatedAt
             return body
         }
-        val error = response.body<ErrorResponse>()
+        val error = tryParseError { response.body<ErrorResponse>() }
         throw NotSuccessfulResponseException(response, error)
     }
 }

@@ -2,6 +2,8 @@ package hawk.analysis.app.tiapi
 
 import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.NotSuccessfulResponseTIException
+import hawk.analysis.app.utilities.tryParseError
+import hawk.analysis.app.utilities.withTimeOut
 import hawk.analysis.restlib.contracts.Currency
 import hawk.analysis.restlib.contracts.FindInstrumentRequest
 import hawk.analysis.restlib.contracts.FindInstrumentResponse
@@ -15,7 +17,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
@@ -26,37 +27,37 @@ class InstrumentServiceTI(
 ) {
     suspend fun currencyByFigi(authToken: String, figi: String): InstrumentResponse<Currency> {
         val request = InstrumentRequest(InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI, "", figi)
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/CurrencyBy") {
+        val response = withTimeOut { client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/CurrencyBy") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) return response.body()
-        val error = response.body<ErrorResponseTI>()
+        val error = tryParseError { response.body<ErrorResponseTI>() }
         throw NotSuccessfulResponseTIException(response, error)
     }
 
     suspend fun shareByFigi(authToken: String, figi: String): InstrumentResponse<Share> {
         val request = InstrumentRequest(InstrumentIdType.INSTRUMENT_ID_TYPE_FIGI, "", figi)
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy") {
+        val response = withTimeOut { client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/ShareBy") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) return response.body()
-        val error = response.body<ErrorResponseTI>()
+        val error = tryParseError { response.body<ErrorResponseTI>() }
         throw NotSuccessfulResponseTIException(response, error)
     }
 
     suspend fun findInstruments(authToken: String, query: String): FindInstrumentResponse {
         val request = FindInstrumentRequest(query = query, instrumentKind = InstrumentType.INSTRUMENT_TYPE_SHARE, apiTradeAvailableFlag = true)
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/FindInstrument") {
+        val response = withTimeOut { client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.InstrumentsService/FindInstrument") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        } }
         if (response.status.isSuccess()) return response.body()
-        val error = response.body<ErrorResponseTI>()
+        val error = tryParseError { response.body<ErrorResponseTI>() }
         throw NotSuccessfulResponseTIException(response, error)
     }
 }

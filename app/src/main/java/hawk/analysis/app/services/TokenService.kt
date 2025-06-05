@@ -7,6 +7,8 @@ import hawk.analysis.app.dto.UpdateTokenRequest
 import hawk.analysis.app.utilities.ErrorResponse
 import hawk.analysis.app.utilities.NotSuccessfulRequestException
 import hawk.analysis.app.utilities.NotSuccessfulResponseException
+import hawk.analysis.app.utilities.tryParseError
+import hawk.analysis.app.utilities.withTimeOut
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -28,28 +30,28 @@ class TokenService(
         private set
 
     suspend fun getAllByUserId(): List<TokenInfo> {
-        val response = client.get("$baseUrl/api/tokens") {
+        val response = withTimeOut { client.get("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
-        }
+        } }
         if (response.status.isSuccess()) {
             val body = response.body<List<TokenInfo>>()
             body.forEach { lastUpdatedAt[it.id] = it.updatedAt }
             return body
         }
-        val error = response.body<ErrorResponse>()
+        val error = tryParseError { response.body<ErrorResponse>() }
         throw NotSuccessfulResponseException(response, error)
     }
 
     // Как же стрёмно это выглядит...
     suspend fun create(name: String, password: String, authToken: String): Boolean {
         val bodyRequest = CreateTokenRequest(name = name, password = password, authToken = authToken)
-        val response = client.post("$baseUrl/api/tokens") {
+        val response = withTimeOut { client.post("$baseUrl/api/tokens") {
             bearerAuth(AuthService.jwt)
             contentType(ContentType.Application.Json)
             setBody(bodyRequest)
-        }
+        } }
         if (response.status.isSuccess()) return true
-        val error = response.body<ErrorResponse>()
+        val error = tryParseError { response.body<ErrorResponse>() }
         throw NotSuccessfulResponseException(response, error)
     }
 
@@ -57,13 +59,13 @@ class TokenService(
     suspend fun update(id: Int, name: String, password: String): Boolean {
         lastUpdatedAt[id]?.also {
             val bodyRequest = UpdateTokenRequest(id, name, password, it)
-            val response = client.patch("$baseUrl/api/tokens") {
+            val response = withTimeOut { client.patch("$baseUrl/api/tokens") {
                 bearerAuth(AuthService.jwt)
                 contentType(ContentType.Application.Json)
                 setBody(bodyRequest)
-            }
+            } }
             if (response.status.isSuccess()) return true
-            val error = response.body<ErrorResponse>()
+            val error = tryParseError { response.body<ErrorResponse>() }
             throw NotSuccessfulResponseException(response, error)
         }
         throw NotSuccessfulRequestException("Нет информации о времени последнего обновления")

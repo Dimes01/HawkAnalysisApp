@@ -2,6 +2,8 @@ package hawk.analysis.app.tiapi
 
 import hawk.analysis.app.utilities.ErrorResponseTI
 import hawk.analysis.app.utilities.NotSuccessfulResponseTIException
+import hawk.analysis.app.utilities.tryParseError
+import hawk.analysis.app.utilities.withTimeOut
 import hawk.analysis.restlib.contracts.AccountStatus
 import hawk.analysis.restlib.contracts.GetAccountsRequest
 import hawk.analysis.restlib.contracts.GetAccountsResponse
@@ -28,13 +30,13 @@ class UserServiceTI(
     suspend fun getAccounts(authToken: String): GetAccountsResponse {
         log.info("Getting accounts from T-Invest API")
         val requestBody = GetAccountsRequest(AccountStatus.ACCOUNT_STATUS_OPEN)
-        val response = client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.UsersService/GetAccounts") {
+        val response = withTimeOut { client.post("$baseUrl/tinkoff.public.invest.api.contract.v1.UsersService/GetAccounts") {
             bearerAuth(authToken)
             contentType(ContentType.Application.Json)
             setBody(requestBody)
-        }
+        } }
         if (response.status.isSuccess()) return response.body()
-        val error = response.body<ErrorResponseTI>()
+        val error = tryParseError { response.body<ErrorResponseTI>() }
         throw NotSuccessfulResponseTIException(response, error)
     }
 }

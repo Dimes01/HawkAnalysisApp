@@ -1,5 +1,6 @@
 package hawk.analysis.app.utilities
 
+import io.ktor.client.call.body
 import io.ktor.client.statement.HttpResponse
 import kotlinx.serialization.Serializable
 
@@ -32,3 +33,21 @@ data class ErrorResponseTI(
     val message: String,
     val description: Int,
 )
+
+/**
+ * @throws NotSuccessfulRequestException если истекло время подключения
+ */
+suspend fun withTimeOut(block: suspend () -> HttpResponse): HttpResponse = try {
+    block()
+} catch (e: Exception) {
+    throw NotSuccessfulRequestException("Истекло время подключения")
+}
+
+/**
+ * @throws Exception если не удалось спарсить ошибку
+ */
+suspend fun <T> tryParseError(block: suspend () -> T): T = try {
+    block()
+} catch (e: Exception) {
+    throw Exception("Не удалось получить ошибку")
+}
